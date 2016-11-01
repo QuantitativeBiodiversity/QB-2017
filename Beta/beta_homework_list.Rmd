@@ -1,0 +1,48 @@
+---
+title: "Among Site (Beta) Diversity"
+author: "Z620: Quantitative Biodiversity, Indiana University"
+date: "February 6, 2015"
+header-includes:
+   - \usepackage{array}
+output: pdf_document
+geometry: margin=2.54cm
+---
+
+##Overview##
+Following R chunk take data file with lots of taxonomy information (characters) and OTU data (site-by-species matrix) and turns it into a list. 
+This file creates the RData file "soilbac.RData" used in the Beta exercise. 
+This script was run by the instructors prior to class and the output was saved in the data folder.
+
+## 1) SETUP
+### A. Retrieve and Set Your Working Directory
+```{r, results = 'hide'}
+rm(list = ls())
+getwd()
+setwd("~/GitHub/QuantitativeBiodiversity/Assignments/Beta")
+```
+
+## 2) LOAD DATA
+```{r}
+soilbac.full <- read.table("./data/soilbacfull.txt", sep = "\t", header = TRUE, row.names = 1)
+```
+
+##3) CREATE LIST
+```{r}
+tax <- data.frame(soilbac.full[,1:5]) #assign taxonomy
+otu <- t(data.frame(soilbac.full[,6:28])) #assign site-by-species matrix
+soilbac <- list(otu, tax) # create list
+names(soilbac) <- c("otu", "tax") # name objects in list
+str(soilbac, max.level = 1) # look at structure of list
+```
+
+##4) SAVE LIST 
+```{r}
+save(soilbac, file = "./data/soilbac.RData")
+```
+
+##5) LOAD LIST
+Somethig is not quite right here, probably because I'm not writing the table correctly.
+```{r}
+rm(list = ls())
+load("./data/soilbac.RData")
+```

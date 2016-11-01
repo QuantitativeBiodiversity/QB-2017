@@ -1,0 +1,101 @@
+---
+title: "Week2_Supplementary"
+author: "Jay T. Lennon"
+date: "January 17, 2015"
+output: pdf_document
+---
+Another commonly used estimator is **ACE**, which stands for abundance-based coverage estimator. 
+While Chao1 makes inferences based on the number of singletons and doubletons, ACE implements a threshold to look at the abundance of other *rare* species. 
+By convention, ACE defines rare species as taxa that have 10 or fewer individuals.
+Consequently, whether one uses the ACE estimator depends on whether one's samples tend to have many species of few individuals.
+If so, the ACE estimator may ignore the majority of sampled species.
+Now we will write a function for the ACE estimator:
+
+```{r}
+S.ace <- function(x = "", thresh = 10){ 
+  x <- x[x>0]                           # excludes zero-abundance taxa
+  S.abund <- length(which(x > thresh))  # richness of abundant taxa
+  S.rare  <- length(which(x <= thresh)) # richness of rare taxa
+  singlt  <- length(which(x == 1))      # number of singleton taxa
+  N.rare  <- sum(x[which(x <= thresh)]) # abundance of rare individuals
+  C.ace   <- 1 - (singlt / N.rare)      # coverage (prop non-singlt rare inds)
+  i       <- c(1:thresh)                # threshold abundance range
+  count   <- function(i, y){            # counter to go through i range
+    length(y[y == i])
+  }
+  a.1     <- sapply(i, count, x)        # number of individuals in richness i richness classes
+  f.1     <- (i * (i - 1)) * a.1        # k(k-1)kf sensu Gotelli
+  G.ace   <- (S.rare/C.ace)*(sum(f.1)/(N.rare*(N.rare-1)))
+  S.ace   <- S.abund + (S.rare/C.ace) + (singlt/C.ace) * max(G.ace,0) 
+  return(S.ace)
+}
+```
+
+_Notes_
++ `estimateR` is a function in the `vegan` pakcage 
++ It will spit out observed richness, along with Chao1, ACE, and their associated confidence intervals. 
++ You can look more into the code in R packages using commands like this: vegan:::estimateR.default
++ Try it out!
+
+
+### More on EVAR
+$E_{var}$ uses the arctangent, which varies between -$\pi$/2 and $\pi$/2 and without being periodic like waves of the sine and cosine functions. Multiplying the arctangent by 2/pi forces the result to take values between 0 and 1. 
+Finally, subtracting this from one allows low evenness to be associated with values near 0 and high evenness to be associated with values near 1. 
+We can confirm this with a more explicit R chunk:
+
+```{r}
+P <- log(log(site1.ab)) # log-tranform the abundances of the RAC and assign them to a vector P
+AvgAb <- mean(P) # find the average of the log abundances
+X <- 0 # assign zero to variable X
+Evar <- 0 # declare a scalar varible Evar
+
+for (x in P) { # making use of a 'for' loop. for loops are an elementary control structure in all programming languages.
+  X = X + (x - AvgAb)^2 / (S - 1)
+}
+
+Evar = 1 - (2/pi)*atan(X) # these operations make the value of Evar range between 0 and 1
+Evar # print Evar for Site1
+```
+
+
+
+### Fisher's $\boldsymbol\alpha$
+R.A. Fisher (1943) derived one of the first and most successful models for how abundance varies among species, i.e., the log-series distribution.
+This model has only a single fitted parameter, i.e., $\alpha$, 
+Because $\alpha$ is a fitted parameter, it is less straightforward to estimate and we will not attempt to code a function for it, here.
+Fisher's $\alpha$ has often been used as a diversity metric and is the root of $\alpha$-diversity and, according to the authors of the vegan package, it is asymptotically similar to inverse Simpson's.
+Let's do this comparison using the RAC from site 1 of the BCI site-by-species matrix.
+
+```{r}
+invD <- diversity(rac, "inv")
+invD
+Fisher <- fisher.alpha(rac)
+Fisher
+```
+
+As we can see, the two measurements are somewhat similar. 
+They would converge if our community was much greater in total abundance and richness. 
+However, discussion of Fisher's $\alpha$ introduces a new concept, that is, of estimating diversity instead of just calculating a diversity metric. 
+The difference being that an estimate of diversity implicitly or explicitly accounts for samplign error, that is, the fact that when samplign most ecological communities that we are not observing every single individual.
+
+
+We can use the information from the `rarefy` function to create a barplot that compares each site.
+Remember, we can calculate 95% confidence intervals using $95\% CI = \bar{x} \pm SEM \times 1.96$.
+
+```{r, warning=FALSE}
+opar <- par(no.readonly = TRUE)
+par(mar=c(5.1, 6.1, 4.1, 2.1))
+S.plot <- barplot(S.rarefy[1, ], xlab = "Treatment", ylab = NULL, 
+                  ylim =c(0, round(max(soilbac.S), digits = 0)), 
+                  pch = 15, las = 1, cex = 1, cex.lab = 1.4, cex.axis = 1.25)
+arrows(x0 = S.plot, y0 = S.rarefy[1, ], y1 = S.rarefy[1, ] - (S.rarefy[2, ] * 1.96), 
+       angle = 90, length=0.1, lwd = 1)
+arrows(x0 = S.plot, y0 = S.rarefy[1, ], y1 = S.rarefy[1, ] + (S.rarefy[2, ] * 1.96), 
+       angle = 90, length=0.1, lwd = 1)
+title(ylab = "Richness (S)", line = 4, cex.lab = 1.4)
+par(opar)
+```
+
+Notice that we did a few things differently here.
+Why did we have to plot the y-axis label manually?
+What did the `par(mar=c())` function do?

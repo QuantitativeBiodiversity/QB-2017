@@ -1,0 +1,386 @@
+---
+title: "Among Site (Beta) Diversity - Supplementary"
+author: "Z620: Quantitative Biodiversity, Indiana University"
+date: "February 6, 2015"
+header-includes:
+   - \usepackage{array}
+output: pdf_document
+geometry: margin=2.54cm
+---
+
+We will again be using the BCI data set contained in `vegan` for part of this week's exercise. 
+In addition, we will be using environmental data for the BCI plots. 
+Your Beta folder has soil data for each of the BCI plots (bci.soil.txt).
+Let's go ahead and import all of these data now.
+
+```{r}
+data(BCI)                                   
+BCI.soil <- read.delim("./data/bci.soil.txt")    
+```
+
+## 3) Exploring $\beta$-Diversity
+Last week, we learned about $\alpha$-diversity, where we calculated things like species richness and evenness. 
+These metrics are great for assessing the diversity of a single sample, but overlook spatial and temporal heterogeneity.
+$\beta$-diversity is a measure of between-habitat diversity, or the difference in species composition between two or more samples. 
+
+### BCI Species Richness
+To illustrate the importance of $\beta$-diversity, let's go back to the BCI dataset and examine tree richness among all sites. 
+First, let's calculate richness for the BCI sites:
+
+```{r}
+BCI.S <- rowSums(BCI > 0) * 1
+```
+
+Now, we are going to visualize tree species richness by ploting sites based on their locations.
+We are going to color-code the sites based on tree species richness using a **heatmap**.
+In R there are a few tools that allow you to make color pallets. 
+Here we are going to use `terrain.colors` but you can learn about other colors families by looking at the `Pallettes` help file: `help(Pallettes)`.
+Let's start by making a color pallette for Richness (S):
+
+```{r}
+BCI.S.color <- rev(terrain.colors(max(BCI.S) + 1))
+```
+
+Notice that we reversed ('rev()') the sequence of colors in the pallette, this was done to make the color ranges more intuitive (darker colors correspond with larger values of S). 
+Also, notice that we have to define the number of colors in each pallette. 
+Here we used one more than the max values for S. 
+This is done to deal with any 0s in our data.
+
+Let's start by plotting tree richness for each plot at BCI. 
+But how do we know how these sites are arranged? 
+Well lucky for us, the BCI soil dataset includes standardized XY-coordinates for each plot:
+
+```{r}
+head(BCI.soil, n = 2L)
+```
+
+Here we are going to plot sites in a standardized XY-coordinate space and use our heatmap color to display tree species richness for each of the 50 sites.
+In addition, we will add a legend to the plot so that readers understand the heatmap scale.
+This plot also includes a bunch of new commands that are important for producing effective figures.
+To learn more about these commands, you can modify them or use the `help()` files. Take a few minutes to investigate.
+
+```{r, fig.width=6, fig.height=3.5}
+# BCI Tree Richness
+par(mar=c(4,4,3,4) + 0.1, xpd=TRUE) # xpd allows the legend to appear outside of the plot
+plot(BCI.soil$x, BCI.soil$y, asp = 1, pch = 22, cex = 4, las = 1, 
+     bg = BCI.S.color[BCI.S + 1], 
+     xlim = c(0, 1000), ylim = c(0, 500), main = "BCI Richness (S)", 
+     xlab = "X-Coordinate (m)", ylab = "Y-Coordinate (m)")
+text(BCI.soil$x, BCI.soil$y, BCI.S, cex = 0.5, col = "red")
+legend("topright", inset = c(-0.2, 0), pch = 22, pt.cex = 3, title = "S", 
+       bty ='n', legend = seq(0, 150, 25), pt.bg = BCI.S.color[seq(1, 151, 25)])
+```
+
+**Questions**
+
+A. What do you notice when you compare all 50 sites? 
+
+```
+    Please Provide Answer Here
+```
+
+B. Is this a good way to compare the sites?
+
+```
+    Please Provide Answer Here
+```
+
+C. What does this method of comparing sites miss?
+
+```
+    Please Provide Answer Here
+```
+
+### BCI Individual Tree Abunance
+Patterns in richness may obscure differences in tree species composition across the BCI landscape.
+To investigate this, let's just focus on the abundance of a specific tree: the Prioria tree. 
+
+First, let's generate a heatmap pallette for tree abundance.
+We will plot the abundance data in the same way we did for richness.
+
+```{r}
+BCI.N.color <- rev(terrain.colors(41))
+```
+
+
+```{r, fig.width=6, fig.height=3.5}
+# BCI Prioria Abundance
+par(mar=c(4,4,3,4) + 0.1, xpd=TRUE)
+plot(BCI.soil$x, BCI.soil$y, asp = 1, pch = 22, cex = 4, las = 1, 
+     bg = BCI.N.color[BCI$Prioria.copaifera + 1], 
+     xlim = c(0,1000), ylim = c(0, 500), main = "Prioria Abundance (N)", 
+     xlab = "X-Coordinate (m)", ylab = "Y-Coordinate (m)")
+text(BCI.soil$x, BCI.soil$y, BCI$Prioria.copaifera, cex = 0.5, col="red")
+legend("topright", inset=c(-0.2, 0), pch=22, pt.cex=3, bty='n',
+       title="N", legend=seq(0, 40, 10), pt.bg = BCI.N.color[seq(1, 41, 10)])
+```
+
+**Questions**
+
+D. What do you observe across BCI?
+
+```
+    Please Provide Answer Here
+```
+
+E. How does this compare to the patterns of species richness?
+
+```
+    Please Provide Answer Here
+```
+Notice that the doubs data set is actully a list with 4 components (elements).
+Lists might be new data structures for you. 
+In R, a list is an ordered collection of objects. 
+The first component of the doubs list is the environmental data for each of the 30 sites (doubs$env). 
+There are 11 environmental variables in this dataset. 
+See the help file for more information on each (including units). 
+The second component are the abundances at each site for 27 fish species. 
+The third component has the xy spatial coordinates for each site. 
+The last component contains the names of each fish species. 
+
+Let's plot fish richness in these stream communities.
+We will first need to calculate richness and define our color pallettes.
+Once we have these items we can plot stream fish richness in a similar fashion as we did with BCI tree communities.
+Below are three plots similar to the BCI plots we created above.
+These plots show richness of fish at all sites in the Doubs River.
+
+```{r, fig.width=5, fig.height=4.5, echo=TRUE}
+# Stream Fish
+par(mar = c(4, 4, 3, 5) + 0.1, xpd = TRUE)    
+spa.S <- specnumber(doubs$fish)               
+spa.S.color <- rev(terrain.colors(31))    # Define Richness Color Pallette
+spa.N.color <- rev(terrain.colors(7))     # Define Abundance Color Pallette
+
+# Stream Fish Richness
+plot(doubs$xy, asp = 1, type = 'l', col = "light blue", lwd = 10, las = 1, 
+     xlim = c(0,280), ylim = c(0,280), main = "Fish Richneses (S)", 
+     xlab = "X-Coordinate (km)", ylab = "Y-Coordinate (km)")
+points(doubs$xy, pch = 22, cex=2, bg = spa.S.color[spa.S + 1])
+text(doubs$xy, as.character(spa.S), cex = 0.5, col="red")
+text(150, 0, "Upstream", cex = 1, col = "red")
+text(48, 114, "Downstream", cex = 1, col = "red")
+legend("topright", inset=c(-0.25, 0), pch = 22, pt.cex = 2, bty = 'n',
+       title = "S", legend = seq(0, 30, 10), pt.bg = spa.S.color[seq(1, 31, 10)])
+```
+
+Notice that the code we used here is almost identical to that we used with the BCI plots.
+Though creating a single figure in R may seem like a lot of work, it is beneficial when making multiple plots because you can recycle code easily.
+However, sometimes there are slight variations (e.g., the blue line in the stream plot).
+
+Below are the plots for two individual fish species in the Doubs River.
+You should be able to code this with ease using the Stream Fish Richness plot code and the BCI abundance plot code. 
+You can try this on your own time, but here we are just going to provide the plots for you.
+
+```{r, fig.width=8, fig.height=3.75, echo=FALSE}
+# Define Plot Parameters
+par(mfrow = c(1,2), mar = c(4, 4, 3, 4) + 0.1, xpd = TRUE)    
+
+# Brown Trout Abundance
+plot(doubs$xy, asp = 1, type = 'l', col = "light blue", lwd = 10, las = 1, cex.axis = 0.75, 
+     xlim = c(0, 280), ylim = c(0, 280),main = "Brown Trout Abundance (N)", 
+     xlab = "X-Coordinate (km)", ylab = "Y-Coordinate (km)")
+points(doubs$xy, pch = 22, cex=2, bg = spa.N.color[doubs$fish$Satr + 1])
+text(doubs$xy, as.character(doubs$fish$Satr), cex = 0.5, col="red")
+text(150, 0, "Upstream", cex=1, col="red")
+text(48, 114, "Downstream", cex=1, col="red")
+legend("topright", inset=c(-0.25, 0), pch = 22, pt.cex = 2, bty = 'n',
+       title = "N", legend = seq(0, 6, 2), pt.bg = spa.N.color[seq(1, 7, 2)])
+
+# Common Roach Abundance
+plot(doubs$xy, asp = 1, type = 'l', col = "light blue", lwd = 10, las = 1, cex.axis = 0.75, 
+     xlim = c(0, 280), ylim = c(0, 280),main = "Common Roach Abundance (N)", 
+     xlab = "X-Coordinate (km)", ylab = "Y-Coordinate (km)")
+points(doubs$xy, pch = 22, cex=2, bg = spa.N.color[doubs$fish$Ruru + 1])
+text(doubs$xy, as.character(doubs$fish$Ruru), cex = 0.5, col="red")
+text(150, 0, "Upstream", cex = 1, col = "red")
+text(48, 114, "Downstream", cex = 1, col = "red")
+legend("topright", inset=c(-0.25, 0), pch = 22, pt.cex = 2, bty = 'n',
+       title = "N", legend = seq(0, 6, 2), pt.bg = spa.N.color[seq(1, 7, 2)])
+```
+
+F. How does this dataset differ from the BCI data? 
+
+```
+    Please Provide Answer Here
+```
+
+G. Is richness the most appropriate tool to compare communities, why or why not?
+
+```
+    Please Provide Answer Here
+```
+
+H. What about other $\alpha$-diversity measures?
+
+```
+    Please Provide Answer Here
+```
+
+This week we are going to compare the diversity of communities across sites. 
+We will start by comparing diversity across sites. 
+
+
+
+
+### A.  Turnover
+Turnover is defined as the rate or magnitude of change in species composition in space or time. 
+
+We can calculate turnover with the following equation:
+$turnover = \frac{b + c}{S_1 + S_2}$
+where b = the number of species only present in the first sample; c = the number of species only present in the second sample; $S_1$ = the total number of species in the first sample; and $S_2$ = the number of species in the second sample. 
+
+In R, we can write this as a function as follows:
+
+```{r}
+turnover <- function(site1 = " ", site2 = " "){
+  site1 = subset(site1, select = site1 > 0)               # Removes absences
+  site2 = subset(site2, select = site2 > 0)               # Removes absences
+  b  = length(setdiff(colnames(site1), colnames(site2)))  # Number of unique in 1st
+  c  = length(setdiff(colnames(site2), colnames(site1)))  # Number of unique in 2nd
+  s1 = length(site1)                                      # Number of species in 1st 
+  s2 = length(site2)                                      # Number of species in 2nd 
+  t  = round((b + c)/(s1 + s2), 3)                        # Calculats turnover to three decimals
+  return(t)                                               # Returns turnover
+}
+```
+
+***Question 2***: Using the `turnover` function above, what is the $\beta$-diversity for fish sampled from site 1 and site 2 of the `doubs` data set?
+
+> ***Answer 2***:  
+
+
+
+\begin{center}
+\begin{tabular}{ m{2.5cm} m{5.5cm} m{6.5cm} }
+  \textbf{Index} & \textbf{Equation} & \textbf{Properties} \\ 
+  \hline \hline \\ [-1.5ex]
+  Chord Distance & 
+  $D_3 = \sqrt{2\left(1 - \frac{\sum\limits_{j=1}^{p}y_{1j} \cdot  y_{2j}}{\sum\limits_{j=1}^{p}y_{1j}^{2} \cdot \sum\limits_{j=1}^{p} y_{2j}^{2}}\right)}$ &
+  Range: 0 to $\sqrt{2}$ (from "two sites share the same species in the same proportions" to "no species in common") \\
+  \\ [-1.5ex]
+  \raggedright Chi-Squared Distance & 
+  $D_{16} = \sqrt{\sum\limits_{j = 1}^{p} \frac{1}{y_{+j}/y_{++}} \left( \frac{y_{1j}}{y_{1+}} - \frac{y_{2j}}{y_{2+}} \right)^2}$ &
+  Used to compute the association between the rows and columns of a frequency table. Preserved in correspondence analysis.  \\
+  \\ [-1.5ex]
+  \hline
+  \end{tabular}
+  \end{center}
+  
+Where $y_{1j}$ is the abundance of each species (1:p) in site 1 and $y_{2j}$ in site 2, $y_{1+}$ is the sum of abundances in site 1 and $y_{2+}$ in site 2, $y_{++}$ is the sum of all abuncances across all sites, $y_{+j}$ is the sum of abundances of the $j^{th}$ species across sites, and $y_{ij}/y_{i+}$ is the relative abundances at site $i$. 
+
+
+In the PCoA plot that you just created, we are looking at the relationship of samples in species space. 
+Differences in species abundances are contributing the separation of samples along each PCoA axis. 
+We can gain some insight into "who" is responsible for this separation by examining the correlation between the site scores and the species vectors. 
+We will obtain this information using the `add.spec.scores` function in the R `BiodiversityR` package, which we will now load. 
+
+"indicator analysis"
+```{r}
+require(BiodiversityR)
+soilbac.pcoa.corr <- add.spec.scores(soilbac.pcoa, soilbac, method = "cor.scores", Rscale = TRUE, scaling = 1, multi = 1)
+corr.spp <- cbind.data.frame(t(soilbac.tax), soilbac.pcoa.corr$cproj[,1], soilbac.pcoa.corr$cproj[,2]) 
+corr.spp <- corr.spp[order(corr.spp[,6],decreasing=TRUE),] # sorts based on r of PCoA axis 1
+colnames(cor_spp)[6]<-"Corr1"
+colnames(cor_spp)[7]<-"Corr2"
+corrcut <- 0.7
+imp.spp.axis1 <- corr.spp[corr.spp[,6] >= corrcut | corr.spp[,6] <= -corrcut,]
+imp.spp.axis2 <- corr.spp[corr.spp[,7] >= corrcut | corr.spp[,7] <= -corrcut,]
+```
+
+***Question 7***: Using the `add.spec.scores` function, can you generate any hypotheses about what soil bacterial taxa are potential indicators of land-use variation? 
+
+> ***Answer 7***: 
+
+# Add Species to PCoA ordination -- cool but takes a long time and looks messy with lots of species
+soil.pcoa.spp <- wascores(soilbac.pcoa$points[,1:2], soilbac)
+text(soil.pcoa.spp, rownames(soil.pcoa.spp), cex=0.7, col="red")
+
+```{r}
+evplot <- function(ev)
+{
+  # Broken stick model (MacArthur 1957)
+  n <- length(ev)
+	bsm <- data.frame(j=seq(1:n), p=0)
+	bsm$p[1] <- 1/n
+	for (i in 2:n) bsm$p[i] <- bsm$p[i-1] + (1/(n + 1 - i))
+	bsm$p <- 100*bsm$p/n
+	# Plot eigenvalues and % of variation for each axis
+	par(mfrow=c(2,1))
+	barplot(ev, main="Eigenvalues", col="bisque", las=2)
+	abline(h=mean(ev), col="red")
+	legend("topright", "Average eigenvalue", lwd=1, col=2, bty="n")
+	barplot(t(cbind(100*ev/sum(ev), bsm$p[n:1])), beside=TRUE, 
+		main="% variation", col=c("bisque",2), las=2)
+	legend("topright", c("% eigenvalue", "Broken stick model"), 
+		pch=15, col=c("bisque",2), bty="n")
+}
+
+evplot(spe.b.pcoa$eig)
+
+
+env <- doubs$env
+env <- env[-8, ]
+spe.pcoa.env <- envfit(spe.b.pcoa, env)
+evplot(spe.b.pcoa$eig)
+```
+
+### NMDS
+```{r}
+spe.nmds <- metaMDS(spe, distance="bray")
+spe.nmds
+spe.nmds$stress
+plot(spe.nmds, type="t", main=paste("nMDS/Bray - Stress =", round(spe.nmds$stress, 3)))
+abline(h=0, lty=3)
+abline(v=0, lty=3)
+```
+
+What is the nMDS stress? How is this used to judge the quality of the ordination
+
+### Multivariate Regression Trees
+As mentioned above, clustering is not a hypothesis testing approach.
+
+```{r}
+
+# Apparently, the package mvpart is not available for R v 3.1.2
+#spe.ch.mvpart <- mvpart(data.matrix(spe.norm) ~ ., env, margin = 0.08, cp = 0, xv = "min", xval = nrow(spe), xvmult = 100, which = 4)
+#summary(spe.ch.mvpart)
+#printcp(spe.ch.mvpart)
+```
+
+
+### Variance Partitioning
+```{r}
+spe.part.all <- varpart(spe.hel, envchem, envtopo)
+
+
+```
+
+
+
+### That darn soil crobe data
+
+## 2) LOAD DATA
+```{r}
+soilbac.full <- read.table("./data/soilbacfull.txt", sep = "\t", header = TRUE, row.names = 1)
+```
+
+##3) CREATE LIST
+```{r}
+tax <- data.frame(soilbac.full[,1:5]) #assign taxonomy
+otu <- t(data.frame(soilbac.full[,6:28])) #assign site-by-species matrix
+soilbac <- list(otu, tax) # create list
+names(soilbac) <- c("otu", "tax") # name objects in list
+str(soilbac, max.level = 1) # look at structure of list
+```
+
+##4) SAVE LIST 
+```{r}
+save(soilbac, file = "./data/soilbac.RData")
+```
+
+##5) LOAD LIST
+Somethig is not quite right here, probably because I'm not writing the table correctly.
+```{r}
+rm(list = ls())
+load("./data/soilbac.RData")
+

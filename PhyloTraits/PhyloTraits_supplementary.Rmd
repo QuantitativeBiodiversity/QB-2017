@@ -1,0 +1,232 @@
+---
+title: "Phylogenetic Diversity - Traits: Supplemental"
+author: "Z620: Quantitative Biodiversity, Indiana University"
+date: "February 20, 2015"
+header-includes:
+   - \usepackage{array}
+output: pdf_document
+geometry: margin=2.54cm
+---
+
+## 1) SETUP
+### A. Retrieve and Set Your Working Directory
+
+```{r, results = 'hide'}
+rm(list = ls())
+getwd()
+setwd("~/GitHub/QuantitativeBiodiversity/Assignments/PhyloTraits")
+
+### A. Loading Growth Rate Data
+```{r}
+p.growth <- read.table("data/p.isolates.raw.growth.txt", sep = "\t", header = TRUE, row.names = 1)
+```
+
+### B. Calculate Nich Breadth
+We wil estimate niche breadth using Levins index (1968).
+Levins index ranges from 0 - 1 with lower values indicating specialization and higher values indicating generalization. 
+To make the growth rate data mesh with the indes, we need to standardize by taking the sum of the growth rates of an isoalte across all resoruces. 
+
+```{r}
+p.growth.std <- p.growth / (apply(p.growth, 1, sum))
+```
+
+Make function for Levins Index
+```{r}
+levins <- function(p_xi = ""){
+  x = 0
+  for (i in p_xi){
+    x = x + i^2
+    }
+    nb = 1 / (length(p_xi) * x) 
+  return(nb)
+}
+```  
+
+Niche breadth for isolates on different P sources
+```{r}
+nb <- levins(p.growth.std)
+```
+
+### C. Testing for Generalist-Specialist Tradeoff
+We will test for a hypothesized trade-off between niche breadth and a strain's maximum growth rate. 
+The expectation is that generalists will experience a cost that will be manifested in an overall lower maximum growth rate. 
+
+The following code gets the data set up for testing
+```{r}
+umax <- (apply(p.growth, 1, max)) # calculate max growth
+lake <- ifelse(grepl("WG",row.names(p.growth)),'WG', 'LL') # make an empty vector for lake id
+tradeoff <- data.frame(nb,umax,lake) # make new data frame
+```
+
+The following dummy variable regression tests for trade-off
+Specifically, the model test for an effect of niche breadth (continuous), lake identity (categorical), and an interaction between the two variables
+```{r}
+D <- (lake == "LL") * 1
+fit<-lm(log10(umax) ~ nb + D + nb * D)
+summary(fit)
+```
+
+### Plotting
+LL.nb <- subset(nb,lake == "LL")
+WG.nb <- subset(nb,lake == "WG")
+
+LL.umax <- subset(umax,lake == "LL")
+WG.umax<-subset(umax,lake == "WG")
+
+plot(LL.nb, log10(LL.umax), axes = F, xlab = "Niche Breadth", ylab = "Maximum Growth Rate", 
+  pch = 21, cex = 2.0, las = 1, col = "black", bg = "white",
+  xlim=c(0,1), ylim = c(-2, 1))
+  
+  points(WG.nb,log10(WG.umax),pch=21,cex=2,col="black", bg="black")
+  box()
+  ticks <- c(0.01, 0.1, 1, 10)
+  axis(side = 1, labels = T, cex.axis = 1)
+  axis(side = 2, las = 1, cex.axis = 1, labels = ticks,
+    at = log10(ticks))
+  axis(3,labels = F)
+  axis(side = 4, at = log10(ticks), labels = F)
+  
+  legend("topleft", legend = c("LL","WG"), pch = c(1,16), cex = 1, col = "black", bty = "n")
+
+### Model Coefficients and Diagnostics
+coefficients <- coefficients(fit) # model coefficients
+confit <- confint(fit,level=0.95) # 95% CI for parameters
+predicted <- fitted(fit) # predicted values
+residuals <- residuals(fit) # residuals
+anova <- anova(fit) # anova table
+vcov <- vcov(fit) # covariance matrix for model parameters
+influence <- influence(fit) # regression diagnostics
+par(mfrow = c(2, 2), mar = c(5.1 ,4.1 ,4.1 ,2.1))
+plot(fit)
+
+### Adding Regression Lines
+curve(coefficients[1] + coefficients[2] * x, from = min(WG.nb - 0.1), 
+  to = max(WG.nb +0.1), add = TRUE, lty = 2)
+Int <- coefficients[1] + coefficients[3]
+Slp = coefficients[2] + coefficients[4]
+curve((Int) + (Slp) * x, from = min(LL.nb - 0.08), to =max(LL.nb + 0.1), add = TRUE, lty = 2)
+
+
+Matrix algebra approach to measuring niche breadth
+```{r}
+levins.2 <- function(p_xi = ""){
+  p_xi = as.numeric(p_xi)
+  nb = 1 / (length(p_xi) * (p_xi %*% p_xi))
+  return(nb)
+}  
+levins.2(p.growth[1, ])
+```
+
+
+### C.  MAXIMUM LIKELIHOOD
+Maximum likelihood is an approach for estimating parameters for a statistical model.
+It is also one of the most commonly used methods for phylogenetic reconstruction.
+In this exercise, we will use maximum likelihood to identify DNA substitution models that best fit our sequence data. 
+We will then use one of these models to test phylogenetic hypotheses about the distribution of traits among the bacteria in our study system. 
+
+* following a lot of what's on following links: 
+* http://cran.r-project.org/web/packages/phangorn/vignettes/Trees.pdf##
+* http://cran.r-project.org/web/packages/phangorn/vignettes/Trees.pdf
+*  http://www.slideshare.net/KlausVigo/phylogenetics-cibio
+
+* need to think about the "exclude = pairwise" command in the dist.ml function below. 
+*  also need to get a better handle on what `optim.pml` is doing
+*  and also GTR. 
+*  should have a few sentence desription here saying that we're going to take a peak at a few different substitution model, before more on to investigating all. 
+
+### i.  Comparing Two Models 
+In the previous section, we used saturation plots and cophylogenetic trees to visualize the effect of a DNA substitution model on our data. 
+Here, we will test whether or not the K80 phylogeny is better than the raw phylogeny using maximum likelihood. 
+```{r}
+# Read in FASTA-Aligned File as a Matrix
+read.aln.mat <- as.matrix(read.aln) 
+
+# Convert FASTA-Aligned File into a phyDat Object {phangorn}
+read.aln.phydat <- phyDat(read.aln.mat, type = "DNA") 
+
+# Test and Evaluate Substitution Models
+model.tests <- modelTest(read.aln.phydat) 
+sort.tests <- model.tests[order(model.tests$AIC),] 
+best.model <- sort.tests[1,1]
+
+# Make Best Tree
+tree.raw.mle <- nj(dist.logDet(read.aln.phydat)) 
+best.tree  <- optim.pml(tree.raw.mle, model=best.model)
+
+best.tree <- eval(get(model.tests$Model[which.min(model.tests$AIC)], env), env)
+best.tree <- eval(get(model.tests$Model[which.min(model.tests$AIC)], env), env)
+
+# Make Neighbor Joining Tree via Pairwise Distance for phyDat Object {phangorn}
+tree.raw.mle <- nj(dist.logDet(read.aln.phydat)) 
+
+# Identify Outgroup
+outgroup <- match("Methanosarcina", tree.raw.mle$tip.label)
+
+# Root Tree {ape}
+rooted.raw.mle <- root(tree.raw.mle, outgroup, resolve.root=TRUE)
+
+# Maximum Likelihood function {phangorn} returns tree, data, output
+tree.JC.mle <- pml(rooted.raw.mle, read.aln.phydat) 
+
+# Optimizes model parmameters {phangorn}
+tree.JC.opt <- optim.pml(tree.JC.mle, TRUE) 
+```
+
+Now let's explore some of the output from the maximum liklihood analysis to see which of the few models best fits our data. 
+
+```{r}
+# anova(tree.raw.mle, tree.JC.mle, tree.JC.opt)
+# AIC(fit.JC, fit.JC.opt, fit.GTR, fit.GTR.opt)
+# SH.test(fit.JC, fit.JC.opt, fit.GTR, fit.GTR.opt)
+```
+
+### ii.  Identifying the "Best" Model
+Now let's evaluate all of the DNA substitution models available to us and see which one best fits our data. 
+This analysis is somewhat computationally intensive. 
+It may take a couple of minutes to run. 
+Be patient.
+When this is done, we can see which DNA substituion model maximum likelihood determined to be the best.
+
+```{r}
+model.tests <- modelTest(read.aln.phydat) # {phangorn}
+sort.tests <- model.tests[order(model.tests$AIC),] # order by AIC
+best.model <- sort.tests[1,1]
+env <- attr(model.tests, "env")
+fitStart <- eval(get(model.tests$Model[which.min(model.tests$AIC)], env), env)
+
+# outgroup <- match("Methanosarcina", fitStart$tip.label)
+# fit.best.rooted <- root(fitStart, outgroup, resolve.root=TRUE)
+# fitStart.rooted <- root(fitStart, outgroup, resolve.root=TRUE) # reroots the tree
+
+fit.best <- optim.pml(fitStart, optNni=TRUE, optGamma=TRUE, optInv=TRUE, model="GTR")
+# fit.best.rooted <- root(fit.best, outgroup, resolve.root=TRUE)
+# bs <- bootstrap.pml(fit.best, bs=2, optNni=TRUE, multicore=TRUE) ### took long time (10 mins)
+# par(mar=c(.1,.1,.1,.1))
+# plotBS(fit.best$tree, bs) #{phangorn}
+
+write nexus; write newick
+```
+
+### C. Obtaining Bootstrap Support for the Tree
+Describe what bootstrapping is, how it's done, and how to interpret. 
+Somewhat slow process (2 mins)
+Read up on arguments
+
+```{r}
+# bs <- bootstrap.pml(fit.JC, bs = 100, optNni = TRUE,
+#             control = pml.control(trace = 0)) #{phangorn}  
+```
+
+### Make tree with bootstrap support values 
+There is apparently a problem here. plotBS hangs forever
+
+```{r}
+# par(mar=c(.1,.1,.1,.1))
+# plotBS(fit.JC$tree, bs) #{phangorn}
+```
+
+http://grokbase.com/t/r/r-help/12876aby2z/r-how-to-write-out-a-tree-file-with-bootstrap-from-phangorn-package
+"tree <- plotBS(fittree, bs)
+You can export than this tree using write.tree or write.nexus, e.g. write.tree(tree)"
+
+
