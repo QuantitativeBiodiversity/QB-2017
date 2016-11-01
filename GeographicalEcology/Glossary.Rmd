@@ -1,0 +1,27 @@
+---
+title: "Glossary"
+author: "Ken"
+date: "February 10, 2015"
+output: pdf_document
+---
+
+## 4.) IMPORTANT TERMS
+Because you may not be familiar with geographical systems and spatial analyses, we provide a few key terms to help you quickly get up to speed.
+
+**Spatial:** Relating to one or more dimensions of space resulting in aspects of distance, area, and volume
+
+**Geographical:** Relating to physical, environmental, and biological features that closely follow spatial patterns 
+
+**Scale:** The resolution that characterizes an observation or study, and that results from a relationship between extent and grain
+
+**Extent:** The greatest distance considered in an observation or study
+
+**Grain:** The smallest or primary unit by which extent the is measured
+
+**GIS:** Geographical Information Systems. 
+
+**Shapefile:** One of two primary file formats for working with geographical data. In short, shapefiles generally store information that is displayed as polygons, e.g. habitat patches.
+
+**Raster file:** The other primary geographical file format. Raster files contain highly pixelated information on specific points or precise locations, e.g., elevation data.
+
+**Land cover:** The physical material at the surface of the earth and includes grass, asphalt, trees, bare ground, water, etc. Landcover gives us some of the most precise accounting for what general environments occupy large expanses of geographic areas.
