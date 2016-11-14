@@ -8,10 +8,23 @@ geometry: margin=2.54cm
 
 ## OVERVIEW
 
-This exercise builds from the Week 0 introduction to R, which highlighted operators, data types, and simple commands that will be useful for you during the course and beyond. 
+This exercise introduces some of the basic features of the R (http://www.r-project.org/) computing environment. 
+We will briefly cover operators, data types, and simple commands that will be useful for you during the course and beyond. 
 In addition to using R's base package, we will also use contributed packages, which together will allow us to visualize data and peform relatively simple statistics (e.g., linear regression and ANOVA).
 
-## 1) SETTING YOUR WORKING DIRECTORY
+## 1) HOW WE WILL BE USING R AND OTHER TOOLS
+
+During the course, we will use RStudio (http://www.rstudio.com/), which is a user-friendly integrated developement environment (IDE) that allows R to interface with other tools. 
+For example, the document you are reading was generated in RMarkdown (<http://rmarkdown.rstudio.com>). 
+Markdown is a simple formatting syntax for authoring HTML, PDF, and other documents. 
+
+We will also use a tool called knitr (http://yihui.name/knitr/), which is a package that generates reports from R script and Markdown text. 
+For example, when you click the **Knit PDF** button in the scripting window of RStudio, a document will be generated that includes LaTeX (http://www.latex-project.org/) typesetting as well as the output of any embedded R code. 
+
+However, if there are errors in the Rcode contained in your Markdown document, you will not be able to knit a PDF file. 
+Assignments in this class will require that you successfully create a Markdown-generated PDF using knitr; you will then **push** this document to the course **respository** hosted on IU's GitHub (<https://github.iu.edu>) and generate a **pull request**.
+
+## 2) SETTING YOUR WORKING DIRECTORY
 
 A good first step when you sit down to work in R is to clear your working directory of any variables from your workspace:
 ```{r, results = 'hide'}
@@ -31,8 +44,260 @@ Use the following command to change your directory (but note that you will need 
 setwd("~/GitHub/QuantitativeBiodiversity/Assignments/Week1")
 ```
 
+## 3) USING R AS A CALCULATOR
 
-## 2) BASIC DATA VISUALIZATION AND STATISTICAL ANALYSIS
+R is capable of performing various calcuations using simple operators and built-in **functions**
+
+***Addition***:
+```{r, results = 'hide'}
+1 + 3 
+```
+
+***Subtraction***:
+```{r, results = 'hide'}
+3 - 1 
+```
+
+***Multiplication*** (with an exponent):
+```{r, results = 'hide'}
+3 * 10^2
+```
+
+***Division*** (using a built-in constant; pi):
+```{r, results = 'hide'}
+10 / pi 
+```
+
+***Trigonometry*** with a simple built-in function (i.e., *sin*) that takes an **argument** (i.e., '4'):
+```{r, results = 'hide'}
+sin(4) 
+```
+
+***Logarithms*** (another example of functions and arguments)
+```{r, results = 'hide'}
+log10(100)  # log base 10
+log(100)    # log base e "natural log"  
+```
+
+## 4) ASSIGNING VARIABLES
+
+You will often find it useful and necessary to assign values to a **variable**, also known as an **object** in R. 
+Generally speaking, in R, it's best to use `<-` rather than `=` as an assignment operator.
+```{r}
+a <- 10
+b <- a + 20
+```
+
+What is the value of `b`? 
+
+Now let's reassign a new value to `a`:
+```{r}
+a <- 200
+```
+
+Now, what is the value of `b`? 
+What's going on? 
+
+R held onto the original value of `a` that was used when assigning values to `b`. 
+You can correct this using the `rm` function, which removes objects from your R **environment**. 
+```{r}
+rm("b")
+```
+
+What happens if we reassign `b` now?
+```{r}
+b <- a + 20
+```
+
+Sometimes it's good practice to clear all variables from your R environment (e.g., you've been working on multiple projects during the day). 
+This can be done in a couple of ways. 
+For example, you can just click `clear` in the **Environment/History pane** window of R Studio. 
+The same procedure can be performed at the **command line** in the Rstudio **Console pane** or **Script Editor pane**.
+To do this, you can use the `ls` function to view a list of all the objects in the R environment:
+```{r}
+ls()
+```
+
+You can now clear all of the stored variables from R's memory using two functions: `rm` and `ls`. (Note: we did this above prior to setting our working directory).
+```{r}
+rm(list=ls())
+```
+
+
+## 5) WORKING WITH VECTORS
+###Basic Features Of Vectors
+
+**Vectors** are the fundamental data type in R. 
+Often, vectors are just a collection of data of a similar type, either numeric (e.g., 17.5), integer (e.g., 2), or character (e.g., "low"). 
+The simplest type of vector is a single value, sometimes referred to as a **scalar** in other programming languages:
+```{r}
+w <- 5 
+```
+
+We can create longer one-dimensional vectors in R like this: 
+```{r}
+x <- c(2, 3, 6, w, w + 7, 12, 14)
+```
+
+What is the function `c`() that we just used to create a vector? 
+To answer this question, trying typing `help`() function at the command line. 
+Let's try it out:
+```{r, results = 'hide'}
+help(c)
+```
+
+What happens when you multiply a vector by a "scalar"?
+```{r}
+y <- w * x
+```
+
+What happens when you multiply two vectors of the same length?
+```{r}
+z <- x * y 
+```
+
+You may need to reference a specific **element** in a vector. We will do this using the square brackets. 
+In this case, the number inside of the square brackets tells R that we want call the *i*th element of vector `z`:
+```{r}
+z[2]
+```
+
+You can also reference **multiple elements** in a vector using the square brackets and the colon symbol:
+```{r}
+z[2:5] 
+```
+
+In some instances, you may want to change the value of an element in a vector. 
+Here's how you can substitute a new value for the second element of `z`:
+```{r}
+z[2] <- 583 
+```
+
+###Summary Statictics of Vectors
+
+It's pretty easy to perform summary statistics on a vector using the built-in fuctions of R:
+```{r, results = 'hide'}
+max(z)    # maximum
+min(z)    # minimum
+sum(z)    # sum
+mean(z)   # mean
+median(z) # median
+var(z)    # variance
+sd(z)     # standard deviation
+```
+
+What happens when you take the standard error of the mean (`sem`) of `z`? 
+
+The standard error of the mean is defined as $\frac{sd (x)}{\sqrt{n}}$. 
+This function does not exist in the base package of R. 
+Therefore, you need to write your own function. 
+Let's give it a try:
+
+```{r}
+sem <- function(x){
+  sd(x)/sqrt(length(x))
+  }
+```
+
+There are number of functions inside of `sem`. 
+Take a moment to think about and describe what is going on here. 
+Now, use the `sem` function you just created on the vector `y` from above
+
+Often, datasets have missing values (designated as 'NA' in R):
+```{r}
+i <- c(2, 3, 9, NA, 120, 33, 7, 44.5)
+```
+
+What happens when you apply your `sem` function to vector `i`? This is a problem!
+
+```{r}
+sem <- function(x){
+  sd(na.omit(x))/sqrt(length(na.omit(x))) 
+  }
+```
+ 
+Now run `sem` on the vector `i`.
+
+## 5) WORKING WITH MATRICES
+
+**Matrices** are another data type in R. 
+They are just two-dimensional vectors containing data of the same type (e.g., numeric, integer, character). 
+Thereofore, much of what we just discussed about vectors translates directly into dealing with matrices. 
+
+### Making A Matrix
+
+There are three common ways to create a matrix in R. 
+
+**Approach 1** is to combine (or **concatenate**) two or more vectors. 
+Let's start by creating a one-dimensional vector using a new function `rnorm` based on information contained in vector `z` above.
+```{r}
+j <- c(rnorm(length(z), mean = z)) 
+```
+
+**Q1:** What does the `rnorm` function do? What are the arguments specifying? 
+Remember to use `help()` or type `?rnorm`.
+
+Now we will use the function `cbind` to create a matrix from the two one-dimensional vectors:
+```{r}
+k <- cbind(z, j) 
+```
+
+Use the `help` function to learn about `cbind`.
+Use the `dim` function to describe the matrix you just created. 
+
+```{r, results = 'hide'}
+dim(k) 
+```
+
+**Approach 2** to making a matrix is to use the `matrix` function along with arguments that specify the number of rows (`nrow`) and columns (`ncol`):
+
+```{r}
+l <- matrix(c(2, 4, 3, 1, 5, 7), nrow = 3, ncol = 2) 
+```
+
+**Approach 3** to making a matrix is to import or **load a dataset** from your working directory:
+
+```{r}
+m <- as.matrix(read.table("data/matrix.txt", sep = "\t", header = FALSE))
+```
+
+In this case, we're reading in a tab-delimited file. 
+The name of your file must be in quotes, and you need to specify that it is a tab-delimited file type using the `sep` argument. 
+The `header` argument tells R whether or not the names of the variables are contained in the first line; in the current example, they are not. 
+
+Often, when handling datasets, we want to be able to **transpose** a matrix. This is an easy operation in R that uses the `t` function:
+```{r}
+n <- t(m)
+```
+
+**Q2:** What are the dimensions of the matrix you just transposed?
+
+###Indexing a Matrix
+
+Frequently, you will need to **index** or retrieve a certain portion of a matrix. 
+As with the vector example above, we will use the square brackets to return data from a matrix. 
+Inside the square brackets, there are now two subscripts corresponding to the rows and columns, respectively, of the matrix. 
+
+The following code will create a new matrix (`n`) based on the first three rows of matrix (`m`):
+```{r}
+n <- m[1:3, ]
+```
+
+Or maybe you want the first two columns of a matrix instead:
+```{r}
+n <- m[, 1:2]
+```
+
+Or perhaps you want non-sequential columns of a matrix. 
+How do we do that? 
+It's easy when you understand how to reference data within a matrix:
+```{r}
+n <- m[, c(1:2, 5)]
+```
+
+**Q3:** Describe what we just did in the last indexing operation?
+
+## 6) BASIC DATA VISUALIZATION AND STATISTICAL ANALYSIS
 ### Load Zooplankton Dataset
 
 In the following exercise, we will use a dataset from Lennon et al. (2003) (http://goo.gl/JplHwd), which looked at zooplankton communities along an experimental nutrient gradient in aquatic mesocosms. 
