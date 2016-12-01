@@ -111,8 +111,9 @@ n <- m[, c(1:2, 5)]
 
 **Q3:** Describe what we just did in the last indexing operation?
 
+
 ## 3) BASIC DATA VISUALIZATION AND STATISTICAL ANALYSIS
-### Load Zooplankton Dataset
+### Load Aquatic Mesocosm Dataset
 
 In the following exercise, we will use a dataset from Lennon et al. (2003) (http://goo.gl/JplHwd), which looked at zooplankton communities along an experimental nutrient gradient in aquatic mesocosms. 
 Inorganic nitrogen and phosphorus were added to mesocosms for six weeks at three different levels (low, medium, and high), but we also direcly measured nutrient concentrations of water samples. 
@@ -120,7 +121,7 @@ So we have **categorical** and **continuous** predictors that we're going to use
 
 The first thing we're going to do is load the data:
 ```{r}
-meso <- read.table("data/zoop_nuts.txt", sep = "\t", header = TRUE)
+meso <- read.table("data/nuts.txt", sep = "\t", header = TRUE)
 ```
 
 Let's use the `str` function to look at the structure of the data. 
@@ -149,15 +150,13 @@ Here is a description of the column headers:
   
   + CHLA = chlorophyll *a* concentration (proxy for algal biomass; µg/L)
   
-  + ZP = zooplankton biomass (mg/L)
-
 ### Correlation
 
 A common step in data exploration is to look at correlations among variables. 
 Before we do this, let's **index** our numerical (continuous) data in the 'meso' dataframe. 
 (Correlations typiclly don't work well on categorical data.)
 ```{r}
-meso.num <- meso[,3:8]
+meso.num <- meso[,3:7]
 ```
 
 We can conveniently visualize pairwise **bi-plots** of the data using the following command:
@@ -217,6 +216,34 @@ require("corrplot")
 corrplot(cor1, method = "ellipse")
 dev.off()
 ```
+
+## 3) INTRODUCING THE SITE-BY-SPECIES MATRIX
+
+The **site-by-species matrix** is a primary ecological data structure that contains abundances, relative abundances, or the presence of species (or other taxonomic units) observed at different sampling sites. 
+The table below is an example of what a typical site-by-species matrix looks like:
+
+\begin{center}
+\begin{tabular}{ l | c c c c c}
+    &  \textbf{Species1} & \textbf{Species2} & \textbf{Species3} & \textbf{Species4} & ... \\
+  \hline \\ [-1.5ex]
+  Site1 & 90 & 76 & 1 & 0   & \\
+  \\ [-1.5ex]
+  Site3 & 86 & 47 & 0 & 123 & \\
+  \\ [-1.5ex]  
+  Site3 & 23 & 89 & 0 & 46  & \\
+  ...   &    &    &   &     & \\
+  \end{tabular}
+  \end{center}
+
+Each row in the site-by-species matrix corresponds to a site (or sample), while each column corresponds to a species (or other taxonomic unit).
+Throughout the course, we will draw inferences about aspects of diversity from the site-by-species matrix.
+
+### load the zooplnkaton data set
+### describe the taxa/biomass
+### use commands you've learned to create a new variable: zooplaknton community biomass (ZP)
+### use this as a response variable in the analyses below. 
+
+
 
 ### Linear Regression
 It seems that total nitrogen (TN) is a fairly good predictor of zooplankton biomass (ZP) and this is something that we directly manipulated. 
