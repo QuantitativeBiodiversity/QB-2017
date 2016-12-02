@@ -224,7 +224,11 @@ Here's how you can substitute a new value for the second element of `z`:
 z[2] <- 583 
 ```
 
+<<<<<<< HEAD
+###Summary Statistics of Vectors 
+=======
 ###Summary Statictics of Vectors
+>>>>>>> upstream/master
 
 It's pretty easy to perform summary statistics on a vector using the built-in fuctions of R:
 ```{r, results = 'hide'}
