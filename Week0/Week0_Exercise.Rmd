@@ -9,14 +9,14 @@ geometry: margin=2.54cm
 ## OVERVIEW
 
 In this pre-class exercise, you will be introduced to the computing environment that we will be using in Quantitative Biodiversity.
-By the end of this exercise you will understand the basics of version control and how it is implemented using Git and GitHub, which will require elementary proficiency in UNIX. Last, you will become acquainted with RStuio. You will  learn how to perform basic operations and become familiar with how to work with vectors.
+By the end of this exercise you will understand the basics of version control and how it is implemented using Git and GitHub, which will require elementary proficiency in UNIX. Last, you will become acquainted with RStuio. You will learn how to perform basic operations and become familiar with how to work with vectors.
 
 ##1) VERSION CONTROL
 
 ### What is version control?
 
-Version control is an approach to writing text, managing data, and developing computer code that allows users the ability to examine, comment on, and revert back to changes within the entire life of a document, and without being tied to any single computer.
-In addition, multiple people in remote locations can collaborate on the same text, code, and data without emailing copies and without losing or overwriting any changes.
+Version control is an approach to writing text, managing data, and developing computer code that allows users the ability to examine, comment on, and revert back to changes within the entire life of a document, all without being tied to any single computer.
+In addition, multiple people in remote locations can collaborate on the same text, code, and data without e-mailing copies and without losing or overwriting any changes.
 
 ### Why is version control important?
 
@@ -41,7 +41,7 @@ In this class, we will use the most popular and powerful version control softwar
 
 **Git** is a free and open-source version-control system designed to handle projects of all sizes with speed and efficiency. 
 Users install Git onto their local machines (e.g., laptop) but unlike some software you might be familiar with, such as internet browsers, Git *per se* does not have a graphical interface.
-Instead, we will work with Git using the **shell**, a command-line way to access your operating system's services.
+Instead, we will work with Git using the **shell**, a way to access your operating system's services using the command-line.
 
 **GitHub** is a web-based service for hosting projects that use the Git version control system.
 GitHub provides an attractive interface for viewing and managing a project's code, data, and text files.
@@ -50,7 +50,7 @@ While many companies, agencies, and governments use GitHub (<https://government.
 
 ####Assignment 1: Create a GitHub account
 
-+ Navitate to <https://github.com/> and click on the "sign up" icon
++ Navigate to <https://github.com/> and click on the "sign up" icon
 + Step 1: supply a username, your email address, and a password
 + Step 2: choose the "Unlimited public repositories for free" plan 
 + Leave the "Help me set up an organization next" box unchecked for now
@@ -60,7 +60,7 @@ While many companies, agencies, and governments use GitHub (<https://government.
 ####Assignment 2: Read paper on Git and GitHub
 
 + Blischak JD, Davenport ER, Wilson G (2016) A Quick Introduction to Version Control with Git and GitHub. PLoS Comput Biol 12(1): e1004668. doi:10.1371/journal.pcbi.1004668
-+ An open-access copy of the paper can be found on line, but is also posted on the course Canvas site. 
++ An open-access copy of the paper can be found online, but is also posted on the course Canvas site. 
 
 ####Assignment 3: UNIX tutorial
 
@@ -83,19 +83,19 @@ For example, the document you are reading was generated in RMarkdown (<http://rm
 Markdown is a simple formatting syntax for authoring HTML, PDF, and other documents. 
 We will also use a tool called knitr (http://yihui.name/knitr/), which is a package that generates reports from R script and Markdown text. 
 For example, when you click the **Knit PDF** button in the scripting window of RStudio, a document will be generated that includes LaTeX (http://www.latex-project.org/) typesetting as well as the output of any embedded R code. 
-However, if there are errors in the Rcode contained in your Markdown document, you will not be able to knit a PDF file. 
-Assignments in this class will require that you successfully create a Markdown-generated PDF using knitr; you will then **push** this document to the course **respository** hosted on GitHub (<https://github.com/QuantitativeBiodiversity/QB-2017>) and generate a **pull request**.
+However, if there are errors in the R code contained in your Markdown document, you will not be able to knit a PDF file. 
+Assignments in this class will require that you successfully create a Markdown-generated PDF using knitr; you will then **push** this document to the course **repository** hosted on GitHub (<https://github.com/QuantitativeBiodiversity/QB-2017>) and generate a **pull request**.
 
 ### Introduction to RStudio
 
 Eventually, we will make sure that your personal computer is set up with the proper versions of all necessary software. 
-But for now, we are going to become familiar with a web-based version of RStudio that does not require an installations. 
+But for now, we are going to become familiar with a web-based version of RStudio that does not require any installations. 
 Open a web browser and type the following into the address bar: <https://rstudio.iu.edu>.
 Now, we're going to do some simple exercises to get you familiar with how to use R and RStudio.
 
 ### Use R as a calculator 
 
-R is capable of performing various calcuations using simple operators and built-in **functions**
+R is capable of performing various calculations using simple operators and built-in **functions**
 Use the **console pane** in the lower left to complete the following exercises:
 
 ***Addition***:
@@ -163,7 +163,7 @@ Sometimes it's good practice to clear all variables from your R environment.
 For example, maybe you've been working on multiple projects during the day. 
 This can be done in a couple of ways. 
 For example, you can just click `clear` in the **Environment/History pane** window of R Studio. 
-The same procedure can be performed at the **command line** in the Rstudio console pane or **script editor pane** (upper righ).
+The same procedure can be performed at the **command line** in the Rstudio console pane or **script editor pane** (upper right).
 To do this, you can use the `ls` function to view a list of all the objects in the R environment:
 ```{r}
 ls()
@@ -179,7 +179,7 @@ rm(list=ls())
 **Vectors** are the fundamental data type in R. 
 Often, vectors are just a collection of data of a similar type, either numeric (e.g., 17.5), integer (e.g., 2), or character (e.g., "low", "medium", "high"). 
 The simplest type of vector is a single value, sometimes referred to as a **scalar** in other programming languages. 
-Agai, use the **console pane** in the lower left to complete the following exercises:
+Again, use the **console pane** in the lower left to complete the following exercises:
 
 ```{r}
 w <- 5 
@@ -224,9 +224,9 @@ Here's how you can substitute a new value for the second element of `z`:
 z[2] <- 583 
 ```
 
-###Summary Statictics of Vectors
+###Summary Statistics of Vectors
 
-It's pretty easy to perform summary statistics on a vector using the built-in fuctions of R:
+It's pretty easy to perform summary statistics on a vector using the built-in functions of R:
 ```{r, results = 'hide'}
 max(z)    # maximum
 min(z)    # minimum
