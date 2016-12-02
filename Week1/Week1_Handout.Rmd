@@ -8,8 +8,9 @@ geometry: margin=2.54cm
 
 ## OVERVIEW
 
-This exercise builds from the Week 0 introduction to R, which highlighted operators, data types, and simple commands that will be useful for you during the course and beyond. 
-In addition to using R's base package, we will also use contributed packages, which together will allow us to visualize data and peform relatively simple statistics (e.g., linear regression and ANOVA).
+This exercise builds from the Week 0 introduction to R, which highlighted operators, vectors, and simple commands that will be useful for you during the course and beyond. 
+Here, you will be introduced to a new data type, matrices. 
+After learning how to work with matrices, we will learn about contributed packages, which will allow us to visualize data and peform basic statistics (e.g., linear regression and ANOVA).
 
 ## 1) SETTING YOUR WORKING DIRECTORY
 
@@ -31,9 +32,88 @@ Use the following command to change your directory (but note that you will need 
 setwd("~/GitHub/QuantitativeBiodiversity/Assignments/Week1")
 ```
 
+## 2) WORKING WITH MATRICES
 
-## 2) BASIC DATA VISUALIZATION AND STATISTICAL ANALYSIS
-### Load Zooplankton Dataset
+**Matrices** are another data type in R. 
+They are just two-dimensional vectors containing data of the same type (e.g., numeric, integer, character). 
+Thereofore, much of what we just discussed about vectors translates directly into dealing with matrices. 
+
+### Making A Matrix
+
+There are three common ways to create a matrix in R. 
+
+**Approach 1** is to combine (or **concatenate**) two or more vectors. 
+Let's start by creating a one-dimensional vector using a new function `rnorm` based on information contained in vector `z` above.
+```{r}
+j <- c(rnorm(length(z), mean = z)) 
+```
+
+**Q1:** What does the `rnorm` function do? What are the arguments specifying? 
+Remember to use `help()` or type `?rnorm`.
+
+Now we will use the function `cbind` to create a matrix from the two one-dimensional vectors:
+```{r}
+k <- cbind(z, j) 
+```
+
+Use the `help` function to learn about `cbind`.
+Use the `dim` function to describe the matrix you just created. 
+
+```{r, results = 'hide'}
+dim(k) 
+```
+
+**Approach 2** to making a matrix is to use the `matrix` function along with arguments that specify the number of rows (`nrow`) and columns (`ncol`):
+
+```{r}
+l <- matrix(c(2, 4, 3, 1, 5, 7), nrow = 3, ncol = 2) 
+```
+
+**Approach 3** to making a matrix is to import or **load a dataset** from your working directory:
+
+```{r}
+m <- as.matrix(read.table("data/matrix.txt", sep = "\t", header = FALSE))
+```
+
+In this case, we're reading in a tab-delimited file. 
+The name of your file must be in quotes, and you need to specify that it is a tab-delimited file type using the `sep` argument. 
+The `header` argument tells R whether or not the names of the variables are contained in the first line; in the current example, they are not. 
+
+Often, when handling datasets, we want to be able to **transpose** a matrix. This is an easy operation in R that uses the `t` function:
+```{r}
+n <- t(m)
+```
+
+**Q2:** What are the dimensions of the matrix you just transposed?
+
+###Indexing a Matrix
+
+Frequently, you will need to **index** or retrieve a certain portion of a matrix. 
+As with the vector example above, we will use the square brackets to return data from a matrix. 
+Inside the square brackets, there are now two subscripts corresponding to the rows and columns, respectively, of the matrix. 
+
+The following code will create a new matrix (`n`) based on the first three rows of matrix (`m`):
+```{r}
+n <- m[1:3, ]
+```
+
+Or maybe you want the first two columns of a matrix instead:
+```{r}
+n <- m[, 1:2]
+```
+
+Or perhaps you want non-sequential columns of a matrix. 
+How do we do that? 
+It's easy when you understand how to reference data within a matrix:
+```{r}
+n <- m[, c(1:2, 5)]
+```
+
+**Q3:** Describe what we just did in the last indexing operation?
+
+
+## 3) BASIC DATA VISUALIZATION AND STATISTICAL ANALYSIS
+### Load Aquatic Mesocosm Dataset
 
 In the following exercise, we will use a dataset from Lennon et al. (2003) (http://goo.gl/JplHwd), which looked at zooplankton communities along an experimental nutrient gradient in aquatic mesocosms. 
 Inorganic nitrogen and phosphorus were added to mesocosms for six weeks at three different levels (low, medium, and high), but we also direcly measured nutrient concentrations of water samples. 
@@ -41,7 +121,7 @@ So we have **categorical** and **continuous** predictors that we're going to use
 
 The first thing we're going to do is load the data:
 ```{r}
-meso <- read.table("data/zoop_nuts.txt", sep = "\t", header = TRUE)
+meso <- read.table("data/nuts.txt", sep = "\t", header = TRUE)
 ```
 
 Let's use the `str` function to look at the structure of the data. 
@@ -70,15 +150,13 @@ Here is a description of the column headers:
   
   + CHLA = chlorophyll *a* concentration (proxy for algal biomass; µg/L)
   
-  + ZP = zooplankton biomass (mg/L)
-
 ### Correlation
 
 A common step in data exploration is to look at correlations among variables. 
 Before we do this, let's **index** our numerical (continuous) data in the 'meso' dataframe. 
 (Correlations typiclly don't work well on categorical data.)
 ```{r}
-meso.num <- meso[,3:8]
+meso.num <- meso[,3:7]
 ```
 
 We can conveniently visualize pairwise **bi-plots** of the data using the following command:
@@ -138,6 +216,34 @@ require("corrplot")
 corrplot(cor1, method = "ellipse")
 dev.off()
 ```
+
+## 3) INTRODUCING THE SITE-BY-SPECIES MATRIX
+
+The **site-by-species matrix** is a primary ecological data structure that contains abundances, relative abundances, or the presence of species (or other taxonomic units) observed at different sampling sites. 
+The table below is an example of what a typical site-by-species matrix looks like:
+
+\begin{center}
+\begin{tabular}{ l | c c c c c}
+    &  \textbf{Species1} & \textbf{Species2} & \textbf{Species3} & \textbf{Species4} & ... \\
+  \hline \\ [-1.5ex]
+  Site1 & 90 & 76 & 1 & 0   & \\
+  \\ [-1.5ex]
+  Site3 & 86 & 47 & 0 & 123 & \\
+  \\ [-1.5ex]  
+  Site3 & 23 & 89 & 0 & 46  & \\
+  ...   &    &    &   &     & \\
+  \end{tabular}
+  \end{center}
+
+Each row in the site-by-species matrix corresponds to a site (or sample), while each column corresponds to a species (or other taxonomic unit).
+Throughout the course, we will draw inferences about aspects of diversity from the site-by-species matrix.
+
+### load the zooplnkaton data set
+### describe the taxa/biomass
+### use commands you've learned to create a new variable: zooplaknton community biomass (ZP)
+### use this as a response variable in the analyses below. 
+
+
 
 ### Linear Regression
 It seems that total nitrogen (TN) is a fairly good predictor of zooplankton biomass (ZP) and this is something that we directly manipulated. 
