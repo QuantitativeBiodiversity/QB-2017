@@ -1,5 +1,5 @@
 ---
-title: "Local (alpha) Diversity "
+title: "Handout: Local (alpha) Diversity "
 author: "Z620: Quantitative Biodiversity, Indiana University"
 date: "January 23, 2015"
 header-includes:
@@ -32,7 +32,7 @@ Let's install the `vegan` package and its dependencies.
 If you are running `vegan` for the first time, you will need to install it with the `install.packages` function. 
 Otherwise, we recommend you just use the `require` function to load `vegan` and its dependencies.
 
-```{r, results = 'hide', message=FALSE}
+```{r, results = 'hide', warning=FALSE, message=FALSE}
 #install.packages("vegan") 
 #instead, use try("vegan")
 require("vegan") 
@@ -97,8 +97,8 @@ On ther other hand, *Apeiba glabra* is found at all eight sites and is more abun
 
 ## 4) SPECIES RICHNESS
 
-**Species richness (S)** is simply the number of species in a system or the number of species observed in a sample.
-Species richness is the most basic aspect of diversity. 
+**Species richness (S)** is the number of species in a system or the number of species observed in a sample.
+Species richness is also the foremost aspect of diversity. 
 In fact, it is usually what most people are referring to when they talk about $\alpha$-diversity.
 Calculating species richness for a sample is often straightforward, i.e., count the number of species present in a sample.
 However, estimating species richness for a community from an incomplete sample requires assumptions about the nature of the sampling effort (e.g., biases, coverage).
@@ -111,11 +111,8 @@ It is important to note that, in most site-by-species matrices, not every specie
 Consequently, we cannot simply count the columns of the site-by-species matrix to obtain the value of observed richness.
 
 Let's write a function that calculates observed species richness of a site.
-Functions are central to the use of R and most any other computing software.
-In short, functions are pieces of code that operate on one or more variables or objects (e.g., scalars, lists, matrices, etc.).
+Functions are central to the use of most any computing software and, in short, are simply pieces of code that operate on one or more variables or objects (e.g., scalars, lists, matrices, etc.).
 In fact, you've already used several native R functions, e.g., dim(BCI).
-
-Instead of repeatedly rewriting code to calculate richness, we define a function called `S.obs` that calculates richness of a given vector (i.e., `x`).
 
 ```{r}
 S.obs <- function(x = ""){
@@ -127,15 +124,15 @@ We can then call the function by typing `S.obs()` and placing the name of our ve
 There is also a function in the `vegan` package called `specnumber()` that calculates observed richness.
 
 
-### How Well Did You Sample Your Site?
+### Coverage: How Well Did You Sample Your Site?
 
-Accurate estimates of richness are influenced by sampling effort and biases.
+Accurate estimates of richness are influenced by sampling effort and sampling bias.
 Even when the sampling effort is unbiased, the more individuals that are censused, the more likely you are to encounter new species.
 One index that provides an estimate of how well a site is sampled is **Good's Coverage (C)**, which is defined as $C = 1 - \frac{n_{1}}{N}$, where $\it{n_{1}}$ is the number of *singleton species* (species only detected once), and *N* is the total number of individuals in the sample.
 Examining the equation for Good's Coverage reveals that the fraction is simply the portion of *N* represented by singleton species.
 Subtracting this from 1 give the portion of *N* belonging to species sampled more than once.
 
-Let's write a function and estimate Good's Coverage for `site1` of BCI:
+Let's write a function for Good's Coverage:
 
 ```{r}
 C <- function(x = ""){
@@ -208,18 +205,15 @@ In Chapter 5, pages 56 and 57, of "Biological Diversity: frontier in measurement
 ## Rarefaction
 
 Often researchers want to compare the richness of two or more ecological communities.
-Ideally, we would sample all of our sites with equal effort.
-Ideally, all sites would have equal densities.
-And ideally, all individuals would have equal probability of detection.
-These conditions are rarely met.
-Because sites with greater abundance generally have greater species richness, differences in richness may largely be due to differences in sample size.
+Ideally, we would sample our sites with equal effort, all of our sites would have equal densities of individuals, and all individuals would have equal probabilities of being detected.
+However, these conditions are rarely met in ecological studies.
+Because sites with greater abundance generally have greater species richness, differences in richness may largely be due to differences in sample size, i.e., *N*.
 
 A common way to reduce the bias associated with different *N* is to **rarify** samples down to a "lowest common denominator", an approach known as rarefaction.
 For example, if there are 2 sites, one with *N* = 100 and one with *N* = 50, we could randomly sample (without replacement) 50 individuals from the site with greater *N*.
-Generating many random samples (each of 50 individuals) from the larger site will allow us to calculate the mean and standard error of expected *S*. 
+Generating many random samples (each of 50 individuals) from the larger site will allow us to calculate the mean and standard error of expected *S*.
 Likewise, we'll be able to tell whether the *S* of the smaller sample falls within the confidence-intervals for expected *S* of the larger sample and hence, whether the difference in *S* between the two sites is simply due to a difference in *N*.
-In some ways, this strategy is the opposite of what is done when using richness estimators above, like Chao1 and Chao2.
-While this demonstrates how rarefaction works in concept, the expected richness in a sample rarefied from *N* to *n* individuals is often solved mathematically (see Hurlbert, 1971; Vegan Tutorial).
+While this demonstrates how rarefaction works in concept, the expected richness in a sample rarefied from *N* to *n* individuals is solved mathematically (see Hurlbert, 1971; Vegan Tutorial).
 
 In the following section, we will calculate observed richness for soil bacteria collected from 11 of the KBS sites, where T1 = agriculture, T7 = grassland, DF = deciduous forest, and CF = coniferous forest.
 Then, we will identify the sample with the fewest sequences (i.e., *N*) and use `vegan` to rarefy to that sampling effort. 
@@ -236,12 +230,12 @@ text(1500, 1500, "1:1", pos = 2, col = 'red')
 
 ##5) SPECIES EVENNESS
 There is more to $\alpha$-diversity than just the number of species in a sample.
-Specifically, it is important to consider how abundance varies among species (or other taxonomic groups), that is, **species evenness**.
-Many important biodiversity issues such as species coexistence, community stability, the detection of rare taxa, and biological invasions relate to how abundances vary among taxa.
+Specifically, it is important to consider how abundance varies among species (or other taxonomic groups), that is, **evenness**.
+Many important biodiversity issues such as species coexistence, community stability, the detection of rare taxa, and biological invasions relate to evenness.
 
 ### Visualizing Evenness: The Rank-Abundance Curve (RAC)
-One of the most common ways to visualize evenness is in a **rank-abundance curve**, which is sometimes referred to as a rank-abundance distribution RAD or Whittaker plot.
-A RAC can be constructed by ranking species from the most abundant to the least abundant without respect to species labels (and hence no worries about 'ties' in abundance). 
+One of the most common ways to visualize evenness is with a **rank-abundance curve**, which is sometimes referred to as a rank-abundance distribution (RAD).
+A RAC can be constructed by ranking species from the most-to-least abundant.
 
 Let's write a function to construct an RAC.
 First, we will remove species that have zero abundances.
@@ -260,6 +254,10 @@ Now, let's examine the RAC for `site1` of the BCI data set.
 We will do this by creating a sequence of ranks and plotting the RAC with natural-log-transformed abundances.
 
 ```{r}
+plot.new()
+site1 <- BCI[1, ]
+site1 <- site1[site1 > 0]
+
 rac <- RAC(x = site1)
 ranks <- as.vector(seq(1, length(rac)))
 opar <- par(no.readonly = TRUE)                       # Saves default plot parameters
@@ -267,36 +265,38 @@ par(mar=c(5.1, 5.1, 4.1, 2.1))                        # New settings for par
 plot(ranks, log(rac), type = 'p', axes=F,             # Plots w/o axes
      xlab = "Rank in abundance", ylab = "Abundance",
      las = 1, cex.lab = 1.4, cex.axis = 1.25)
+
 box()                                                 # Manually adds border
 axis(side = 1, labels=T, cex.axis = 1.25)             # Manually adds X-axis
 axis(side = 2, las = 1, cex.axis = 1.25,              # Manually adds Log-Scaled Y-axis
      labels=c(1, 2, 5, 10, 20), at=log(c(1, 2, 5, 10, 20)))
+
 par <- opar                                           # Resets plotting parameters
 ```
 
 It is clear from looking at the RAC for `site1` that the abundance among species is unequally distributed.
-This sort of uneven distribution of abundance among species is one of the most ubiquitous patterns in ecology and has provoked a long history of study, theories, and explanations (see McGill et al. 2007) (http://www.ncbi.nlm.nih.gov/pubmed/17845298).
+This sort of uneven distribution of abundance is one of the most ubiquitous patterns in ecology and has provoked a long history of study, theories, and explanations (see McGill et al. 2007) (http://www.ncbi.nlm.nih.gov/pubmed/17845298).
 
-Now that we have visualized unevennes, it is time to quantify it.
+Now that we have visualized species evenness, it is time to quantify it.
 Based on decades of work, researchers have identified desirable features of an evenness metric. 
-One of these features is that the values generated by the metric should be relatively easy to inuit. 
-As such, useful metrics are often bound betwen a minimum evenness value of 0.0 and a maximum evenness value of 1.0.
-Another important feature is that evenness values should be independent of *S*; we don't want evenness to simply be a reflection of richness. 
+One of these features is that the values generated by the metric should be relatively easy to intuit. 
+For this reason, useful metrics are often bound betwen a minimum evenness of 0 and a maximum evenness of 1.
+Another important feature is that evenness values should be independent of richness *S*. That is, we don't want evenness to simply be a reflection of *S*. 
 Here, we will introduce two metrics of evenness that meet the above criteria: Simpson's evenness ($E_{1/D}$) and Smith and Wilson's evenness index ($E_{var}$).
 
 ### Simpson's Evenness ($E_{1/D}$)
 
 Simpson's evenness metric essentially reflects the sample variance of the rank-abundance curve, and is calculated as ${E_{1/D} = } \frac{1}{S} \sum \frac{N(N-1)} {n_i(n_i-1)}$, where *S* is species richness, *N* is total abundance, $n_{i}$ is the *i*th species. 
 
-The `vegan` package does not have a function for Simpson's evenness. 
-But we can derive Simpson's evenness from **Simpson's diversity (D)**, which estimates the probability that the next sampled individual belongs to a different species. 
+The `vegan` package does not have a function for Simpson's evenness but we can derive it using **Simpson's diversity (D)**, which estimates the probability that the next sampled individual belongs to a different species. 
+We will speak more on Simpson's diversity in the next section.
 In the following R chunk we will write a function that estimates Simpson's evenness using the `diversity` function in `vegan` and observed richness.
 
 ```{r}
 SimpE <- function(x = ""){
+  S <- S.obs(x) 
   x = as.data.frame(x)
   D <- diversity(x, "inv")
-  S <- S.obs(x) 
   E <- (D)/S 
   return(E)
   }
@@ -305,13 +305,14 @@ SimpE <- function(x = ""){
 Now, let's calculate Simpson's evenness for `site 1` in the BCI site-by-species matrix.
 
 ```{r, results ='hide'}
+site1 <- BCI[1, ]
 SimpE(site1)
 ```
 
 We can see that Simpson's evenness for `site1` is moderately even (~`r round(SimpE(site1), 2)`). 
-However, Simpson's evenness has been criticized for being biased towards the most abundant taxa.
-The value of the metric is reportedly sensitive to differences in the few most abundant species.
-Let's examine the value of evenness for `site1` using a different evenness metric that is less biased in this way.
+However, Simpson's evenness has been criticized for being biased by the most abundant species.
+That is, the value of the metric is reportedly sensitive to differences in the few most abundant species.
+Let's examine the value of evenness for `site1` using a slightly more involved metric that is less biased by abundant species.
 
 ### Smith and Wilson's Evenness Index ($E_{var}$)
 
@@ -322,10 +323,9 @@ $E_{var}$, like all desireable measures of evennness, is independent of richness
 The metric is calculated as: $E_{var} = 1 - 2/\pi \cdot \arctan(\sigma^{2})$, where $\sigma^{2}$ is the sample variance (`var(log(x))`).
 
 While seemingly more involved to calcualte, $E_{var}$ simply reduces to finding the sample variance of the log-transformed abundances and then standardizing it to take values between 0 and 1 using elementary trigonometry.
-Specifically, $E_{var}$ uses the arctangent, which varies between -$\pi$/2 and $\pi$/2 without being periodic like sine waves.
-Multiplying the arctangent by 2/$\pi$ forces the result to take values between 0 and 1.
+Specifically, $E_{var}$ uses the arctangent, which varies between -$\pi$/2 and $\pi$/2 and causes the metric to take values between 0 and 1.
 Subtracting this from one allows low evenness to be associated with values near 0 and high evenness to be associated with values near 1. 
-In the end, an $E_{var}$ function can be written as follows:
+A function for $E_{var}$ can be written as follows:
 
 ```{r}
 Evar <- function(x){
@@ -345,12 +345,13 @@ Evar(site1)
 
 So far, we have introduced two primary aspects of diversity, i.e., richness and evenness.
 While we often examine each of these independently, the interaction between richness and evenness is important. 
-Here, we will estimate popular indices of diversity, which explicitly incorporate richness and evenness. 
+Here, we will estimate popular indices of diversity, which explicitly incorporate richness and evenness.
 We will write our own diversity functions and compare them against the functions in `vegan`. 
 
 ### Shannon's Diversity (a.k.a Shannon's Entropy)
 Shannon's diversity metric is derived from Shannon's information entropy, and is essentially a measure of uncertainty. 
 This metric is used across the natural sciences and is calculated as ${H' = -}  \sum p_i ln(p_i)$.
+A greater value of Shannon's diversity implies a greater chance that the next sampled individual will belong to a different species.
 Let's calculate Shannon's diversity for the RAC of `site1` in the BCI site-by-species matrix and then compare it to the `vegan` estimate:
 
 ```{r}
@@ -367,7 +368,7 @@ H <- function(x = ""){
 Now we will use `vegan` to estimate Shannon's index:
 
 ```{r, results ='hide'}
-diversity(rac, index = "shannon")
+diversity(site1, index = "shannon")
 ```
 
 ### Simpson's Diversity (or Dominance)
@@ -388,20 +389,20 @@ D <- function(x = ""){
 
 And now let's express Simpsons's diversity as 1/*D* (invD) and 1-*D*:
 ```{r, results='hide'}
-D.inv <- 1/D(rac) 
+D.inv <- 1/D(site1) 
 ```
 
-Finally, we can use `vegan` to estimate Simpsons's index:
+Now that we have written functions to understand how some of these metrics are quantified, we can also use `vegan` to estimate Simpsons's index:
 
 ```{r, results="hide"}
-diversity(rac, "simp")
-diversity(rac, "inv")
+diversity(site1, "simp")
+diversity(site1, "inv")
 ```
 
 ##7) MOVING BEYOND UNIVARIATE METRICS OF $\alpha$-DIVERSIY 
 
 The diversity metrics that we just learned about attempt to integrate richness and evenness into a single, univariate metric.
-Although useful, information is invariably lost in this process. 
+Although useful, information is invariably lost in this process of reducing . 
 If we go back to the rank-abundance curve, we can retrieve additional information -- and in some cases -- make inferences about the processes influencing the structure of an ecological system.
 
 The uneven shape of the RAC is one of the most intensively studied patterns in ecology, and underpins all or most ecological theories of biodiversity. 
@@ -412,7 +413,7 @@ Again, we are going to make use of `vegan`.
 Specifically, we are going to use the `radfit()` function to fit the predictions of various species abundance models to the RAC of `site1` in BCI 
 
 ```{r}
-RACresults <- radfit(rac)
+RACresults <- radfit(site1)
 ```
 
 From the output, you can see that `vegan` fits five models to our rank-abundance curve: *Null*, *Preemption*, *Lognormal*, *Zipf*, and *Mandelbrot*.
@@ -435,6 +436,7 @@ In the end, the "best" model has the lowest AIC or BIC value.
 Now, let's visualize our results by plotting the empirical RAC and the predicted RAC for each model:
 
 ```{r}
+plot.new()
 plot(RACresults, las=1, cex.lab = 1.4, cex.axis = 1.25)
 ```
 
@@ -452,13 +454,12 @@ Envision an environment occupied by a single species.
 Now, envision that a second species colonizes the environment and takes some portion of resources equal to $\alpha$. 
 Then, envision that a third species colonizes the environment and takes a portion of resources equal to $\alpha$ away from the second species.
 Imagine this process continuing until *N* is zero.
-The only estimated parameter is the preemption coefficient $\alpha$, which gives the decay rate of abundance per rank. 
+The only fitted parameter is the preemption coefficient $\alpha$, which gives the decay rate of abundance per rank. 
 The expected abundance (*a*) of species at rank *r* is $a_r = N \cdot \alpha \cdot (1 - \alpha)^{(r - 1)}$. 
 
 
 #### Lognormal:
 Many statistical tests and models assume that data are normally distributed. 
-When applied to species abundances, this means that a histogram of species abundances (i.e., the species-abundance distribution; SAD) should look like a bell curve.
 However, species abundances are rarely ever normally distributed and there is almost always an excess of rare species.
 The lognormal model presumes that species abundances become normally distributed under *logarithmic transformation*.
 Log-transforming species abundances decreases the disparity between rare and dominant species, e.g., 0 = log(1) and 3 = log(1000).
@@ -466,14 +467,11 @@ Log-transforming species abundances decreases the disparity between rare and dom
 The log-normal model was introduced into ecology by Frank Preston in 1948 and is one of the most widely successful species abundance models.
 
 #### Zipf:
-The Zipf model is based on Zipf's Law, an well-known observation that many types of ranked data are fit by a simple scaling law (a.k.a., power law).
-In short, the abundance of a species in the RAC is inversely proportional to its rank.
+The Zipf model is based on Zipf's Law (see: https://en.wikipedia.org/wiki/Zipf's_law).
+In short, the abundance of a species in the RAC is inversely proportional to its rank in abundance.
 The expected abundance (*a*) of species at rank *r* is: $a_r = N \cdot p_1 \cdot r^{\gamma}$, where $\it{p_1}$ is the fitted proportion of the most abundant species, and $\gamma$ is a decay coefficient.
 
 #### Mandelbrot:
-Shortened name for the Zipf–Mandelbrot model, a generalization of the Zipf model made by the mathematician and father of fractal geometry, Benoit Mandelbrot.
+Shortened name for the Zipf–Mandelbrot model.
 This model adds one parameter ($\beta$) to the Zipf model.
-The expected abundance of a species (*a*) at rank *r* is $a_r = N \cdot c \cdot (r + \beta)^{\gamma}$. 
-Here, the $\it{p_1}$ parameter of the Zipf model changes into a meaningless scaling constant *c*.
-
-
+The expected abundance of a species (*a*) at rank *r* is $a_r = N \cdot c \cdot (r + \beta)^{\gamma}$.
