@@ -12,7 +12,7 @@ geometry: margin=2.54cm
 
 In this exercise, we will explore aspects of local or site-specific diversity, also known as alpha ($\alpha$) diversity. 
 We will quantify the two primary components of $\alpha$-diversity (**richness** and **evenness**) using the site-by-species matrix.
-From there, we will discusss ways to integrate richness and evenness, which will include univariate metrics of diversity and an investigation of the **species-abundance distribution (SAD)**.
+From there, we will discuss ways to integrate richness and evenness, which will include univariate metrics of diversity and an investigation of the **species-abundance distribution (SAD)**.
 
 ## 1) SETUP
 ### Retrieve and Set Your Working Directory
@@ -25,7 +25,7 @@ setwd("~/GitHub/QB-2017/Week2-Alpha")
 
 ### Install Packages
 
-In this excercise, we will use a popular R package called `vegan`, which contains tools commonly used in ecological research, including analyses of $\alpha$-diversity.
+In this exercise, we will use a popular R package called `vegan`, which contains tools commonly used in ecological research, including analyses of $\alpha$-diversity.
 Jari Oksanen has created an excellent tutorial that provides an overview of the `vegan` package: http://cc.oulu.fi/~jarioksa/opetus/metodi/vegantutor.pdf
 
 Let's install the `vegan` package and its dependencies. 
@@ -40,11 +40,11 @@ require("vegan")
 
 ## 2) LOADING DATA
 
-We will start by using the tropical forest dataset from Barro-Colorado Island (BCI).
+We will start by using the tropical forest site-by-species matrix from Barro-Colorado Island (BCI).
 BCI is a 1,560-hectare island in the center of the Panama Canal that is administered by the Smithsonian Tropical Research Institution (http://www.stri.si.edu/english/research/facilities/terrestrial/barro_colorado/). 
 Conveniently, the `vegan` package contains a version of the BCI dataset. 
 The BCI dataset is a census of all trees of at least 10 cm in diameter at breast height (DBH) that occur in 50 one-hectare plots.
-More information on the BCI dataset can be found elswhere (http://ctfs.arnarb.harvard.edu/webatlas/datasets/bci/).
+More information on the BCI dataset can be found elsewhere (http://ctfs.arnarb.harvard.edu/webatlas/datasets/bci/).
 You can also learn more about the BCI dataset associated with the `vegan` package by typing `help(BCI)` in the command line.
 Let's load the BCI data using the `data` function:
 
@@ -52,50 +52,7 @@ Let's load the BCI data using the `data` function:
 data(BCI)
 ```
 
-## 3) EXPLORING THE SITE-BY-SPECIES MATRIX
-
-The **site-by-species matrix** is a primary ecological data structure that contains abundances, relative abundances, or the presence of species (or other taxonomic units) observed at different sampling sites. 
-The table below is an example of what a typical site-by-species matrix looks like:
-
-\begin{center}
-\begin{tabular}{ l | c c c c c}
-    &  \textbf{Species1} & \textbf{Species2} & \textbf{Species3} & \textbf{Species4} & ... \\
-  \hline \\ [-1.5ex]
-  Site1 & 90 & 76 & 1 & 0   & \\
-  \\ [-1.5ex]
-  Site3 & 86 & 47 & 0 & 123 & \\
-  \\ [-1.5ex]  
-  Site3 & 23 & 89 & 0 & 46  & \\
-  ...   &    &    &   &     & \\
-  \end{tabular}
-  \end{center}
-
-
-Each row in the site-by-species matrix corresponds to a site (or sample), while each column corresponds to a species (or other taxonomic unit).
-Throughout the course, we will draw inferences about aspects of diversity from the site-by-species matrix.
-
-The version of the BCI site-by-species matrix provided in `vegan` contains the abundances of more than 200 tree species (i.e., >200 columns) for each of 50 sites (i.e., 50 rows).
-While it is conventional to refer to a matrix or table by its rows and then by its columns, each row could just as easily be a species and each column could be a site, i.e., a species-by-site matrix.
-It's good to be aware that some programs that you encounter will prefer data to be in one format or the other. 
-In such cases, you can use the transpose function (`t()`) to modify the site-by-species matrix.
-
-Let's verify the structure of the BCI site-by-species matrix using the `dim` function, which was introduced last week:
-
-```{r}
-dim(BCI)
-```
-
-With the BCI site-by-species matrix now loaded, let's retrieve the abundances of four species found in the first eight sites using the indexing tools that were introduced last week.
-
-```{r}
-BCI[1:8, 14:17]
-```
-
-Here, we can see that Cabbage Bark (*Andira inermis*) is absent from six of the eight sites and is only found as a single individual in two sites (sites 5 and 6). 
-On ther other hand, *Apeiba glabra* is found at all eight sites and is more abundant than any of the other three species that we indexed in the data frame.
-
-
-## 4) SPECIES RICHNESS
+## 3) SPECIES RICHNESS
 
 **Species richness (S)** is the number of species in a system or the number of species observed in a sample.
 Species richness is also the foremost aspect of diversity. 
@@ -106,7 +63,7 @@ In this part of the exercise, you will see that there are several ways to estima
 
 ### Observed Richness
 
-The simplest way to calcuate species richness is to just add up the number of species that were detected in a sample.
+The simplest way to calculate species richness is to just add up the number of species that were detected in a sample.
 It is important to note that, in most site-by-species matrices, not every species will be present at each site.
 Consequently, we cannot simply count the columns of the site-by-species matrix to obtain the value of observed richness.
 
@@ -175,7 +132,7 @@ S.chao1 <- function(x = ""){
   }
 ```
 
-*WE SHOULD ELABORATE ON WHAT THIS S.chao1 FUNCTION DOES*
+It's important to note that it's not always necessary to write new functions from scratch. Often a diversity metric builds off of a simpler diversity metric, allowing for us to save some time by re-using our existing code. We can see that in the S.chao1 function, where we call on the S.obs() function to estimate the number of species in the site. From there we write some new code by using sum(x == y) to calculate the number of species in site x with y abundance, raising the number of singletons to the second power, and dividing the squared singleton count by twice the number of doubletons in the sample.
 
 **Chao2** is an ***incidence-based estimator*** that uses presence-absence data for examining richness across multiple sites.
 Chao2 is calculated using observed richness (`S.obs`).
@@ -196,9 +153,7 @@ S.chao2 <- function(site = "", SbyS = ""){
   }
 ```
 
-*WE SHOULD ELABORATE ON WHAT THIS S.chao2 FUNCTION DOES*
-
-Notice that this function is a bit more complicated than previous functions we have written.
+Notice that this function is a bit more complicated than previous functions we have written, so we will take time to deconstruct it. We can see that the function S.chao2 takes two arguments, i.e. the site of interest and the site-by-species matrix. The function first converts the site-by-species matrix into a data frame. From there we select the site of interest and count the number of singletons and doubletons among all sites. The code on line 151 should look very familiar. In fact, it is nearly identical to the S.chao1 operator, the only difference being that we are dealing with singletons and doubletons across all sites rather than within a single site. 
 
 In Chapter 5, pages 56 and 57, of "Biological Diversity: frontier in measurement and assessment" you will see that Chao1 and Chao2 are mathematically very similar, and mainly differ in whether we are considering the abundance of species at one site (Chao1) or the presence of species across multiple sites (Chao2).
 
@@ -228,7 +183,7 @@ abline(0, 1, col = 'red')
 text(1500, 1500, "1:1", pos = 2, col = 'red')
 ```
 
-##5) SPECIES EVENNESS
+##4) SPECIES EVENNESS
 There is more to $\alpha$-diversity than just the number of species in a sample.
 Specifically, it is important to consider how abundance varies among species (or other taxonomic groups), that is, **evenness**.
 Many important biodiversity issues such as species coexistence, community stability, the detection of rare taxa, and biological invasions relate to evenness.
@@ -319,10 +274,10 @@ Let's examine the value of evenness for `site1` using a slightly more involved m
 After reviewing existing metrics, Smith and Wilson (1996) derived a more robust measure of evenness, which they called $E_{var}$. 
 This metric is standardized to take values between 0 (no evenness) and 1 (perfect evenness).
 Abundances are transformed to their natural logarithms to decrease bias towards the most abundant species, that is, the potential for a metric's value to be influenced more by large numbers than small ones.
-$E_{var}$, like all desireable measures of evennness, is independent of richness (*S*).
+$E_{var}$, like all desirable measures of evenness, is independent of richness (*S*).
 The metric is calculated as: $E_{var} = 1 - 2/\pi \cdot \arctan(\sigma^{2})$, where $\sigma^{2}$ is the sample variance (`var(log(x))`).
 
-While seemingly more involved to calcualte, $E_{var}$ simply reduces to finding the sample variance of the log-transformed abundances and then standardizing it to take values between 0 and 1 using elementary trigonometry.
+While seemingly more involved to calculate, $E_{var}$ simply reduces to finding the sample variance of the log-transformed abundances and then standardizing it to take values between 0 and 1 using elementary trigonometry.
 Specifically, $E_{var}$ uses the arctangent, which varies between -$\pi$/2 and $\pi$/2 and causes the metric to take values between 0 and 1.
 Subtracting this from one allows low evenness to be associated with values near 0 and high evenness to be associated with values near 1. 
 A function for $E_{var}$ can be written as follows:
@@ -341,7 +296,7 @@ Evar(site1)
 ```
 
 
-##6) INTEGRATING RICHNESS AND EVENNESS: DIVERSITY METRICS
+##5) INTEGRATING RICHNESS AND EVENNESS: DIVERSITY METRICS
 
 So far, we have introduced two primary aspects of diversity, i.e., richness and evenness.
 While we often examine each of these independently, the interaction between richness and evenness is important. 
@@ -399,7 +354,7 @@ diversity(site1, "simp")
 diversity(site1, "inv")
 ```
 
-##7) MOVING BEYOND UNIVARIATE METRICS OF $\alpha$-DIVERSIY 
+##6) MOVING BEYOND UNIVARIATE METRICS OF $\alpha$-DIVERSIY 
 
 The diversity metrics that we just learned about attempt to integrate richness and evenness into a single, univariate metric.
 Although useful, information is invariably lost in this process of reducing . 
@@ -430,7 +385,7 @@ These columns pertain to model parameters and reveal that the different models u
 In other words, they help us identify a model that is best supported by our data. 
 Obviously, the more parameters a model has, the better it will fit a data set. 
 However, it's not necessarily desirable to have an over-parameterized model. 
-So, AIC and BIC asssign penalties that correspond with the number of parameters that a model uses. 
+So, AIC and BIC assign penalties that correspond with the number of parameters that a model uses. 
 In the end, the "best" model has the lowest AIC or BIC value. 
 
 Now, let's visualize our results by plotting the empirical RAC and the predicted RAC for each model:
@@ -464,7 +419,7 @@ However, species abundances are rarely ever normally distributed and there is al
 The lognormal model presumes that species abundances become normally distributed under *logarithmic transformation*.
 Log-transforming species abundances decreases the disparity between rare and dominant species, e.g., 0 = log(1) and 3 = log(1000).
 
-The log-normal model was introduced into ecology by Frank Preston in 1948 and is one of the most widely successful species abundance models.
+The lognormal model was introduced into ecology by Frank Preston in 1948 and is one of the most widely successful species abundance models.
 
 #### Zipf:
 The Zipf model is based on Zipf's Law (see: https://en.wikipedia.org/wiki/Zipf's_law).
