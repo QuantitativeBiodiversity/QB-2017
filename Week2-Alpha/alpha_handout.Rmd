@@ -11,8 +11,8 @@ geometry: margin=2.54cm
 ## OVERVIEW
 
 In this exercise, we will explore aspects of local or site-specific diversity, also known as alpha ($\alpha$) diversity. 
-After introducting one of the primary ecological data structures -- the **site-by-species matrix** -- we will quantify two of the fundamental components of $\alpha$-diversity: **richness** and **evenness**.
-From there, we will discusss ways to integrate richness and evenness, which will include univariate metrics of diversity along with an investigation of **species-abundance distributions (SAD)**.
+We will quantify the two primary components of $\alpha$-diversity (**richness** and **evenness**) using the site-by-species matrix.
+From there, we will discusss ways to integrate richness and evenness, which will include univariate metrics of diversity and an investigation of the **species-abundance distribution (SAD)**.
 
 ## 1) SETUP
 ### Retrieve and Set Your Working Directory
@@ -20,13 +20,12 @@ From there, we will discusss ways to integrate richness and evenness, which will
 ```{r, results = 'hide'}
 rm(list=ls()) 
 getwd() 
-setwd("~/GitHub/QuantitativeBiodiversity/Assignments/Alpha") 
+setwd("~/GitHub/QB-2017/Week2-Alpha") 
 ```
 
 ### Install Packages
 
-In this excercise, we will rely heavily on a contributed R package called `vegan`. 
-This package contains tools commonly used in ecological research, including analyses of $\alpha$-diversity.
+In this excercise, we will use a popular R package called `vegan`, which contains tools commonly used in ecological research, including analyses of $\alpha$-diversity.
 Jari Oksanen has created an excellent tutorial that provides an overview of the `vegan` package: http://cc.oulu.fi/~jarioksa/opetus/metodi/vegantutor.pdf
 
 Let's install the `vegan` package and its dependencies. 
@@ -44,8 +43,8 @@ require("vegan")
 We will start by using the tropical forest dataset from Barro-Colorado Island (BCI).
 BCI is a 1,560-hectare island in the center of the Panama Canal that is administered by the Smithsonian Tropical Research Institution (http://www.stri.si.edu/english/research/facilities/terrestrial/barro_colorado/). 
 Conveniently, the `vegan` package contains a version of the BCI dataset. 
-The dataset is a census of all trees of at least 10 cm in diameter at breast height (DBH) that occur in 50 one-hectare plots.
-More information on the BCI forest dataset can be found elswhere (http://ctfs.arnarb.harvard.edu/webatlas/datasets/bci/).
+The BCI dataset is a census of all trees of at least 10 cm in diameter at breast height (DBH) that occur in 50 one-hectare plots.
+More information on the BCI dataset can be found elswhere (http://ctfs.arnarb.harvard.edu/webatlas/datasets/bci/).
 You can also learn more about the BCI dataset associated with the `vegan` package by typing `help(BCI)` in the command line.
 Let's load the BCI data using the `data` function:
 
@@ -75,7 +74,7 @@ The table below is an example of what a typical site-by-species matrix looks lik
 Each row in the site-by-species matrix corresponds to a site (or sample), while each column corresponds to a species (or other taxonomic unit).
 Throughout the course, we will draw inferences about aspects of diversity from the site-by-species matrix.
 
-The version of the BCI site-by-species matrix provided in `vegan` contains the abundances of 225 tree species (i.e., 225 columns) for each of 50 sites (i.e., 50 rows).
+The version of the BCI site-by-species matrix provided in `vegan` contains the abundances of more than 200 tree species (i.e., >200 columns) for each of 50 sites (i.e., 50 rows).
 While it is conventional to refer to a matrix or table by its rows and then by its columns, each row could just as easily be a species and each column could be a site, i.e., a species-by-site matrix.
 It's good to be aware that some programs that you encounter will prefer data to be in one format or the other. 
 In such cases, you can use the transpose function (`t()`) to modify the site-by-species matrix.
@@ -93,11 +92,7 @@ BCI[1:8, 14:17]
 ```
 
 Here, we can see that Cabbage Bark (*Andira inermis*) is absent from six of the eight sites and is only found as a single individual in two sites (sites 5 and 6). 
-On ther other hand, *Apeiba aspera* (locally known as Monkey Comb) is found at all eight sites and is more abundant than any of the other three species that we indexed in the data frame.
-
-***Question 1***:  Make some additional observations about the occurrence and abundance of species in the samples you've just indexed.
-
-> ***Answer 1***: 
+On ther other hand, *Apeiba glabra* is found at all eight sites and is more abundant than any of the other three species that we indexed in the data frame.
 
 
 ## 4) SPECIES RICHNESS
@@ -112,20 +107,15 @@ In this part of the exercise, you will see that there are several ways to estima
 ### Observed Richness
 
 The simplest way to calcuate species richness is to just add up the number of species that were detected in a sample.
-Let's calculate species richness using this approach for one of the BCI sites. 
-Using some of the R basics from last week, we are going to:
+It is important to note that, in most site-by-species matrices, not every species will be present at each site.
+Consequently, we cannot simply count the columns of the site-by-species matrix to obtain the value of observed richness.
 
-1.  assign the first row to a variable called `site1`, and 
-2.  check the dimensions of this new vector
-
-```{r, results='hide'}
-site1 <- BCI[1, ]
-dim(site1)
-```
-
-While there are 225 species in the BCI dataset, and hence, 225 columns in the BCI site-by-species matrix, each of the 225 species was not likely present at each site.
-Consequently, it is important to note that site-by-species matrices include absences (i.e., zero occurences). 
 Let's write a function that calculates observed species richness of a site.
+Functions are central to the use of R and most any other computing software.
+In short, functions are pieces of code that operate on one or more variables or objects (e.g., scalars, lists, matrices, etc.).
+In fact, you've already used several native R functions, e.g., dim(BCI).
+
+Instead of repeatedly rewriting code to calculate richness, we define a function called `S.obs` that calculates richness of a given vector (i.e., `x`).
 
 ```{r}
 S.obs <- function(x = ""){
@@ -133,17 +123,11 @@ S.obs <- function(x = ""){
   }
 ```
 
-*The writing and use of functions is central to programming.*
-The basic concept behind functions is to define a piece of code that operates on one or more variables.
-So, instead of repeatedly rewriting code to calculate richness, we define a function called `S.obs` that calculates richness of a given vector (i.e., `x`).
 We can then call the function by typing `S.obs()` and placing the name of our vector in the parentheses. 
-There is also a function in the `vegan` package called `specnumber()` that calculates observed richness. 
+There is also a function in the `vegan` package called `specnumber()` that calculates observed richness.
 
-***Question 2***: Does `specnumber()` from `vegan` return the same value for observed richness of `site1` as our function `S.obs `? If so, what is the species richness of `site1`? If not, explain.
 
-> ***Answer 2***:
-
-### But How Well Did You Sample Your Site?
+### How Well Did You Sample Your Site?
 
 Accurate estimates of richness are influenced by sampling effort and biases.
 Even when the sampling effort is unbiased, the more individuals that are censused, the more likely you are to encounter new species.
@@ -159,30 +143,17 @@ C <- function(x = ""){
   }
 ```
   
-***Question 4***: Answer the following questions about coverage:
-
-a.  What is the range of values that can be generated by Good's Coverage? 
-b.  What would we conclude from Good's Coverage if $\it{n_{1}}$ equaled *N*?
-c.  What portion of taxa in `site1` were represented as singletons? 
-d.  Have the researchers at BCI done a good job of sampling `site1`?
-
-> ***Answer 4a***:  
-> ***Answer 4b***:  
-> ***Answer 4c***:  
-> ***Answer 4d***:  
-
 ### Estimated Richness
 
 There are few systems on earth that have been better surveyed than the trees at BCI.
 For most ecological systems, sample size is much smaller than *N* and many taxa can easily go undetected.
-Consequently, while observed taxonomic richness can be easily calculated, true richness must be estimated. 
-To address the scenario of estimating species or taxonomic richness, we are going to introduce a new data set derived from bacterial 16S rRNA gene sequences for bacteria, which were collected from multiple plots at the KBS Long-Term Ecological Site (http://lter.kbs.msu.edu/).
-Because it is sometimes hard to apply the species concept to bacteria, sequences are often binned into **operational taxonomic units (OTU)** based on thier sequence similarity.
+Consequently, while observed richness can be easily calculated, true richness must be estimated.
+To address the case of estimating richness, we are going to introduce a dataset derived from 16S rRNA gene sequences for bacteria, which were collected from the Kellogg Biological Station Long-Term Ecological Site (http://lter.kbs.msu.edu/).
+
+Because it is sometimes hard to apply the species concept to bacteria, sequences are often binned into **operational taxonomic units (OTU)** based on the percent of their gene sequence similarity.
 Therefore, we will technically be dealing with a site-by-OTU matrix for some of the following exercises. 
 
-In the following R chunk, we load this bacterial dataset as a matrix and identify a sample (i.e., site) for subsequent analysis. 
-Notice the commands we are using to load this data.
-We recommend that you explore the various ways to load data into R before working with your own data.
+In the following R chunk, we load the bacterial dataset as a matrix and identify a sample (i.e., site) for subsequent analysis.
 
 ```{r}
 soilbac <- read.table("data/soilbac.txt", sep = "\t", header = TRUE, row.names = 1)
@@ -190,25 +161,14 @@ soilbac <- as.data.frame(t(soilbac))
 soilbac1 <- soilbac[1,]
 ```
 
-***Question 5***: Answer the following questions about the soil bacterial dataset. 
-
-a.  How many sequences did we recover from the sample `soilbac1`, i.e. *N*? 
-b.  What is the observed richness of `soilbac1`? 
-c.  How does coverage compare between the BCI sample (`site1`) and the KBS sample (`soilbac1`)?
-
-> ***Answer 5a***:  
-> ***Answer 5b***:  
-> ***Answer 5c***:  
-
-There are number of statistical techniques developed to estimate richness based on the coverge of species in a sample (e.g., Hughes et al. 2001  -- http://aem.asm.org/content/67/10/4399).
+There are number of statistical techniques developed to estimate richness based on the coverage of species in a sample (e.g., Hughes et al. 2001  -- http://aem.asm.org/content/67/10/4399).
 We can think of these estimators as ways to **extrapolate** richness based on information contained in our sample. 
-Here, we will highlight two commonly used richness estimators that were developed by Anne Chao. 
-Both estimators fall into the category of being non-parametric, which means that they are not based on an underlying distribution (e.g. Normal distribution, Student's *t*-distribution) and hence, make few statistical assumptions.
+Here, we will highlight two commonly used richness estimators developed by Anne Chao. 
+Both estimators fall into the category of being non-parametric, which means that they are not based on any assumptions that the data come from a particular underlying distribution (e.g. Normal distribution).
 
 **Chao1** is an ***abundance-based estimator*** and is useful for examining richness of a single site.
-It is calculated using observed richness (`S.obs`), the observed number of **singletons** (species with an observed abundance of 1), and the observed number of **doubletons** (species with observed abundance of 2).
-Chao1 tends to be used for analysis of samples with low-abundance taxa. 
-Becasue it requires singleton and doubleton data to calculate, Chao1 cannot be used on site-by-species matrix where abundances have been relativized. 
+Chao1 is calculated using observed richness (`S.obs`), the observed number of **singletons** (species with an observed abundance of 1), and the observed number of **doubletons** (species with observed abundance of 2).
+Because it requires singleton and doubleton data to calculate, Chao1 cannot be used on site-by-species matrix where abundances have been relativized, i.e., where the abundance of each species is divided by the row sum.
 
 Let's write a function for Chao1:
 
@@ -218,10 +178,11 @@ S.chao1 <- function(x = ""){
   }
 ```
 
+*WE SHOULD ELABORATE ON WHAT THIS S.chao1 FUNCTION DOES*
+
 **Chao2** is an ***incidence-based estimator*** that uses presence-absence data for examining richness across multiple sites.
 Chao2 is calculated using observed richness (`S.obs`).
 However, in Chao2, **singletons** and **doubletons** refer to species observed once and twice, respectively, *among sites or samples*.
-Chao2 is commonly used when estimating richness with clonal organisms, when taxonomic abundances are difficult to estimate, and/or with percent cover data (e.g., corals).
 
 Let's write a function for Chao2.
 In this function, the first argument is site, supplied either as row number or row title (e.g., 1 or "T1_1") and the second argument is the name of the site-by-species matrix (e.g., soilbac):
@@ -238,13 +199,15 @@ S.chao2 <- function(site = "", SbyS = ""){
   }
 ```
 
+*WE SHOULD ELABORATE ON WHAT THIS S.chao2 FUNCTION DOES*
+
 Notice that this function is a bit more complicated than previous functions we have written.
-Take a moment to read through each step and figure out what the function is doing.
-If you refer to Chapter 5, pages 56 and 57, in "Biological Diversity: frontier in measurement and assessment" you will see that Chao1 and Chao2 are mathematically very similar, and differ in whether we are considering the abundance of species at a site (Chao1) or the presence of species across multiple sites (Chao2).
+
+In Chapter 5, pages 56 and 57, of "Biological Diversity: frontier in measurement and assessment" you will see that Chao1 and Chao2 are mathematically very similar, and mainly differ in whether we are considering the abundance of species at one site (Chao1) or the presence of species across multiple sites (Chao2).
 
 ## Rarefaction
 
-Often researchers want to compare the richness of two or more samples.
+Often researchers want to compare the richness of two or more ecological communities.
 Ideally, we would sample all of our sites with equal effort.
 Ideally, all sites would have equal densities.
 And ideally, all individuals would have equal probability of detection.
@@ -314,10 +277,6 @@ par <- opar                                           # Resets plotting paramete
 It is clear from looking at the RAC for `site1` that the abundance among species is unequally distributed.
 This sort of uneven distribution of abundance among species is one of the most ubiquitous patterns in ecology and has provoked a long history of study, theories, and explanations (see McGill et al. 2007) (http://www.ncbi.nlm.nih.gov/pubmed/17845298).
 
-***Question 8***: What effect does visualizing species abundance data on a log scaled axis have on how we interpret evenness in a RAC?
-
-> ***Answer 8***:
-
 Now that we have visualized unevennes, it is time to quantify it.
 Based on decades of work, researchers have identified desirable features of an evenness metric. 
 One of these features is that the values generated by the metric should be relatively easy to inuit. 
@@ -381,11 +340,6 @@ Now let's use the $E_{var}$ function to estimate evenness for `site1` of the BCI
 Evar(site1)
 ```
 
-***Question 9***: Compare estimates of evenness for `site1` of BCI using $E_{1/D}$ and $E_{var}$.
-Do they agree? 
-What can you infer from the results?
-
-> ***Answer 9***:
 
 ##6) INTEGRATING RICHNESS AND EVENNESS: DIVERSITY METRICS
 
@@ -484,12 +438,7 @@ Now, let's visualize our results by plotting the empirical RAC and the predicted
 plot(RACresults, las=1, cex.lab = 1.4, cex.axis = 1.25)
 ```
 
-***Question 11***: Based on the output of `radfit()` and plotting above, discuss which model best fits our rank-abundance curve for `site1`? 
-
-> ***Answer 11***:
-
-
-### Interpreting the RAC models in `vegan`:
+### A quick interpretation of the RAC models in `vegan`:
 
 #### Null:
 A **broken stick model** (Pielou 1975) where the expected abundance of a species at rank *r* is $a_r = \frac{N}{S} \cdot \sum\limits_{x=r}^{S}\frac{1}{x}$.
@@ -506,20 +455,14 @@ Imagine this process continuing until *N* is zero.
 The only estimated parameter is the preemption coefficient $\alpha$, which gives the decay rate of abundance per rank. 
 The expected abundance (*a*) of species at rank *r* is $a_r = N \cdot \alpha \cdot (1 - \alpha)^{(r - 1)}$. 
 
-***Question 12***: Answer the following questions about the preemption model:
-
-a.  What does the preemption model assume about the relationship between total abundance (*N*) and total resources that can be preempted?
-b.  Why does the niche preemption model look like a straight line in the RAD plot?
-
-> ***Answer 12a***:  
-> ***Answer 12b***:
 
 #### Lognormal:
-Many statistical models assume that the distribution of values are normally distributed. 
-When applied to species abundances, this means that they conform to the shape of a symmetrical bell curve, more precisely known as the Gaussian distribution.
-In contrast, the log-Normal model assumes that the logarithmic abundances are normally distributed.
-The expected abundance of a species at rank *r* is then: $a_r = e^{log(\mu) + log(\sigma) \cdot Z }$, where *Z* is the Normal deviate. 
-A Normal deviate is simply the number of standard deviations a score is from the mean of its population.
+Many statistical tests and models assume that data are normally distributed. 
+When applied to species abundances, this means that a histogram of species abundances (i.e., the species-abundance distribution; SAD) should look like a bell curve.
+However, species abundances are rarely ever normally distributed and there is almost always an excess of rare species.
+The lognormal model presumes that species abundances become normally distributed under *logarithmic transformation*.
+Log-transforming species abundances decreases the disparity between rare and dominant species, e.g., 0 = log(1) and 3 = log(1000).
+
 The log-normal model was introduced into ecology by Frank Preston in 1948 and is one of the most widely successful species abundance models.
 
 #### Zipf:
@@ -533,16 +476,4 @@ This model adds one parameter ($\beta$) to the Zipf model.
 The expected abundance of a species (*a*) at rank *r* is $a_r = N \cdot c \cdot (r + \beta)^{\gamma}$. 
 Here, the $\it{p_1}$ parameter of the Zipf model changes into a meaningless scaling constant *c*.
 
-## HOMEWORK
-
-1.  As stated by Magurran (2004) the  ${D = } \sum p_i^2$ derivation of Simpson's Diversity only applies to communities of infinite size. For anything but an infinitely large community, Simpson's Diversity index is calculated as ${D = } \sum \frac{n_i(n_i -1)} {N(N-1)}$. 
-Assuming a finite community, calculate Simpson's D, 1 - D, and Simpson's inverse (i.e. 1/D) for `site 1` of the BCI site-by-species matrix. 
-
-2.  Along with the rank-abundance curve (RAC), another way to visualize the distribution of abundance among species is with a histogram (a.k.a., frequency distribution) that shows the frequency of different abundance classes.
-For example, in a given sample, there may be 10 species represented by a single individual, 8 species with two individuals, 4 species with three individuals, and so on.
-In fact, the rank-abundance curve and the frequency distribution are the two most common ways to visualize the species-abundance distribution (SAD) and to test species abundance models and biodiversity theories.
-To address this homework question, use the R function **hist()** to plot the frequency distribution for site 1 of the BCI site-by-species matrix, and describe the general pattern you see.
-
-3.  Use Knitr to create a pdf of your completed alpha_exercise.Rmd document, push it to GitHub, and create a pull request.
-The due date for this assignment will be announced in class and/or canvas.
 

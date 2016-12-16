@@ -27,8 +27,6 @@ Your pull request should include this file *alpha_exercise.Rmd* and the PDF outp
 
 
 ## 1) R SETUP
-Typically, the first thing you will do in either a R script or a RMarkdown file is setup your environment. 
-This includes things such as setting the working directory and loading any packages that you will need.
 
 In the R code chunk below, please provide the code to: 
 1) clear your R environment,
@@ -44,8 +42,6 @@ In the R code chunk below, please provide the code to:
 ```
 
 ## 2) LOADING DATA
-
-We will start by using the tropical forest dataset from **Barro-Colorado Island (BCI)**.
 
 In the R code chunk below, do the following:
 1) load the BCI dataset from the `vegan` package, and 
@@ -67,9 +63,14 @@ In the R code chunk below, do the following:
 
 ```
 
-***Question 1***:  Makes some observations about the occurrence and abundance of species in the samples you've indexed.
+***Question 1***:  What does summing across the rows of a given column reveal? What about summing across the columns of a given row?
 
 > ***Answer 1***: 
+
+
+***Question 2***:  Makes some observations about the occurrence and abundance of species in the samples you've indexed. For example, do most species occur at most sites? Are the most abundant species also the most widely occurring?
+
+> ***Answer 2***: 
 
 
 ## 4) SPECIES RICHNESS
@@ -83,31 +84,27 @@ The simplest way to calcuate species richness is to just add up the number of sp
 Let's calculate species richness for one of the BCI sites. 
 
 In the R code chunk below, do the following:
-1. assign the first row of the BCI site-by-species matrix to a variable called `site1`, 
-2. check the dimensions of this new vector,
-3. using the template provided, write the function to calculate observed richness when 0s are present in the data,
-4. use your function to determine the number of species in `site1`, and
-5. compare the output of your function to the output of the `specnumber()` function in vegan.
+1. Write a function called *S.obs* to calculate observed richness.
+2. Use your function to determine the number of species in `site1`, and
+3. Compare the output of your function to the output of the `specnumber()` function in vegan.
 
 ```{r}
-
 
 # S.obs <- function(   ){
 #   rowSums(     ) * 
 #   }
 
-
-
 ```
 
-***Question 2***: Does `specnumber()` from `vegan` return the same value for observed richness of `site1` as our function `S.obs`?
+***Question 3***: Does `specnumber()` from `vegan` return the same value for observed richness of `site1` as our function `S.obs`?
 If so, what is the species richness of `site1`?
 If not, explain.
 
-> ***Answer 2***:
+> ***Answer 3***:
 
-Writing functions is central to using computational tools and is generally valuable to understanding how models and metrics of biodiversity are calculated and encoded via a programming language.
+
 This has been an example of how we can write our own functions that accomplish the same tasks as software packages such as `vegan`.
+
 
 ### But How Well Did You Sample Your Site?
 
@@ -134,6 +131,7 @@ d.  Have the researchers at BCI done a good job of sampling `site1`?
 > ***Answer 4c***:  
 
 > ***Answer 4d***:  
+
 
 ### Estimated Richness
 
