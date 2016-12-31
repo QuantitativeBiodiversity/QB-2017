@@ -1,5 +1,5 @@
 ---
-title: "Week 1 Exercise: Basic R"
+title: "Week 1 Handout: Basic R"
 author: "Z620: Quantitative Biodiversity, Indiana University"
 date: "January 16, 2015"
 output: pdf_document
@@ -8,9 +8,9 @@ geometry: margin=2.54cm
 
 ## OVERVIEW
 
-This exercise builds from the Week 0 introduction to R, which highlighted operators, vectors, and simple commands that will be useful for you during the course and beyond. 
-Here, you will be introduced to a new data type, matrices. 
-After learning how to work with matrices, we will learn about contributed packages, which will allow us to visualize data and peform basic statistics (e.g., linear regression and ANOVA).
+This handout builds from the Week 0 introduction to R and RStudio, which highlighted operators, vectors, and simple commands that will be useful to you during the course and beyond. 
+Now, you will be introduced to some new data types, specifically matrices and dataframes. 
+After learning how to work with these data types, you will learn about contributed packages, which will aid in the visualization of data and with peforming descriptive and hypothesis-testing statistical procedures, including linear regression and ANOVA.
 
 ## 1) SETTING YOUR WORKING DIRECTORY
 
@@ -39,7 +39,7 @@ setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week1")
 
 **Matrices** are another data type in R. 
 They are just two-dimensional vectors containing data of the same type (e.g., numeric, integer, character). 
-Thereofore, much of what we just discussed about vectors translates directly into dealing with matrices. 
+Thereofore, much of what we discussed in Week 0 about vectors translates directly into dealing with matrices. 
 
 ### Making A Matrix
 
@@ -56,7 +56,7 @@ j <- c(rnorm(100, mean = 50, sd = 25))
 What are the arguments specifying? 
 Remember to use `help()` or type `?rnorm`.
 
-Create a new vector named `z` also with 100 elements, but with a different mean and standard deviation?
+Create a new vector named `z` also with 100 elements, but with a different mean and standard deviation
 
 ```{r}
 z <- c(rnorm(100, mean = 500, sd = 150)) 
@@ -114,7 +114,7 @@ n <- m[1:3, ]
 Or maybe you want the first two columns of a matrix instead:
 
 ```{r}
-n <- m[, 1:2]
+n <- m[ ,1:2]
 ```
 
 Or perhaps you want non-sequential columns of a matrix. 
@@ -147,9 +147,9 @@ str(meso)
 ```
 
 How does this dataset differ from the `m` dataset above? 
-The answer is, we're now dealing with a new type of **data structure**. 
-Specifically, the `meso` dataset is a **data frame** since it has a combination of numeric and character data (i.e., note the `Factor`, `int`, and `num` data types generated from `str` function). 
-(Remember, **matrices** and **vectors** are only comprised of a _single_ data type.)
+Remember, **matrices** and **vectors** are only comprised of a _single_ data type.
+In contrast, the `meso` dataset has a combination of numeric and character data; note the `Factor`, `int`, and `num` data types generated from `str` function. 
+So, this means we're dealing with a new type of **data structure**: a **data frame**
 
 Here is a description of the column headers:
 
@@ -198,8 +198,8 @@ The base pakcage in R won't always meet all of our needs.
 This is why there are > 6,000 **contributed packages** that have been developed for R. 
 This may seem overwhelming, but it also means that there are tools (and web support) for just about any problem you might encounter.  
 
-When using one of the contributed packages, the first thing we need to do is **install** them along with their dependencies (other required packages). 
-We're going to start out by using the [_psych_ package](http://cran.r-project.org/web/packages/psych/vignettes/overview.pdf). 
+When using one of the contributed packages, the first thing we need to do is **install** them along with their dependencies (i.e., other required packages). 
+We're going to start out by using the _psych_ package <http://cran.r-project.org/web/packages/psych/vignettes/overview.pdf>. 
 The _psych_ package has many features, but we're going to use it specifically for the `corr.test` function.
 This function generates **p-values** for each pairwise correlation. 
 (For whatever reason, the `cor` function in the `base` package of R does not generate p-values.)
@@ -233,9 +233,10 @@ This process corrects for **false discovery rate**, which arises whe making mult
 
 **Q5:** Describe what you learned from corr.test. 
 Specifically, are the results sensitive to whether you use parametric (i.e., Pearson's) or non-parametric methods?
-With the Pearson's method, is there evidence for false discovery rate due to multiple comparisons?
+When should one use non-parameteric methods instead of parameteric methods?
+With the Pearson's method, is there evidence for false discovery rate due to multiple comparisons? Why is false discovery rate important?
 
-Now, let's load another package that will let us visualize the sign and strength of the correlations:
+Now, let's load another package that will let us visualize the direction and strength of the correlations:
 
 ```{r}
 require("corrplot")
@@ -272,9 +273,15 @@ We can add some text to the plot to visualize the categorical nutrient treatment
 
 ```{r reglayer2, echo=-1}
 <<reglayer1>>
-text(meso$TN, meso$ZP,meso$NUTS,pos=3,cex=0.8)
+text(meso$TN, meso$ZP, meso$NUTS, pos = 3, cex = 0.8)
 ```
 
+There is somewhat of a steep learning curve for plotting in R. 
+However, R is also very flexible and can make beautiful figures. 
+Perhaps one of the biggest initial obstacles is getting familiar with all of the **plotting arguments**.
+The following website provides a nice overview <http://www.statmethods.net/advgraphs/parameters.html> and there are plenty of other websites and books that are useful to have close by. 
+
+Now, let's continue with our regression analysis. 
 To add the regression line, the first thing we need to do is identify a range of x-values and then generate the corresponding **predicted values** from our regression model:
 
 ```{r reglayer3, echo = -1}
@@ -339,14 +346,14 @@ bp <- barplot(zp.means, ylim =c(0, round(max(meso$ZP), digits = 0)),
               names.arg = c("low", "medium", "high"))
 ```
 
-We need to add the error bars (+/- sem) "manually" as follows:
+We need to add the error bars ($\pm$ sem) "manually" as follows:
 
 ```{r boxlayer2, echo = -1}
 <<boxlayer1>>
 arrows(x0 = bp, y0 = zp.means, y1 = zp.means - zp.sem, angle = 90,
-       length=0.1, lwd = 1)
+       length = 0.1, lwd = 1)
 arrows(x0 = bp, y0 = zp.means, y1 = zp.means + zp.sem, angle = 90,
-       length=0.1, lwd = 1)
+       length = 0.1, lwd = 1)
 ```
 
 Last, we can conduct a one-way analysis of variance (ANOVA) as follows:
@@ -378,17 +385,12 @@ par(mfrow = c(2, 2), mar = c(5.1, 4.1, 4.1, 2.1))
 plot(fitanova)
 ```
 
-##HOMEWORK
-1) Complete the entire exercise in the Week1_Exercise.Rmd (in week 1 folder)
-
-2) In addition, redo the section on linear regression (including summary statistics, plotting, and diagnostics) using log10-transformed zooplankton biomas data. Does the transformation help meet assumption of linear regression or change the interpretation of the analysis in anyway? Describe.
-
-3) Use Knitr to create a pdf of your completed Week1_Exercise.Rmd document, push it to GitHub, and create a pull request.
-This assignment is due on **January 21^st^, 2015 at 12:00 PM (noon)**.
-
-
-## 4) INTRODUCING THE SITE-BY-SPECIES MATRIX
-The **site-by-species matrix** is a primary ecological data structure that contains abundances, relative abundances, or the presence of species (or other taxonomic units) observed at different sampling sites. 
+## 4) AN INTRODUCTION TO THE SITE-BY-SPECIES MATRIX
+During Quantitative Biodiversity this semester, you will be introducted to a few fundamental data structures that are critical for analyzing biodiversity data. 
+The first of these is the **site-by-species matrix**. 
+This site-by-speces matrix contains abundances, relative abundances, or the presence of species (or other taxonomic units) observed at different sampling sites. 
+The site-by-species matrix is also very similar to other types of data that you might encounter if you are working with genomic, metagenomic, transriptomic, or metabolomic datasets. 
+This means that, even if you don't care about biodiversity *per se*, the tools that you are learning in Quantitative Biodiversity can be transferred to address questions in other sytems!
 The table below is an example of what a typical site-by-species matrix looks like:
 
 \begin{center}
@@ -406,9 +408,3 @@ The table below is an example of what a typical site-by-species matrix looks lik
 
 Each row in the site-by-species matrix corresponds to a site (or sample), while each column corresponds to a species (or other taxonomic unit).
 Throughout the course, we will draw inferences about aspects of diversity from the site-by-species matrix.
-
-### Load Site x Species Matrix from Mesocosm Dataset 
-
-### describe the taxa/biomass
-### use commands you've learned to create a new variable: zooplaknton community biomass (ZP)
-### use this as a response variable in the analyses below. 
