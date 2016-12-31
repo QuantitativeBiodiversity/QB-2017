@@ -34,7 +34,7 @@ The completed exercise is due on **Wednesday, January 18^st^, 2017 before 12:00 
 You are working in an RMarkdown file.
 It allows you to integrate text and R code into a single file.
 There are two major features to this document: 1) Markdown formatted text and 2) "chunks" of R code.
-Anything in an R code chunk will be intrepreted by R when you *Knit* the document.
+Anything in an R code chunk will be interpreted by R when you *Knit* the document.
 
 When you are done, you will *knit* your document together.
 However, if there are errors in the R code contained in your Markdown document, you will not be able to knit a PDF file. 
@@ -60,7 +60,7 @@ To follow up on the Week 0 exercises, please calculate the following in the R co
 Feel free to reference the Week 0 handout. 
 
 1) the volume of a cube with length, l, = 5.
-2) the area of a circle with radius,r, = 2 (area = pi * r^2). 
+2) the area of a circle with radius, r, = 2 (area = pi * r^2). 
 3) the length of the opposite side of a right-triangle given that the angle, theta, = pi/4. (radians, a.k.a. 45°) and with hypotenuse length sqrt(2) (remember: sin(theta) = opposite/hypotenuse).
 4) the log (base e) of your favorite number.
 
@@ -73,7 +73,7 @@ Feel free to reference the Week 0 handout.
 
 ## 4) WORKING WITH VECTORS
 
-To follow up on the Week 0 exercises, please peform the requested operations in the Rcode chunks below.
+To follow up on the Week 0 exercises, please perform the requested operations in the Rcode chunks below.
 Feel free to reference the Week 0 handout. 
 
 ### Basic Features Of Vectors
@@ -100,9 +100,9 @@ Now, do the following:
 
 ```
 
-### Summary Statictics of Vectors
+### Summary Statistics of Vectors
 
-In the R code chunk below, calcualte the **summary statistics** (ie., maximum, minimum, sum, mean, median, variance, standard deviation, and standard error of the mean) for the vector (`v`) provided.
+In the R code chunk below, calculate the **summary statistics** (ie., maximum, minimum, sum, mean, median, variance, standard deviation, and standard error of the mean) for the vector (`v`) provided.
 
 ```{r}
 v <- c(16.4, 16.0, 10.1, 16.8, 20.5, NA, 20.2, 13.1, 24.8, 20.2, 25.0, 20.5, 30.5, 31.4, 27.1)
@@ -144,7 +144,7 @@ Make the mean of the first column equal to 8 with a standard deviation of 2 and 
 In the R code chunk below, do the following: 
 1) Load `matrix.txt` from the Week1 data folder as matrix `m`.
 2) Transpose this matrix.
-3) Determine the dimensions of the tranposed matrix.
+3) Determine the dimensions of the transposed matrix.
 
 ```{r}
 
@@ -199,7 +199,7 @@ In the R code chunk below, do the following:
 ```
 
 
-***Question 4***: Describe some of the general features based on the visualization and correlation anaylysis above?
+***Question 4***: Describe some of the general features based on the visualization and correlation analysis above?
 
 > Answer 4:
 
@@ -218,7 +218,7 @@ In the R code chunk below, do the following:
 ***Question 5***: Describe what you learned from `corr.test`. 
 Describe what you learned from corr.test. 
 Specifically, are the results sensitive to whether you use parametric (i.e., Pearson's) or non-parametric methods?
-When should one use non-parameteric methods instead of parameteric methods?
+When should one use non-parametric methods instead of parametric methods?
 With the Pearson's method, is there evidence for false discovery rate due to multiple comparisons? Why is false discovery rate important?
 
 > ***Answer 5***: 
@@ -235,7 +235,7 @@ In the R code chunk below, use the `corrplot` function in the *corrplot* package
 
 In the R code chunk below, do the following:
 1) Conduct a linear regression analysis to test the relationship between total nitrogen (TN) and zooplankton biomass (ZP).
-2) Examine the output of the regression analaysis.
+2) Examine the output of the regression analysis.
 3) Produce a plot of this regression analysis including the following: categorically labeled points, the predicted regression line with 95% confidence intervals, and the appropriate axis labels.
 
 ```{r}
@@ -264,10 +264,10 @@ Using the R code chunk below, use the code provided in the handout to determine 
 
 ```
 
-+ Upper left: is there a random distribtion of the residuals around zero (horizontal line)?
-+ Upper right: is there a resonably linear relationship between standardized residuals and theoretical quantiles? Try `help(qqplot)`
++ Upper left: is there a random distribution of the residuals around zero (horizontal line)?
++ Upper right: is there a reasonably linear relationship between standardized residuals and theoretical quantiles? Try `help(qqplot)`
 + Bottom left: again, looking for a random distribution of sqrt(standardized residuals)
-+ Borrom right: leverage indicates the influence of points; contours correspond with Cook's distance, where values > |1| are "suspicious"
++ Bottom right: leverage indicates the influence of points; contours correspond with Cook's distance, where values > |1| are "suspicious"
 
 ### ANALYSIS OF VARIANCE (ANOVA)
 
@@ -303,7 +303,7 @@ Using the R code chunk below, use the diagnostic code provided in the handout to
 ## SITE-BY-SPECIES MATRIX
 
 In the R code chunk below, load the zoop.txt dataset in your Week1 data folder.
-Create a site-by-species matrix (or dataframe) that does not include TANK oor NUTS.
+Create a site-by-species matrix (or dataframe) that does not include TANK or NUTS.
 The remaining columns of data refer to the biomass (µg/L) of different zooplankton taxa: 
   
   + CAL = calanoid copepods
@@ -324,7 +324,7 @@ The remaining columns of data refer to the biomass (µg/L) of different zooplank
   
   + CHYD = *Chydorus* sp. 
 
-***Question 9***: With the visualization and statistical tools that we leanred about in the Week 1 Handout, use the site-by-species matrix to assess whether and how different zooplankton taxa were responsible for the total biomass (ZP) resppone to nutrient enrichment. Describe what you learnd below in the "Answer" section and include appropriate code in the R chunk.
+***Question 9***: With the visualization and statistical tools that we learned about in the Week 1 Handout, use the site-by-species matrix to assess whether and how different zooplankton taxa were responsible for the total biomass (ZP) response to nutrient enrichment. Describe what you learned below in the "Answer" section and include appropriate code in the R chunk.
 
 ```{r}
 
