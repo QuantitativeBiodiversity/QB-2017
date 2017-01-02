@@ -1,5 +1,5 @@
 ---
-title: "Local (alpha) Diversity"
+title: "Assignment: Local (alpha) Diversity"
 author: "Student Name; Z620: Quantitative Biodiversity, Indiana University"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: pdf_document
@@ -44,7 +44,7 @@ In the R code chunk below, please provide the code to:
 ## 2) LOADING DATA
 
 In the R code chunk below, do the following:
-1) load the BCI dataset from the `vegan` package, and 
+1) load your dataset, and 
 2) display the structure of the dataset (if the structure is long, use `max.level=0` to show just basic information).
 
 ```{r}
