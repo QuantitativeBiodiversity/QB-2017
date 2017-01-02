@@ -25,7 +25,7 @@ After completing this exercise you will know how to:
 ```{r, results = 'hide'}
 rm(list = ls())
 getwd()
-setwd("~/GitHub/QuantitativeBiodiversity/Assignments/Beta")
+setwd("~/GitHub/QB-2017/Week3-Beta/")
 ```
 
 ### B. Load Packages 
@@ -60,6 +60,7 @@ In R, a list is an object that contains a collection of other objects of similar
 We can use the `str()` function to describe the attributes of `doubs`, which is a list.
 Because this dataset is somewhat complex, we can pass the "max.level = 1" argument to minimize the `str()` output. 
 Also, you can use the the dollar sign (`$`) between the list name (`doubs`) and objects within the list (e.g., `env`) to explore the data set. 
+For example, to access the site-by-environment matrix, you would pass doubs$env to the R console.
 Last, recall that you can use `help()` to learn more about a dataset contained in a package. 
 
 ```{r, results='hide'}
@@ -172,7 +173,7 @@ In order to quantify $\beta$-diversity for more than two samples, we need to int
 In the context of biodiversity, a resemblance matrix is a data structure that calculates the pairwise **similarity** or **dissimiliarity** for all samples in a site-by-species matrix. 
 The resemblance matrix can be generated from a site-by-species matrix containing incidence (presence-absence) data or abundance data. 
 In the sections below, we describe some of the similarity and dissimilarity metrics that are commonly used for constructing a resemblance matrix.
-Throughout this handout, we adopt the notations of Legendre & Legendre (2012); this book can be electronically accessed via the IU library (see the course syllabus [http://goo.gl/y4oK7c]). 
+Throughout this handout, we adopt the notations of Table 7.2 in Legendre & Legendre (2012); this book can be electronically accessed via the IU library (see the course syllabus [http://goo.gl/y4oK7c]). 
 
 ### B.  Incidence-Based Measures of Similarity and Dissimilarity
 When you are working with presence-absence data, you can use the following metrics for generating a similarity or dissimilarity matrix. 
@@ -300,22 +301,21 @@ Here we are going to use the `levelplot()` function in the `lattice` package of 
 This function will allow us to make a basic heatmap of our resemblance matrix.
 First, there are a few things we need to do:  
 
-1.  Define a color palette.
-R includes many predefined color palettes; however, we are going to make our own color palette.
+1.  Define a color palette. R includes many predefined color palettes; however, we are going to use another color palette. The package viridis includes four color palettes, each of which are perceptually uniform and both colorblind- and black-and-white-friendly.
 
 2.  Ensure that our resemblance matrix is plotted correctly. 
 In particular, we need specify the order in which we want our sites to be plotted in the heatmap.
 
 ```{r}
-# Custome Color Palette
-jet.colors <- colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan", 
-                                 "#7FFF7F", "yellow", "#FF7F00", "red", 
-                                 "#7F0000"))
+# Get a Color Palette
+# install.packages("viridis") 
+require(viridis)
+
 # Define Order of Sites
 order <- rev(attr(fish.db, "Labels"))  
 
 # Plot Heatmap
-levelplot(as.matrix(fish.db)[, order], aspect = "iso", col.regions = jet.colors, 
+levelplot(as.matrix(fish.db)[, order], aspect = "iso", col.regions = inferno, 
           xlab = "Doubs Site", ylab = "Doubs Site", scales = list(cex = 0.5), 
           main = "Bray-Curtis Distance")
 ```
@@ -346,7 +346,7 @@ This tool generates a cluster diagram that allows one to examine the abundance o
 require(gplots)
 heatmap.2(as.matrix(fish), distfun = function(x) vegdist(x, method = "bray"),
           hclustfun = function(x) hclust(x, method = "ward.D2"), 
-          col = jet.colors(100), trace = "none", density.info = "none")
+          col = viridis, trace = "none", density.info = "none")
 ```
 
 ***Question 6***: Based on cluster analyses and the introdutory plots that we generated after loading the data, develop a hypothesis for the `doubs` data set? 
@@ -536,6 +536,24 @@ adonis(fish ~ quality, method = "bray", permutations = 999)
 
 > ***Answer 10***: 
 
+To determine whether any species can be used as indicators of habitat quality, we can calculate each species’ Indicator Value (Dufrene and Legendre 1997), which measures the associated between a species and a site group.
+```{r}
+require(indicspecies)
+indval <- multipatt(fish, cluster = quality, control = how(nperm=999)) 
+summary(indval)
+```
+
+Although none of our species is a good indicator of high quality habitat, many are strong indicators of low-to-middle quality habitat. If you observe a community with Alal, Gogo, or Ruru species, the community is likely not of the highest quality.
+
+To test for species preferences, we can calculate Pearson’s phi coefficient of association (fidelity).
+```{r}
+fish.pa <- decostand(fish, method = "total")
+phi <- multipatt(fish.pa, cluster = quality, func = "r.g", control = how(nperm=999)) 
+summary(phi)
+```
+
+From this analysis, we can see that Phph, Neba, and Satr species strongly prefer high quality habitats, while Alal tends to be more often found in low quality habitats.
+
 
 ### B.  Mutivariate Procedures for Continuous Designs
 
@@ -634,20 +652,80 @@ axis(side = 4, lwd.ticks=2, cex.axis=1.2, las = 1, col = "red", lwd = 2.2,
 > ***Answer 12***: 
 
 
-## 7) HOMEWORK
+### iii. Variation Partitioning
+As seen in the site-by-species matrix, fish species abundances vary across sites. 
+From the above analyses, we have shown that spatial variation in fish community structure in the Doubs River can be explained by (1) a qualitative description of site habitat quality (PERMANOVA), with certain fish preferring particular habitats over over (Phi Coefficient of Fidelity); (2) environmental dissimilarity between sites, tested via pairwise correlations between elements of two distance matrices (Mantel tests); and (3) variation in individual environmental variables measured across sites (constrained ordination). 
+However, the environmental variables we have identified as important drivers of community structure also vary across space. 
+A major question in the study of $\beta$-diversity is whether variation in community structure is more strongly driven by changes in underlying environmental variables (after controlling for spatial variation in those variables), by changes in spatial position alone (after controlling for environmental variation), by spatially structured environmental variation, or by other factors. 
+A common approach to answering these types of question is variation partitioning, which determines the amount of variation in a response variable that can be explained by two or more explanatory matrices, jointly and independently. 
+For more detailed explanation of the application of variation partition in ecology, see Borcard et al. (1992), Legendre et al. (2005), and Peres-Neto et al. (2006).
 
-1.  We are going to revsit the soil bacteria data set that we introduced during the the $\alpha$-diversity exercise. 
-You may recall that 16S rRNA sequences were generated from replicate sites from four different land-use treatments (T1 = agriculture, T7 = grassland, DF = deciduous forest, and CF = coniferous forest). 
-On top of this, we characterized bacteria composition from the different soils under experimentally manipulated dry vs. wet condtions. 
-Thus, we have a 2 x 2 full-factorial design (with the exception of a missing sample from the DF land-use treatment). 
-More background on this study can be found in Aanderud et al. 2015 (http://goo.gl/TRgISq)
+First, we will perform Principal Coordinates of Neighbor Matrices (Borcard and Legendre 2002), a special form of distance based Moran's Eigenvector Maps (Dray et al. 2006). This approach decomposes spatial variation into different sine waves to model broad scale (long wavelengths) to fine scale (short wavelengths) spatial structures. 
+```{r}
+rs <- rowSums(fish)/sum(fish)
+doubs.pcnmw <- pcnm(dist(doubs$xy[-8,]), w = rs, dist.ret = T) 
+doubs.pcnmw$values < 0 # Only the positive eigenvalues are meaningful
+```
 
-Two files are available to you in the "~/QB2015_[username]/Beta/data"" directory:
+This analysis returns many eigenvalues, but some of them are redundant. So we will perform model selection (forwards and backwards) to determine which eigenvalues create the most informative model with the fewest parameters (Blanchet et al. 2008). 
 
-a.  Site-by-species matrix ("soilbacfull.txt")
-b.  A factor file that describes the treatments ("soil.factors.txt")
+```{r, results='hide'}
+doubs.space <- as.data.frame(scores(doubs.pcnmw))
+doubs.pcnm.mod0 <- dbrda(fish.db ~ 1, doubs.space)
+doubs.pcnm.mod1 <- dbrda(fish.db ~ ., doubs.space)
+step.pcnm <- ordiR2step(doubs.pcnm.mod0, doubs.pcnm.mod1, perm.max = 200)
+```
 
-Use a combination of visualization and hypothesis-testing techniques described above to interpret the results from the exepriment in a $\beta$-diversity framework. Peform this analysis using an incidence-based distance metric and an abundance-based distance metric. Compare and contrast the outcomes. 
+The object `step.pcnm` now contains the selected model. We can now construct a spatial model using only the selected PCNM axes. 
+```{r}
+step.pcnm$anova
+# Our new model uses a subset of the PCNM axes and has an R2 of 0.63.
+space.mod <- model.matrix(~ PCNM2 + PCNM3 + PCNM5 + PCNM1 + PCNM13 + PCNM16 + PCNM6, doubs.space)[,-1]
+```
 
-2.  Use Knitr to create a pdf of your completed alpha_exercise.Rmd document, push it to GitHub, and create a pull request.
-The due date for this assignment will be announced in class and/or canvas.
+Now, let's repeat the model selection for the environmental dataset.
+```{r}
+doubs.env.mod0 <- dbrda(fish.db ~ 1, as.data.frame(env.chem)) 
+doubs.env.mod1 <- dbrda(fish.db ~ ., as.data.frame(env.chem))
+step.env <- ordiR2step(doubs.env.mod0, doubs.env.mod1, perm.max = 200)
+step.env$anova
+# Our new environmental model contains oxy, bdo, and nit; with R2 of 0.53
+env.mod <- model.matrix(~ oxy + bdo + nit, as.data.frame(env.chem))[,-1]
+```
+
+Now we wish to determine the independent and joint explanatory power of the environmental and spatial datasets using variation partitioning.
+```{r}
+# First, we perform partial canonical ordination controlling for spatial and environmental datasets
+doubs.pure.env <- dbrda(fish.db ~ env.mod + Condition(space.mod)) 
+doubs.pure.space <- dbrda(fish.db ~ space.mod + Condition(env.mod)) 
+doubs.total.env <- dbrda(fish.db ~ env.mod)
+doubs.total.space <- dbrda(fish.db ~ space.mod)
+```
+
+We test for significance of the dbRDA fractions.
+```{r}
+permutest(doubs.pure.env, permutations = 999)
+permutest(doubs.pure.space, permutations = 999)
+permutest(doubs.total.env, permutations = 999)
+permutest(doubs.total.space, permutations = 999)
+```
+
+Just like we did before with CCA, we can visualize each of these partial constrained ordinations.
+```{r}
+dbrda.explainvar1 <- round(doubs.pure.env$CCA$eig[1] / 
+                             sum(c(doubs.pure.env$CCA$eig, doubs.pure.env$CA$eig)), 3) * 100
+dbrda.explainvar2 <- round(doubs.pure.env$CCA$eig[2] /
+                             sum(c(doubs.pure.env$CCA$eig, doubs.pure.env$CA$eig)), 3) * 100
+plot(doubs.pure.env, 
+     xlab = paste("dbRDA 1 (",dbrda.explainvar1,"%)",sep=""), 
+     ylab = paste("dbRDA 2 (",dbrda.explainvar2,"%)",sep=""))
+```
+
+We can see that ofter controlling for space, we still have a high amount of variation explained by environmental variables in our model. 
+```{r}
+doubs.varpart <- varpart(fish.db, env.mod, space.mod) 
+par(mar = c(2,2,2,2))
+plot(doubs.varpart)
+text(1, 0.25, "Space")
+text(0, 0.25, "Env")
+```
