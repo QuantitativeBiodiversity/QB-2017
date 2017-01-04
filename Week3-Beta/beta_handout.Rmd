@@ -9,9 +9,9 @@ geometry: margin=2.54cm
 ---
 
 ## OVERVIEW
-In this excercise, we move beyond the investgation of within-site $\alpha$-diversity.
+In this excercise, we move beyond the investigation of within-site $\alpha$-diversity.
 We will explore $\beta$-diversity, which is defined as the diveristy that occurs among sites. 
-This requires that we examine the compositional similarity of assemblages that vary in space or time. 
+To analyze how diversity varies across sites, we must examine the compositional similarity of assemblages that vary in space or time. 
 
 After completing this exercise you will know how to:
 
@@ -39,7 +39,7 @@ require("vegan")
 ## 2) LOADING DATA
 
 ### A. Description of Data Set
-To date, we have analyzed biodiversity data sets for freshwater zooplankton, tropical trees, and soil bacteria.
+To date, we have analyzed biodiversity datasets for freshwater zooplankton, tropical trees, and soil bacteria.
 In this exercise, we introduce a new dataset containing information on stream fish assemblages from the Doubs river, which runs near the France-Switzerland boarder in the Jura Mountains.
 The data set (`doubs`) includes fish abundances, environmental variables, and spatial cooridinates for 30 sites. 
 The data set has previously been used to demonstrate that fish communities can be good indicators of ecological zones in rivers and streams. 
@@ -56,15 +56,16 @@ While working in R this semester, we have learned about vectors, matrices, and d
 Here we introduce another data structure: a **list**. 
 In R, a list is an object that contains a collection of other objects of similar or different types.
 
-### C. Exploring the Doubs River Data Set
+### C. Exploring the Doubs River Dataset
 We can use the `str()` function to describe the attributes of `doubs`, which is a list.
 Because this dataset is somewhat complex, we can pass the "max.level = 1" argument to minimize the `str()` output. 
-Also, you can use the the dollar sign (`$`) between the list name (`doubs`) and objects within the list (e.g., `env`) to explore the data set. 
-For example, to access the site-by-environment matrix, you would pass doubs$env to the R console.
+Also, you can use the the dollar sign (`$`) after the list name (`doubs`) to access objects within the list (e.g., `env`). 
+For example, to access the site-by-environment matrix, you would pass `doubs$env` to the R console.
 Last, recall that you can use `help()` to learn more about a dataset contained in a package. 
 
 ```{r, results='hide'}
 str(doubs, max.level = 1)
+head(doubs$env)
 ```
 
 ***Question 1***:  Describe some of the attributes of the `doubs` dataset. 
@@ -282,6 +283,7 @@ fish.db
 From this, you will see a large diagonal matrix. 
 Typically, resemblance matrices just show the upper or lower triangle of values.
 This is because the two triangles have the same information.
+Also notice that the diagonal (i.e., the resemblance of each site to itself) is missing from the resemblance matrix by default.
 However, you can generate a square resemblance matrix with the following command:
 
 ```{r}
@@ -295,7 +297,7 @@ fish.db <- vegdist(fish, method = "bray", upper = TRUE, diag = TRUE)
 ## 5) VISUALIZING BETA-DIVERSITY
 
 ### A.  Heatmaps
-One way to visualize $\beta$-diversity is to plot the data in our resemblance matrix using a **heatmap**.
+One way to visualize $\beta$-diversity is to plot the resemblance matrix using a **heatmap**.
 Heatmaps are a two-dimensional, color representation of a data matrix. 
 Here we are going to use the `levelplot()` function in the `lattice` package of R.
 This function will allow us to make a basic heatmap of our resemblance matrix.
@@ -324,7 +326,7 @@ levelplot(as.matrix(fish.db)[, order], aspect = "iso", col.regions = inferno,
 Another common way to visualize $\beta$-diversity is through cluster analysis.
 Cluster analysis is an exploratory technique that assigns objects to groups based on their similarity to one another.
 In this exercise, we will use hierarchical clustering, specifically **Ward's Clustering**. 
-Ward's Clustering (a.k.a., Ward's minimum variance method) is an agglomerative clustering technique based on the linear model criterion of least squares.
+Ward's Clustering (a.k.a., Ward's minimum variance method) is an agglomerative (i.e., pairs are grouped together based on their similarity) clustering technique based on the linear model criterion of least squares.
 The method minimizes within-cluster sums-of-squared distances between sites.
 However, there are numerous methods for clustering (e.g., Single Linkage, UPGMA, UPGMC), which can influence the conclusions that you draw from your analysis.
 See chapter 8 of Legendre and Legendre (2012) for more information on the various clustering methods that can be used. 
@@ -506,6 +508,7 @@ In this section we introduce some methods that are better suited for *testing* h
 
 ### A.  Multivariate Procedures for Categorical Designs
 
+#### i. PERMANOVA
 PERMANOVA stands for permutational multivariate analysis of variance (Anderson 2001). 
 It is a multivariate analog to univariate ANOVA and has less restrictions than parametric multivariate analysis of variance (MANOVA). 
 As the name suggests, it evaluates differences according to a specified model by randomly permuting the data.
@@ -532,27 +535,32 @@ quality <- c(rep("HQ", 13), rep("MQ", 5), rep("LQ", 6), rep("MQ", 5))
 adonis(fish ~ quality, method = "bray", permutations = 999)
 ```
 
-***Question 10***: Based on the PERMANOVA results, evaluate the prediction that river quality influences fish community composition. 
-
-> ***Answer 10***: 
-
-To determine whether any species can be used as indicators of habitat quality, we can calculate each species’ Indicator Value (Dufrene and Legendre 1997), which measures the associated between a species and a site group.
-```{r}
+#### ii. Species-Site Group Associations
+The relationships between individual species and groups of sites (e.g., habitat quality, disturbance regime, land use) can be informative for many ecological questions. 
+For example, the presence or abundance of certain invertebrate taxa is often used to provide an indication of stream water quality. 
+To determine whether any fish species in our dataset can be used as indicators of habitat quality, we can calculate each species’ Indicator Value (IndVal) (Dufrene and Legendre 1997, De Caceres and Legendre 2009) for each habitat grouping, and then run a permutation test to evaluate its significance.
+Significant IndVal scores close to 1 suggest that the presence of a particular species is a strong indicator of a certain site group.
+```{r, results="hide", message=FALSE}
 require(indicspecies)
-indval <- multipatt(fish, cluster = quality, control = how(nperm=999)) 
+indval <- multipatt(fish, cluster = quality, func = "IndVal.g", control = how(nperm=999)) 
 summary(indval)
 ```
 
-Although none of our species is a good indicator of high quality habitat, many are strong indicators of low-to-middle quality habitat. If you observe a community with Alal, Gogo, or Ruru species, the community is likely not of the highest quality.
-
-To test for species preferences, we can calculate Pearson’s phi coefficient of association (fidelity).
-```{r}
-fish.pa <- decostand(fish, method = "total")
-phi <- multipatt(fish.pa, cluster = quality, func = "r.g", control = how(nperm=999)) 
+Alternatively, we may wish to learn more about the habitat preferences (i.e. degree of species preference for the target group over the other groups) of each fish species.
+In this case, we can calculate the phi coefficient of association ($r_{\phi}$), the Pearson correlation between a vector of sites indicating presence (1) or absence (0) of the species, and a vector a sites indicating whether the site is within (1) the group or not (0). 
+This approach can also be extended to abundance data, in which case the index is called the point-biserial correlation coefficient ($r_{pb}$) where the 1s of the species-site vector are replaced with species abundances.
+Values of the phi coefficient can range from -1 (suggesting strong avoidance/exclusion from a group) to 0 (suggesting no preference among groups) to +1 (suggesting strong perference for a group). 
+```{r, results="hide", message=FALSE}
+fish.rel <- decostand(fish, method = "total")
+phi <- multipatt(fish.rel, cluster = quality, func = "r.g", control = how(nperm=999)) 
 summary(phi)
 ```
 
-From this analysis, we can see that Phph, Neba, and Satr species strongly prefer high quality habitats, while Alal tends to be more often found in low quality habitats.
+To learn more about species-site group associations, see De Caceres and Legendre (2009).
+
+***Question 10***: Based on the PERMANOVA, IndVal, and phi coefficient analyses, what did you learn about the relationship between habitat quality and the fish species composition? 
+
+> ***Answer 10***: 
 
 
 ### B.  Mutivariate Procedures for Continuous Designs
@@ -564,7 +572,7 @@ In addition, it produces a p-value that is derived from the deviation of observe
 
 In the following section, we will peform a Mantel test using the `mantel()` function in `vegan`. 
 This requires that we first have two distance matrices to compare. 
-Here, we will compare the Bray-Curtis distance matrix we created earlier with a new distance matrix of environmental factors (doubs$env).
+Here, we will compare the Bray-Curtis distance matrix we created earlier with a new distance matrix of environmental factors (`doubs$env`).
 After creating the distance matrices, we will test the hypothesis that fish assemblages are correlated with stream environmental variables.
 
 ```{r, results = "hide"}
@@ -595,31 +603,57 @@ Note, we have to specify that we want the `cca` function in the `vegan` package 
 We will then use permutation tests to evaluate the significance of our model. 
 Finally, we will test the influence of each environmental variable on the constrained axes.
 
-```{r, results = "hide"}
-# Define Environmental Matrix
+```{r, fig.width=6, fig.height=4}
+# Define environmental matrix
 env.chem <- as.matrix(doubs$env[-8 , 5:11])
 
-# Conduct CCA 
-doubs.cca <- vegan::cca(fish ~ env.chem)
+# Perform dbRDA
+doubs.dbrda <- dbrda(fish.db ~ ., as.data.frame(env.chem))
+ordiplot(doubs.dbrda)
+```
 
-# Permutation Tests
-anova(doubs.cca, by = "axis")
-cca.fit <- envfit(doubs.cca, env.chem, perm = 999)
-cca.fit
+It looks like many of our environmental variables are highly correlated with one another and could lead to model overfitting. 
+Let's use model selection to let R add/remove explanatory variables for us until it finds the model with the lowest AIC value (indicating a good model that uses fewer parameters).
+
+```{r, results="hide", message = FALSE, fig.show="hide"}
+# First, we will model only the intercept
+doubs.dbrda.mod0 <- dbrda(fish.db ~ 1, as.data.frame(env.chem))
+
+# Note there are no vectors here (we didn't constrain anything) 
+# so the axes suggest this is a MDS (i.e., PCoA)
+ordiplot(doubs.dbrda.mod0) 
+
+# Next, we will model the full model, like before
+doubs.dbrda.mod1 <- dbrda(fish.db ~ ., as.data.frame(env.chem))
+
+# Now we will step through all permutations of the full model and just the intercept
+doubs.dbrda <- ordiR2step(doubs.dbrda.mod0, doubs.dbrda.mod1, perm.max = 200)
+
+# Lets look at the model that was selected
+doubs.dbrda$call
+doubs.dbrda$anova
+ordiplot(doubs.dbrda)
+
+# Permutation tests to evaluate significance
+permutest(doubs.dbrda, permutations = 999)
+envfit(doubs.dbrda, env.chem[,c(4,6,7)], perm = 999)
 
 # Calculate Explained Variation
-cca.explainvar1 <- round(doubs.cca$CCA$eig[1] / 
-                         sum(c(doubs.cca$CCA$eig, doubs.cca$CA$eig)), 3) * 100
-cca.explainvar2 <- round(doubs.cca$CCA$eig[2] / 
-                         sum(c(doubs.cca$CCA$eig, doubs.cca$CA$eig)), 3) * 100
+dbrda.explainvar1 <- round(doubs.dbrda$CCA$eig[1] / 
+                         sum(c(doubs.dbrda$CCA$eig, doubs.dbrda$CA$eig)), 3) * 100
+dbrda.explainvar2 <- round(doubs.dbrda$CCA$eig[2] / 
+                         sum(c(doubs.dbrda$CCA$eig, doubs.dbrda$CA$eig)), 3) * 100
+```
 
+Now, let's plot the ordination
+```{r, fig.width=6, fig.height=4}
 # Define Plot Parameters
 par(mar = c(5, 5, 4, 4) + 0.1)
 
 # Initiate Plot
-plot(scores(doubs.cca, display = "wa"), xlim = c(-3.5, 2), ylim = c(-3.2, 3.2),
-     xlab = paste("CCA 1 (", cca.explainvar1, "%)", sep = ""),
-     ylab = paste("CCA 2 (", cca.explainvar2, "%)", sep = ""),
+plot(scores(doubs.dbrda, display = "wa"), xlim = c(-1.3, 1.1), ylim = c(-1.1, 2.7),
+     xlab = paste("dbRDA 1 (", dbrda.explainvar1, "%)", sep = ""),
+     ylab = paste("dbRDA 2 (", dbrda.explainvar2, "%)", sep = ""),
      pch = 16, cex = 2.0, type = "n", cex.lab = 1.5, cex.axis = 1.2, axes = FALSE)
 
 # Add Axes
@@ -629,17 +663,17 @@ abline(h = 0, v = 0, lty = 3)
 box(lwd = 2)
 
 # Add Points & Labels
-points(scores(doubs.cca, display = "wa"),
+points(scores(doubs.dbrda, display = "wa"),
        pch = 19, cex = 3, bg = "gray", col = "gray")
-text(scores(doubs.cca, display = "wa"), 
-     labels = row.names(scores(doubs.cca, display = "wa")))
+text(scores(doubs.dbrda, display = "wa"), 
+     labels = row.names(scores(doubs.dbrda, display = "wa")))
 
 # Add Environmental Vectors
-vectors <- scores(doubs.cca, display = "bp")
-row.names(vectors) <- c("pH", "har", "pho", "nit", "amm", "oxy", "bdo")
-arrows(0, 0, vectors[,1] * 2, vectors[, 2] * 2, 
+vectors <- scores(doubs.dbrda, display = "bp")
+#row.names(vectors) <- rownames(vectors)
+arrows(0, 0, vectors[,1], vectors[, 2], 
        lwd = 2, lty = 1, length = 0.2, col = "red")
-text(vectors[,1] * 2, vectors[, 2] * 2, pos = 3, 
+text(vectors[,1], vectors[, 2], pos = 3, 
      labels = row.names(vectors))
 axis(side = 3, lwd.ticks=2, cex.axis=1.2, las = 1, col = "red", lwd = 2.2,
      at = pretty(range(vectors[, 1])) * 2, labels = pretty(range(vectors[, 1])))
@@ -647,83 +681,126 @@ axis(side = 4, lwd.ticks=2, cex.axis=1.2, las = 1, col = "red", lwd = 2.2,
      at = pretty(range(vectors[, 2])) * 2, labels = pretty(range(vectors[, 2])))
 ```
 
-***Question 12***: Based on the CCA, what are the environmental variables that seem to be contributing to stream water quality for fish assemblages?
+
+***Question 12***: Based on the constrained ordination, what are the environmental variables (or groups of correlated variables) that seem to be contributing to variation in fish community structure?
 
 > ***Answer 12***: 
 
-
 ### iii. Variation Partitioning
 As seen in the site-by-species matrix, fish species abundances vary across sites. 
-From the above analyses, we have shown that spatial variation in fish community structure in the Doubs River can be explained by (1) a qualitative description of site habitat quality (PERMANOVA), with certain fish preferring particular habitats over over (Phi Coefficient of Fidelity); (2) environmental dissimilarity between sites, tested via pairwise correlations between elements of two distance matrices (Mantel tests); and (3) variation in individual environmental variables measured across sites (constrained ordination). 
-However, the environmental variables we have identified as important drivers of community structure also vary across space. 
-A major question in the study of $\beta$-diversity is whether variation in community structure is more strongly driven by changes in underlying environmental variables (after controlling for spatial variation in those variables), by changes in spatial position alone (after controlling for environmental variation), by spatially structured environmental variation, or by other factors. 
-A common approach to answering these types of question is variation partitioning, which determines the amount of variation in a response variable that can be explained by two or more explanatory matrices, jointly and independently. 
+From the above analyses, we have shown that spatial variation in fish community structure in the Doubs River can be explained by environmental variables. 
+However, the environmental variables also vary across space. 
+A major question in the study of $\beta$-diversity is whether variation in community structure is more strongly driven by changes in underlying environmental variables (after controlling for spatial variation in those variables), by changes in spatial position alone (after controlling for environmental variation), or by spatially structured environmental variation.
+A common approach to answering these types of question is to use variation partitioning, which determines the amount of variation in a response variable that can be explained by two or more explanatory matrices, jointly and independently. 
 For more detailed explanation of the application of variation partition in ecology, see Borcard et al. (1992), Legendre et al. (2005), and Peres-Neto et al. (2006).
 
-First, we will perform Principal Coordinates of Neighbor Matrices (Borcard and Legendre 2002), a special form of distance based Moran's Eigenvector Maps (Dray et al. 2006). This approach decomposes spatial variation into different sine waves to model broad scale (long wavelengths) to fine scale (short wavelengths) spatial structures. 
-```{r}
-rs <- rowSums(fish)/sum(fish)
-doubs.pcnmw <- pcnm(dist(doubs$xy[-8,]), w = rs, dist.ret = T) 
-doubs.pcnmw$values < 0 # Only the positive eigenvalues are meaningful
+Here, we will perform variation partitioning using two constrained ordinations (by space and by environment) and two partial constrained ordinations (by space controlling for environment and by environment controlling for space).
+
+Above, we already performed dbRDA using the environmental data as an explanatory matrix. 
+```{r, results='hide'}
+# Remember, our environmental model uses oxy, bdo, and nit and has R2 of 0.53
+doubs.dbrda$anova
+
+# Let's create a matrix model for our environmental data
+env.mod <- model.matrix(~ oxy + bdo + nit, as.data.frame(env.chem))[,-1]
 ```
 
-This analysis returns many eigenvalues, but some of them are redundant. So we will perform model selection (forwards and backwards) to determine which eigenvalues create the most informative model with the fewest parameters (Blanchet et al. 2008). 
+Next, we will create the spatial model.
+The spatial model is a bit more involved, but just follow along for now. 
+We will perform Principal Coordinates of Neighbor Matrices (Borcard and Legendre 2002), a special form of distance based Moran's Eigenvector Maps (dbMEMs, Dray et al. 2006). 
+In general, we will create a distance matrix between our sites, truncate sites that are far away from each other (hence the "Neighbor Matrices"), then create spatial eigenvalues from this truncated matrix (hence the "Principal Coordinates"). 
+Our goal is to represent "space" as some combination of these eigenvectors, so that we can indentify spatial structure in species abundances on broad, intermediate, and fine spatial scale.
+The resulting eigenvectors model space from broad scale to fine scale with increasing eigenvector number. 
 
-```{r, results='hide'}
+
+```{r, results="hide", message=FALSE}
+# First, we will weight each site by its relative abundance
+rs <- rowSums(fish)/sum(fish)
+
+# Next, we will perform PCNM
+doubs.pcnmw <- pcnm(dist(doubs$xy[-8,]), w = rs, dist.ret = T) 
+
+# PCNM can return negative eigenvalues, but only the 
+# eigenvectors associated with the positive eigenvalues are meaningful
+doubs.pcnmw$values < 0
+```
+
+This analysis returns many eigenvalues, but some of them are redundant. So we will again perform model selection (forward and backward) to determine which eigenvalues create the most informative model with the fewest parameters (Blanchet et al. 2008). 
+
+```{r, results='hide', message=FALSE, fig.show="hide"}
 doubs.space <- as.data.frame(scores(doubs.pcnmw))
 doubs.pcnm.mod0 <- dbrda(fish.db ~ 1, doubs.space)
 doubs.pcnm.mod1 <- dbrda(fish.db ~ ., doubs.space)
 step.pcnm <- ordiR2step(doubs.pcnm.mod0, doubs.pcnm.mod1, perm.max = 200)
-```
 
-The object `step.pcnm` now contains the selected model. We can now construct a spatial model using only the selected PCNM axes. 
-```{r}
+# Because this is another dbRDA, we could visualize the biplot
+# showing how each vector explains variation across sites
+plot(step.pcnm)
+
+# The object `step.pcnm` now contains the selected model. 
 step.pcnm$anova
-# Our new model uses a subset of the PCNM axes and has an R2 of 0.63.
+
+# We can now construct a spatial model using only the selected PCNM axes. 
 space.mod <- model.matrix(~ PCNM2 + PCNM3 + PCNM5 + PCNM1 + PCNM13 + PCNM16 + PCNM6, doubs.space)[,-1]
 ```
 
-Now, let's repeat the model selection for the environmental dataset.
-```{r}
-doubs.env.mod0 <- dbrda(fish.db ~ 1, as.data.frame(env.chem)) 
-doubs.env.mod1 <- dbrda(fish.db ~ ., as.data.frame(env.chem))
-step.env <- ordiR2step(doubs.env.mod0, doubs.env.mod1, perm.max = 200)
-step.env$anova
-# Our new environmental model contains oxy, bdo, and nit; with R2 of 0.53
-env.mod <- model.matrix(~ oxy + bdo + nit, as.data.frame(env.chem))[,-1]
-```
 
 Now we wish to determine the independent and joint explanatory power of the environmental and spatial datasets using variation partitioning.
-```{r}
-# First, we perform partial canonical ordination controlling for spatial and environmental datasets
-doubs.pure.env <- dbrda(fish.db ~ env.mod + Condition(space.mod)) 
-doubs.pure.space <- dbrda(fish.db ~ space.mod + Condition(env.mod)) 
+To do so, we will perform partial constrained ordination by controlling for a second explanatory matrix.
+```{r, results = "hide", message=FALSE}
+# First conduct constrained ordination
+doubs.env.cond.space <- dbrda(fish.db ~ env.mod + Condition(space.mod)) 
+doubs.space.cond.env <- dbrda(fish.db ~ space.mod + Condition(env.mod)) 
 doubs.total.env <- dbrda(fish.db ~ env.mod)
 doubs.total.space <- dbrda(fish.db ~ space.mod)
-```
 
-We test for significance of the dbRDA fractions.
-```{r}
-permutest(doubs.pure.env, permutations = 999)
-permutest(doubs.pure.space, permutations = 999)
+# Next test for significance of the dbRDA fractions.
+permutest(doubs.env.cond.space, permutations = 999)
+permutest(doubs.space.cond.env, permutations = 999)
 permutest(doubs.total.env, permutations = 999)
 permutest(doubs.total.space, permutations = 999)
 ```
 
-Just like we did before with CCA, we can visualize each of these partial constrained ordinations.
-```{r}
-dbrda.explainvar1 <- round(doubs.pure.env$CCA$eig[1] / 
-                             sum(c(doubs.pure.env$CCA$eig, doubs.pure.env$CA$eig)), 3) * 100
-dbrda.explainvar2 <- round(doubs.pure.env$CCA$eig[2] /
-                             sum(c(doubs.pure.env$CCA$eig, doubs.pure.env$CA$eig)), 3) * 100
-plot(doubs.pure.env, 
-     xlab = paste("dbRDA 1 (",dbrda.explainvar1,"%)",sep=""), 
-     ylab = paste("dbRDA 2 (",dbrda.explainvar2,"%)",sep=""))
-```
+Now, we need to calculate the fractions of variation explained by space alone, environment alone, both space and environment, and neither space nor environment.
 
-We can see that ofter controlling for space, we still have a high amount of variation explained by environmental variables in our model. 
-```{r}
+```{r, results="hide"}
+# First, calculate the total variation in the dataset
+doubs.ca <- dbrda(fish.db ~ 1)
+total.var <- sum(doubs.ca$CA$eig)
+
+# Calculate fractions of explained variation:
+step.1 <- sum(doubs.total.env$CCA$eig) * 100 / total.var
+step.2 <- sum(doubs.total.space$CCA$eig) * 100 / total.var
+step.3 <- sum(doubs.env.cond.space$CCA$eig) * 100 / total.var
+step.4 <- sum(doubs.space.cond.env$CCA$eig) * 100 / total.var
+
+# Total explained variation
+# These should be the same because they are non-overlapping fractions
+
+sum(step.1 + step.4)
+sum(step.2 + step.3)
+
+
+# Partition the variation explained
+# [a] Pure Environment 
+pure.env <- step.3
+# [b] Spatially structured env
+env.space <- step.1 - step.3
+space.env <- step.2 - step.4
+# [c] Pure Space
+pure.space <- step.4
+# [d] Unexplained
+resid.var <- 100 - sum(step.1 + step.4)
+
+sum(c(pure.env, env.space, pure.space, resid.var))
+
+# Built-in Function
 doubs.varpart <- varpart(fish.db, env.mod, space.mod) 
+doubs.varpart
+
+# Note that the initial partitions agree (X1, X2) but that
+# the varpart() function applies a correction to R2 after partitioning
+# These adjustments minimize the shared fraction [b] and tend to inflate [d]
 par(mar = c(2,2,2,2))
 plot(doubs.varpart)
 text(1, 0.25, "Space")
