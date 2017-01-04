@@ -1,7 +1,7 @@
 ---
 title: "Handout: Local (alpha) Diversity "
 author: "Z620: Quantitative Biodiversity, Indiana University"
-date: "January 23, 2015"
+date: "January 20, 2017"
 header-includes:
    - \usepackage{array}
 output: pdf_document
@@ -20,7 +20,7 @@ From there, we will discuss ways to integrate richness and evenness, which will 
 ```{r, results = 'hide'}
 rm(list=ls()) 
 getwd() 
-setwd("~/GitHub/QB-2017/Week2-Alpha") 
+setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week2-Alpha") 
 ```
 
 ### Install Packages
@@ -34,7 +34,6 @@ Otherwise, we recommend you just use the `require` function to load `vegan` and 
 
 ```{r, results = 'hide', warning=FALSE, message=FALSE}
 #install.packages("vegan") 
-#instead, use try("vegan")
 require("vegan") 
 ```
 
@@ -58,8 +57,8 @@ data(BCI)
 Species richness is also the foremost aspect of diversity. 
 In fact, it is usually what most people are referring to when they talk about $\alpha$-diversity.
 Calculating species richness for a sample is often straightforward, i.e., count the number of species present in a sample.
-However, estimating species richness for a community from an incomplete sample requires assumptions about the nature of the sampling effort (e.g., biases, coverage).
-In this part of the exercise, you will see that there are several ways to estimate richness, which attempt to account for the number of species that were not detected.
+However, estimating species richness for a community from an incomplete sample requires assumptions about the nature of the sampling effort, which could include biases or issues related to coverage.
+In this part of the handout, you will see that there are several ways to estimate richness, which attempt to account for the number of species that were not detected.
 
 ### Observed Richness
 
@@ -99,7 +98,7 @@ C <- function(x = ""){
   
 ### Estimated Richness
 
-There are few systems on earth that have been better surveyed than the trees at BCI.
+There are few systems on Earth that have been better surveyed than the trees at BCI.
 For most ecological systems, sample size is much smaller than *N* and many taxa can easily go undetected.
 Consequently, while observed richness can be easily calculated, true richness must be estimated.
 To address the case of estimating richness, we are going to introduce a dataset derived from 16S rRNA gene sequences for bacteria, which were collected from the Kellogg Biological Station Long-Term Ecological Site (http://lter.kbs.msu.edu/).
@@ -107,12 +106,12 @@ To address the case of estimating richness, we are going to introduce a dataset 
 Because it is sometimes hard to apply the species concept to bacteria, sequences are often binned into **operational taxonomic units (OTU)** based on the percent of their gene sequence similarity.
 Therefore, we will technically be dealing with a site-by-OTU matrix for some of the following exercises. 
 
-In the following R chunk, we load the bacterial dataset as a matrix and identify a sample (i.e., site) for subsequent analysis.
+In the following R chunk, we load the bacterial dataset, transpose it, and identify a sample that happens to be the first column of data ("TL_1") in the site-by-species matrix, which we will use for subsequent analysis. 
 
 ```{r}
 soilbac <- read.table("data/soilbac.txt", sep = "\t", header = TRUE, row.names = 1)
-soilbac <- as.data.frame(t(soilbac))
-soilbac1 <- soilbac[1,]
+soilbac.t <- as.data.frame(t(soilbac))
+soilbac1 <- soilbac.t[1,]
 ```
 
 There are number of statistical techniques developed to estimate richness based on the coverage of species in a sample (e.g., Hughes et al. 2001  -- http://aem.asm.org/content/67/10/4399).
@@ -153,7 +152,7 @@ S.chao2 <- function(site = "", SbyS = ""){
   }
 ```
 
-Notice that this function is a bit more complicated than previous functions we have written, so we will take time to deconstruct it. We can see that the function S.chao2 takes two arguments, i.e. the site of interest and the site-by-species matrix. The function first converts the site-by-species matrix into a data frame. From there we select the site of interest and count the number of singletons and doubletons among all sites. The code on line 151 should look very familiar. In fact, it is nearly identical to the S.chao1 operator, the only difference being that we are dealing with singletons and doubletons across all sites rather than within a single site. 
+Notice that this function is a bit more complicated than previous functions we have written, so we will take time to deconstruct it. We can see that the function S.chao2 takes two arguments, i.e. the site of interest and the site-by-species matrix. The function first converts the site-by-species matrix into a data frame. From there we select the site of interest and count the number of singletons and doubletons among all sites. The code in the function following the line defining doubletons should look very familiar. In fact, it is nearly identical to the S.chao1 operator, the only difference being that we are dealing with singletons and doubletons across all sites rather than within a single site. 
 
 In Chapter 5, pages 56 and 57, of "Biological Diversity: frontier in measurement and assessment" you will see that Chao1 and Chao2 are mathematically very similar, and mainly differ in whether we are considering the abundance of species at one site (Chao1) or the presence of species across multiple sites (Chao2).
 
@@ -216,15 +215,15 @@ site1 <- site1[site1 > 0]
 rac <- RAC(x = site1)
 ranks <- as.vector(seq(1, length(rac)))
 opar <- par(no.readonly = TRUE)                       # Saves default plot parameters
-par(mar=c(5.1, 5.1, 4.1, 2.1))                        # New settings for par
-plot(ranks, log(rac), type = 'p', axes=F,             # Plots w/o axes
+par(mar = c(5.1, 5.1, 4.1, 2.1))                      # New settings for par
+plot(ranks, log(rac), type = 'p', axes = F,           # Plots w/o axes
      xlab = "Rank in abundance", ylab = "Abundance",
      las = 1, cex.lab = 1.4, cex.axis = 1.25)
 
 box()                                                 # Manually adds border
-axis(side = 1, labels=T, cex.axis = 1.25)             # Manually adds X-axis
+axis(side = 1, labels = T, cex.axis = 1.25)           # Manually adds X-axis
 axis(side = 2, las = 1, cex.axis = 1.25,              # Manually adds Log-Scaled Y-axis
-     labels=c(1, 2, 5, 10, 20), at=log(c(1, 2, 5, 10, 20)))
+     labels = c(1, 2, 5, 10, 20), at = log(c(1, 2, 5, 10, 20)))
 
 par <- opar                                           # Resets plotting parameters
 ```
@@ -305,7 +304,7 @@ We will write our own diversity functions and compare them against the functions
 
 ### Shannon's Diversity (a.k.a Shannon's Entropy)
 Shannon's diversity metric is derived from Shannon's information entropy, and is essentially a measure of uncertainty. 
-This metric is used across the natural sciences and is calculated as ${H' = -}  \sum p_i ln(p_i)$.
+This metric is used across the natural sciences and is calculated as ${H' = -}  \sum p_i ln(p_i)$ where $p_i$ is the proportion of individuals found in the *i*th species.
 A greater value of Shannon's diversity implies a greater chance that the next sampled individual will belong to a different species.
 Let's calculate Shannon's diversity for the RAC of `site1` in the BCI site-by-species matrix and then compare it to the `vegan` estimate:
 
@@ -327,7 +326,7 @@ diversity(site1, index = "shannon")
 ```
 
 ### Simpson's Diversity (or Dominance)
-Simpsons diversity is a straightforward metric and is calculated as ${D = } \sum p_i^2$ where $p_i$ is the proportion of individuals found in the *i*th species. 
+Simpsons diversity is a straightforward metric and is calculated as ${D = } \sum p_i^2$ where again, $p_i$ is the proportion of individuals found in the *i*th species. 
 Simpson's index is commonly expressed as 1/*D* so that index values naturally increase with diversity.
 Let's calculate Simpson's diversity for `site1` and then compare it to the `vegan` estimate:
 
@@ -357,7 +356,7 @@ diversity(site1, "inv")
 ##6) MOVING BEYOND UNIVARIATE METRICS OF $\alpha$-DIVERSIY 
 
 The diversity metrics that we just learned about attempt to integrate richness and evenness into a single, univariate metric.
-Although useful, information is invariably lost in this process of reducing . 
+Although useful, information is invariably lost in this data reducing process. 
 If we go back to the rank-abundance curve, we can retrieve additional information -- and in some cases -- make inferences about the processes influencing the structure of an ecological system.
 
 The uneven shape of the RAC is one of the most intensively studied patterns in ecology, and underpins all or most ecological theories of biodiversity. 
@@ -378,10 +377,10 @@ Before explaining what these models represent, let's run through the `vegan` out
 2.  Below this, we see that `vegan` returns the number of species (*S*) and the number of individuals (*N*) for the empirical RAC.
 3.  Next, we see a table of information, the first columns of which are par1, par2, and par3.
 These columns pertain to model parameters and reveal that the different models use different numbers of parameters; the null model uses none.
-4.  Next, we see a column for Deviance, which is a quality of fit statistic based on the idea of residual sums of squares.
+4.  Next, we see a column for Deviance, which is a quality of fit statistic based on the residual sums of squares, which is a measure of unexplained variance.
 5.  After Deviance, we see columns for AIC and BIC, which are the estimated **Akaike Information Criterion** and the **Bayesian Information Criterion**, respectively.
 
-*Notes on AIC and BIC* AIC and BIC are commonly used for model selection. 
+*Notes on AIC and BIC:* AIC and BIC are commonly used for model selection. 
 In other words, they help us identify a model that is best supported by our data. 
 Obviously, the more parameters a model has, the better it will fit a data set. 
 However, it's not necessarily desirable to have an over-parameterized model. 
@@ -392,7 +391,7 @@ Now, let's visualize our results by plotting the empirical RAC and the predicted
 
 ```{r}
 plot.new()
-plot(RACresults, las=1, cex.lab = 1.4, cex.axis = 1.25)
+plot(RACresults, las = 1, cex.lab = 1.4, cex.axis = 1.25)
 ```
 
 ### A quick interpretation of the RAC models in `vegan`:
