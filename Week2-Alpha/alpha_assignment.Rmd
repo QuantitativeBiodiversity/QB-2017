@@ -270,7 +270,7 @@ Do they agree? If so, why? If not, why not? What can you infer from the results.
 
 So far, we have introduced two primary aspects of diversity, i.e., richness and evenness.
 Here, we will use popular indices to estimate diversity, which explicitly incorporate richness and evenness
-We will write our own diversity functions and compare them agains the functions in `vegan`. 
+We will write our own diversity functions and compare them against the functions in `vegan`. 
 
 ### Shannon's diversity (a.k.a Shannon's entropy)
 
@@ -295,7 +295,7 @@ In the R code chunk below, please do the following:
 In the R code chunk below, please do the following:
 1. provide the code for calculating D (Simpson's diversity),
 2. calculate both the inverse (1/D) and 1 - D,
-2. compare this estimate with the output of `vegan's` diversity functionusing method = "simp".
+2. compare this estimate with the output of `vegan's` diversity function using method = "simp".
 
 ```{r}
 
