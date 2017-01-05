@@ -20,7 +20,7 @@ From there, we will discuss ways to integrate richness and evenness, which will 
 ```{r, results = 'hide'}
 rm(list=ls()) 
 getwd() 
-setwd("~/GitHub/QB-2017/Week2-Alpha") 
+setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week2-Alpha") 
 ```
 
 ### Install Packages
@@ -301,14 +301,14 @@ While we often examine each of these independently, the interaction between rich
 Here, we will estimate popular indices of diversity, which explicitly incorporate richness and evenness.
 We will write our own diversity functions and compare them against the functions in `vegan`. 
 
-### Shannon's Diversity (a.k.a Shannon's Entropy)
+### Shannon's Diversity (a.k.a., Shannon's Entropy)
 Shannon's diversity metric is derived from Shannon's information entropy, and is essentially a measure of uncertainty. 
 This metric is used across the natural sciences and is calculated as ${H' = -}  \sum p_i ln(p_i)$ where $p_i$ is the proportion of individuals found in the *i*th species.
 A greater value of Shannon's diversity implies a greater chance that the next sampled individual will belong to a different species.
 Let's calculate Shannon's diversity for the RAC of `site1` in the BCI site-by-species matrix and then compare it to the `vegan` estimate:
 
 ```{r}
-ShannonsH <- function(x = ""){
+ShanH <- function(x = ""){
   H = 0
   for (n_i in x){
     if(n_i > 0) {
@@ -320,7 +320,17 @@ ShannonsH <- function(x = ""){
 }
 ```
 
-The basic structure of ShannonsH should be familiar. However, you should notice that on lines 313 and 314 we use two new things, a for loop and an if statement. The for loop iterates through each item in the argument passed to the function. Since this function, like the Chao functions above, takes a single site as an argument, the for loop iterates through the abundance of each species in the site. In the next line the if statement asks whether or not the abundance of a species meets a given criteria. Here we are asking whether the abundance is greater than zero. This is important because Shannon's H involves calculating the natural logarithm of the abundance, which is undefined for the value zero. If the abundance is greater than zero the function calculates the relative frequency of the species in the site, takes the natural logarithm of the frequency, multiplies the logarithm by the frequency, and subtracts it from H. Once this operation has been performed for all species in the site the value H is returned to the user.
+The basic structure of `ShanH` should look familiar, but there are some new features in this function.  
+Namely, it includes a **for loop** and an **if statement**. 
+The for loop iterates through each item (i.e., n_i) in the argument that is passed to the function. 
+Since this function, like the Chao functions above, takes a single site (i.e., x) as an argument, the for loop iterates through the abundance of each species (i.e., n_i) in the site. 
+In the next line, the if statement asks whether or not the abundance of a species meets a given criterion. 
+Here, we are asking whether the abundance of a species is greater than zero. 
+This is important because Shannon's H involves calculating the natural logarithm of the abundance, which is undefined for the value zero. 
+If the abundance is greater than zero the function calculates the relative frequency (i.e., p) of the species in the site, takes the natural logarithm of the frequency, multiplies the logarithm by the frequency, and subtracts it from H 
+Each species contributes to H, which starts off at zero (i.e., H = 0), based on its proportion in the sample.
+Therefore, H grows each time it loops through a species. 
+Once this operation has been performed for all species in the site the value H is returned to the user.
 
 
 Now we will use `vegan` to estimate Shannon's index:
@@ -335,7 +345,7 @@ Simpson's index is commonly expressed as 1/*D* so that index values naturally in
 Let's calculate Simpson's diversity for `site1` and then compare it to the `vegan` estimate:
 
 ```{r}
-SimpsonsD <- function(x = ""){
+SimpD <- function(x = ""){
   D = 0
   N = sum(x)
   for (n_i in x){
@@ -347,7 +357,7 @@ SimpsonsD <- function(x = ""){
 
 And now let's express Simpsons's diversity as 1/*D* (invD) and 1-*D*:
 ```{r, results='hide'}
-D.inv <- 1/SimpsonsD(site1) 
+D.inv <- 1/SimpD(site1) 
 ```
 
 Now that we have written functions to understand how some of these metrics are quantified, we can also use `vegan` to estimate Simpsons's index:
@@ -415,15 +425,13 @@ Imagine this process continuing until *N* is zero.
 The only fitted parameter is the preemption coefficient $\alpha$, which gives the decay rate of abundance per rank. 
 The expected abundance (*a*) of species at rank *r* is $a_r = N \cdot \alpha \cdot (1 - \alpha)^{(r - 1)}$. 
 
-
 #### Lognormal:
 Many statistical tests and models assume that data are normally distributed. 
 However, species abundances are rarely ever normally distributed and there is almost always an excess of rare species.
 The lognormal model presumes that species abundances become normally distributed under *logarithmic transformation*.
 Log-transforming species abundances decreases the disparity between rare and dominant species, e.g., 0 = log(1) and 3 = log(1000).
-
-The lognormal model was introduced into ecology by Frank Preston in 1948 and is one of the most widely successful species abundance models. The expected abundance (*a*) of species at rank *r* is $\textrm{exp} [\textrm{log}(\mu) + \textrm{log}(\sigma)\Phi]$, where $\Phi$ is a standard normal function, $\mu$ is the fitted mean abundance, and $\sigma$ is the fitted standard deviation of abundances. 
-
+The lognormal model was introduced into ecology by Frank Preston in 1948 and is one of the most widely successful species abundance models. 
+The expected abundance (*a*) of species at rank *r* is $\textrm{exp} [\textrm{log}(\mu) + \textrm{log}(\sigma)\Phi]$, where $\Phi$ is a standard normal function, $\mu$ is the fitted mean abundance, and $\sigma$ is the fitted standard deviation of abundances. 
 
 #### Zipf:
 The Zipf model is based on Zipf's Law (see: https://en.wikipedia.org/wiki/Zipf's_law).
@@ -432,5 +440,6 @@ The expected abundance (*a*) of species at rank *r* is: $a_r = N \cdot p_1 \cdot
 
 #### Mandelbrot:
 Shortened name for the Zipf–Mandelbrot model.
-This model adds one parameter ($\beta$) to the Zipf model. Ecologically, $\beta$ can be thought of as a parameter that controls the evenness of the predicted RAC. For example, a positive $\beta$ increases the evenness among highly abundant species while a negative value decreases evenness. 
+This model adds one parameter ($\beta$) to the Zipf model. 
+Ecologically, $\beta$ can be thought of as a parameter that controls the evenness of the predicted RAC. For example, a positive $\beta$ increases the evenness among highly abundant species while a negative value decreases evenness. 
 The expected abundance of a species (*a*) at rank *r* is $a_r = N \cdot c \cdot (r + \beta)^{\gamma}$.
