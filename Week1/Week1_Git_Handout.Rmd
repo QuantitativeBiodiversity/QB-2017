@@ -1,15 +1,15 @@
 ---
-title: "Week 1: Git and GitHub"
-author: "Z620: Quantitative Biodiversity, Indiana University"
+title: 'Week 1: Git and GitHub'
+author: 'Z620: Quantitative Biodiversity, Indiana University'
 date: "January 16, 2015"
-header-includes:
-   - \usepackage{graphicx}
-   - \usepackage{array}
 output: pdf_document
+header-includes:
+- \usepackage{graphicx}
+- \usepackage{array}
 geometry: margin=2.54cm
 ---
 
-## Goals
+## Goal
 + Install and configure Git on your computer
 
 ## 1) Git Installation
@@ -20,16 +20,21 @@ If you do not have a current Git installation, please do the following:
 3. The download should start automatically
 4. Open the installer and follow the onscreen directions
 
-  **On Mac**: You will need to make sure you have Xcode Command Line Tools installed.  
+  **On Mac**: You will need to make sure you have Xcode Command Line Tools installed.
+  To test this type `which g++` at the command line.
+  If you get `/usr/bin/g++` as a reply, then you are ready to move on.
+  
   **On Windows**: This process will install Git Bash (msysGit). 
   During installation, you will be asked to adjust your **PATH environment**.
   We recommend that you select the option to "Use Git from the Windows Command Prompt".
   This will give you the most flexibility with Git.
   In addition, we recommend that during installation you select "Use OpenSSH" for your secure shell client with GitBash.
   
-  During installation, you will be asked how to configure the line ending conversions
-  **On Mac**: We recommend "Checkout as-is, commit Unix-style line endings"
-  **On Windows**: We recommend "Checkout Windows-style, commit Unix-style line endings"
+  During installation, you will be asked how to configure the line ending conversions.
+  
+  **On Mac**: Use"Checkout as-is, commit Unix-style line endings"
+  
+  **On Windows**: Use "Checkout Windows-style, commit Unix-style line endings"
 
 ### 2) Git Test
 Before we get started with Git, we first need to test our current installation to make sure there aren't any issues.
@@ -72,11 +77,11 @@ We will also set two parameters: push.default and credential.helper
     
 3. The last thing you need to do is configure how Git handles line endings.
 Line endings are invisible characters that your operating system places at the end of each line in a document.
-On Unix machines (e.g. Mac), this is the linefeed character (LF).
+On Unix machines (e.g., Mac), this is the linefeed character (LF).
 On Windows machines, this is the carriage-return (CR) and linefeed (LF) characters.
 This difference in line endings between Mac and Windows causes incompatabilities between the two systems.
-However, Git is enabled to handle the differences by silently converting line endings when repos are push to remote servers.
-We recommend that you configure this behavior in order to prevent any future issues when collaborating across computer platforms.
+However, Git is enabled to handle the differences by silently converting line endings when repos are pushed to remote servers.
+We *stronly* recommend that you configure this behavior in order to prevent any future issues when collaborating across computer platforms.
 
     **On Mac**
 
@@ -98,13 +103,13 @@ We recommend that you configure this behavior in order to prevent any future iss
 3. On the top right of your screen, click on your Username
 4. Click on the Edit Profile Icon to edit your profile<br>
 
-    \includegraphics[scale=0.50]{images/github_edit_btn.png}
+    \includegraphics[height=0.75cm]{images/github_edit_btn.png}
 
 ## Fork and Clone a Repo
 1. Navigate to and click on your student repository (repo) on https://github.com/QuantitativeBiodiversity/QB-2017
 2. Fork your repo by clicking on the Fork Icon in the top right of your screen<br>
 
-    \includegraphics[scale=0.50]{images/github_fork_btn.png}
+    \includegraphics[width=2cm]{images/github_fork_btn.png}
 
     You should now see the repo on your GitHub page.
 
@@ -120,13 +125,13 @@ Replace "User_Name" with your IU Username and "Repo" with your QB Repository.
 
 The repo should have downloaded onto your local computer and the status should stay "all up to date". You should also see that the only thing in your repo is a file named README.md
 
-4. Check and update remote repo.
-The following commands will at your **upstream remote repository**, which is located on the QB Course GitHub. 
-Replace "Repo" with your QB Repository ***clarify?***
+4. Check and update remote repo location
+The following commands will set the location of your **upstream remote repository** on the QB Course GitHub site. 
+(In the example bleow, you will need to replace "Repo" with the nambe of your QB Repository)
 
     ```sh
     git remote -v
-    git remote add upstream https://github.iu.edu/2015-QuantitativeBiodiversity/Repo
+    git remote add upstream https://github.iu.edu/2017-QuantitativeBiodiversity/Repo
     git remote -v
     ```
     You can copy and paste the URL for your upstream repo from the GitHub website.
@@ -138,15 +143,14 @@ Replace "Repo" with your QB Repository ***clarify?***
     During this semester, we will edit Markdown files using RStudio.
     On the lab computers, you can find RStudio in the **Analysis & Modeling Folder**.
     From RStudio, navigate to and open your README.md file.
-    Edit the file as needed (we will demonstrate). 
     Update your '*Student Name*' with your full name. 
-    Enter your email address. Write a short Bio about yourself (~ 1 paragraph). 
+    Enter your email address. 
+    Write a short biography (~1 paragraph) and share something about yourself that we might not otherwise know. 
     List three to five course expectations. 
-    Hint: View the Markdown guide to learn about formatting and making ordered lists (https://guides.github.com/features/mastering-markdown/). 
+    Hint: View the Markdown guide to learn about formatting and making ordered lists <https://guides.github.com/features/mastering-markdown/>. 
     When you are done, save the close the document.
 
-6. Now we need to add and commit our changes to git.
-However, before we add anything we want to make sure that we are
+6. Now we need to add and commit our changes to git with the following code:
 
     ```sh
     git status
@@ -155,7 +159,8 @@ However, before we add anything we want to make sure that we are
     ```
 
 7. Now push the changes to GitHub.
-Before we push our changes, we always want to check for (fetch) and merge in any changes others have made.
+Before we push our changes, we always want to check for any changes that others have made; otherwise we can create **conflicts** that need to be fixed. 
+We check for these cahnges using the git commands **fetch** and **merge** as follows:
 
     ```sh
     git fetch upstream
@@ -169,13 +174,13 @@ Before we push our changes, we always want to check for (fetch) and merge in any
 8. Navigate to your GitHub page to make sure that the file was uploaded correctly. 
 If so, submit a Pull Request to submit your file to the course instructors. <br>
 
-    \includegraphics[scale=0.50]{images/github_pr_btn.png}
+    \includegraphics[height=0.75cm]{images/github_pr_btn.png}
   
     The course instructors can now merge and see your changes.
     
 9. To get new assignments, you will pull (fetch & merge) your upstream repo. 
 This will allow any updates your instructors have made to be merged with your local documents.
-In addition to pulling yoru upstream repo, you always want to push any updates to your origin.
+In addition to pulling youe upstream repo, you always want to push any updates to your origin.
 
     ```sh
     git status
