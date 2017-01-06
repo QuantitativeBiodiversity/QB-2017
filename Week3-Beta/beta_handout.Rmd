@@ -1,7 +1,7 @@
 ---
-title: "Among Site (Beta) Diversity"
+title: "Handout: Among Site (Beta) Diversity"
 author: "Z620: Quantitative Biodiversity, Indiana University"
-date: "February 6, 2015"
+date: "January 27, 2016"
 header-includes:
    - \usepackage{array}
 output: pdf_document
@@ -25,7 +25,7 @@ After completing this exercise you will know how to:
 ```{r, results = 'hide'}
 rm(list = ls())
 getwd()
-setwd("~/GitHub/QB-2017/Week3-Beta/")
+setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week3-Beta/")
 ```
 
 ### B. Load Packages 
@@ -60,7 +60,10 @@ In R, a list is an object that contains a collection of other objects of similar
 We can use the `str()` function to describe the attributes of `doubs`, which is a list.
 Because this dataset is somewhat complex, we can pass the "max.level = 1" argument to minimize the `str()` output. 
 Also, you can use the the dollar sign (`$`) after the list name (`doubs`) to access objects within the list (e.g., `env`). 
-For example, to access the site-by-environment matrix, you would pass `doubs$env` to the R console.
+In this example, we introduce a new data structure that is similar in ways to the site-by-species matrix.
+For each site we have environmental data where species information (i.e., presence-absence or abundance) were measured.
+We will call this the **site-by-environment** matrix, which we will use later to explain variation in $\beta$-diversity.
+To access the site-by-environment matrix in this case, you would pass `doubs$env` to the R console.
 Last, recall that you can use `help()` to learn more about a dataset contained in a package. 
 
 ```{r, results='hide'}
@@ -83,7 +86,7 @@ d.  How many fish species are there in the `doubs` data set?
 ### D. Visualizing the Doubs River Dataset
 There is a wealth of information in the `doubs` dataset that can be used to address various issues related to $\beta$-diversity.
 For example, we might use the environmental or spatial data to develop or test a hypothesis.
-Below we have generated two plots of the `doubs` fish data. 
+Below we have generated two plots from the `doubs` fish data. 
 The first plot shows fish richness at each site in the stream.
 The second plot shows the abundance of a particular fish species, Brown Trout (*Salmo trutta*), at each site in the stream.
 
@@ -131,7 +134,7 @@ c.  What do these patterns say about the limitations of using richness when exam
 > ***Answer 2b***:  
 > ***Answer 2c***:  
 
-## 3) QUANTIFYING BETA-DIVERSITY BETWEEN TWO SAMPLES
+## 3) QUANTIFYING BETA-DIVERSITY
 
 There are various ways to quantify $\beta$-diversity. 
 Perhaps one of the simplest metrics is **Whittaker's** $\pmb\beta$-**Diversity**, which was developed by Robert Whittaker (1960). 
@@ -162,11 +165,9 @@ b.  Based on the formula for $\beta_{w}$, what does this value represent?
 > ***Answer 3a***:  
 > ***Answer 3b***: 
 
-## 4) QUANTIFYING BETA-DIVERSITY FOR TWO OR MORE SAMPLES
-
 Often, we often want to compare the diversity of more than just a pair of samples.
 For example, it would be nice to be able to compare fish assemblages for *all* of sites in the Doubs River. 
-In this section we will estimate $\beta$-diversity for multiple samples. 
+In the following sections, we will estimate $\beta$-diversity for multiple samples. 
 During this process, you will learn how to generate similarity and dissimilarity matrices for different data sets that will be needed for visualizing and quantifying $\beta$-diversity. 
 
 ### A. Introducing the Resemblance Matrix
@@ -187,11 +188,11 @@ When you are working with presence-absence data, you can use the following metri
   \hline \hline \\ [-1.5ex]
   Jaccard & 
   $S_7 = \frac{a}{a+b+c}$ & 
-  Compares the number of shared species to the number of species in the combined assemblages  (global view) \\
+  Compares the number of shared species to the number of species in the combined assemblages placing more emphasis on taxa not shared between sites \\
   \\ [-1.5ex]
   Sørensen & 
   $S_8 = \frac{2a}{(2a+b+c)}$ & 
-  Compares the number of shared species to the mean number of species in a single assemblage (local view) \\
+  Compares the number of shared species to the mean number of species in a single assemblage placing more emphasis on similarity of samples owing to shared species \\
   \\ [-1.5ex]
   \hline
   \end{tabular}
@@ -209,12 +210,7 @@ c.  In what situations would these metrics of $\beta$-diversity fail?
 > ***Answer 4b***:  
 > ***Answer 4c***:  
 
-*Notes on incidence-based similarity*: Jacard and Sørensen are perhaps the two most commonly used incidence-based measures of similarity. 
-Others include Ochiai, Kulczynski-Cody, and Lennon, which can be found in Table 6.1 of Magurran & McGill (2011). 
-The differences in these measures include how means are calculated (Sørensen = harmonic mean, Ochiai = geometric mean, and Kulczynski-Cody = arithmetic mean), and how unique species are dealt with if only one sample has unique species (Lennon). 
-Also, it is important to note that these metrics calculate similarity, but can (and in many cases should) be converted to dissimilarity (*D*). 
-In `vegan`, disimilarities (*D*) are usually returned from functions instead of similarities (*S*).
-The conversion between similarity and dissimilarity is calculated as `D = 1 - S`.
+#### See APPENDIX for additional information on incidence-based similarity metrics 
 
 ### C.  Abundance-Based Measures of Similarity and Dissimilarity
 When you are working with abundance data, you can use the following metrics for generating a similarity or dissimilarity matrix. 
@@ -240,22 +236,9 @@ When you are working with abundance data, you can use the following metrics for 
 In the above table $y_{1j}$ is the abundance of each species (1:p) in site 1 and $y_{2j}$ is the abundance of each species (1:p) in site 2.
 As with incidence-based measures, there are many other options for calculating similarity or dissimilarity between communities, including Mean Character Difference, Canberra, Coefficient of Divergence, and Gower. 
 
-### D. A Cautionary Note on Other Measures of Distance
-There are other distance measures that you are likely to encounter because they are widely used.
-It is important to note that some of these should *not* be used for abundance-based data in biodiversity analyses. 
-This is because they lead to the **Species Abundance Paradox**, which is a phenomenon that occurs when the distance between two sites that have no species in common is smaller than the distance between sites with shared species.
-In particular, the paradox described above arises when Euclidean Distance and Manhattan Distance are used:
+#### See APPENDIX for a cautionary note on other measures of distance 
 
-***Euclidean Distance***: 
-$D_{1} = \sqrt{\sum\limits_{j =1}^{p} \left( y_{1j} - y_{2j} \right)^{2}}$
-
-***Manhattan Distance***: 
-$D_{7} = \sum\limits_{j = 1}^{p} \left| y_{ij} - y_{2j} \right|$
-
-Methods exist to transform species abundance data prior to implementing metrics like Euclidean Distance and Manhattan Distance (e.g., Chord transformation and Chi-Square transformation).
-It is recommended that you read more about these distance metrics if you are interested in implementing them to address your research questions.
-
-### E.  Constructing the Resemblance Matrix
+### D.  Constructing the Resemblance Matrix
 
 Conveniently, `vegan` includes many of the similarity metrics used to construct a resemblance matrix.  
 These metrics can be calcualted using the `vegdist()` function.
@@ -294,7 +277,7 @@ fish.db <- vegdist(fish, method = "bray", upper = TRUE, diag = TRUE)
 
 > ***Answer 5***: 
 
-## 5) VISUALIZING BETA-DIVERSITY
+## 4) VISUALIZING BETA-DIVERSITY
 
 ### A.  Heatmaps
 One way to visualize $\beta$-diversity is to plot the resemblance matrix using a **heatmap**.
@@ -308,12 +291,15 @@ First, there are a few things we need to do:
 2.  Ensure that our resemblance matrix is plotted correctly. 
 In particular, we need specify the order in which we want our sites to be plotted in the heatmap.
 
-```{r}
+```{r, results = 'hide', message = FALSE, warning = FALSE} 
 # Get a Color Palette
 # install.packages("viridis") 
-require(viridis)
+require("viridis")
+```
 
 # Define Order of Sites
+
+```{r}
 order <- rev(attr(fish.db, "Labels"))  
 
 # Plot Heatmap
@@ -356,7 +342,8 @@ heatmap.2(as.matrix(fish), distfun = function(x) vegdist(x, method = "bray"),
 > ***Answer 6***: 
 
 ### C.  Ordination
-The primary aim of ordination is to represent multiple objects in a reduced number of orthogonal (i.e., independent) axes. 
+The primary aim of ordination is to represent multiple objects in a reduced number of orthogonal (i.e., independent) axes.
+Often, the objects we want to visualize are samples in "species space", but with a simple transpose, one can look at speices plotted in "sample space".
 The first axis of an ordination explains the most variation in the data set, followed by the second axis, then the third, and so on, where the total number of axes is less than or equal to the number of objects.
 Ordination plots are particularly useful for visualizing the similarity among objects. 
 For example, in the context of $\beta$ diversity, sites that are closer in ordination space have species assemblages that are more similar to one another than sites that are further apart in ordination space.
@@ -397,33 +384,7 @@ explainvar3 <- round(fish.pcoa$eig[3] / sum(fish.pcoa$eig), 3) * 100
 sum.eig <- sum(explainvar1, explainvar2, explainvar3)
 ```
 
-Another way to evaluate our analysis is to assess whether or not the first few PCoA axes capture a disproportionately large amount of the total explained variation.
-First, the eigenvalues associated with the first few axes should be larger than the average of all the eigenvalues (*Kaiser-Guttman criterion*). 
-Second, we can compare the eigenvalues associated with the first few axes to the expectations of the *broken-stick model*, which we introduced in the $\alpha$-diversity exercise when discussing species abundance distributions (SAD). In the current context, the broken stick model assumes that the total sum of eigenvalues decreases sequentially with ordered PCoA axes. 
-
-We will evaluate these two criteria with the following plots:
-
-```{r, fig.width=6, fig.height=4}
-# Define Plot Parameters
-par(mar = c(5, 5, 1, 2) + 0.1)
-
-# Plot Eigenvalues
-plot(fish.pcoa$eig, xlab = "PCoA Axis", ylab = "Eigenvalue", 
-     las = 1, cex.lab = 1.5, pch = 16)
-
-# Add Expectation based on Kaiser-Guttman criterion and Broken Stick Model
-abline(h = mean(fish.pcoa$eig), lty = 2, lwd = 2, col = "blue")
-b.stick <- bstick(29, sum(fish.pcoa$eig))
-lines(1:29, b.stick, type = "l", lty = 4, lwd = 2, col = "red")
-
-# Add Legend
-legend("topright", legend = c("Avg Eigenvalue", "Broken-Stick"), 
-       lty = c(2, 4), bty = "n", col = c("blue", "red"))
-```
-
-***Question 7***: Based on the three criteria described above, does the PCoA do a good job of explaining variation in the `doubs` data set? Please justify.
-
-> ***Answer 7***: 
+#### See APPENDIX for other ways to asses how well PCoA explains variaiton in your data 
 
 ###iii. Creating a PCoA Ordination Plot 
 Having evaluated the PCoA output, now we will create an ordination plot.
@@ -451,7 +412,7 @@ points(fish.pcoa$points[ ,1], fish.pcoa$points[ ,2],
 text(fish.pcoa$points[ ,1], fish.pcoa$points[ ,2], 
      labels = row.names(fish.pcoa$points))
 ```
- 
+
 ###iv. Identifying and Visualizing Influential Species in PCoA 
 Basic ordination plots allow us to see how samples separate from one another. 
 A logical follow-up is to ask what features of the data set are driving the observed divergence among points. 
@@ -491,17 +452,17 @@ imp.spp  <- spe.corr[abs(spe.corr[, 1]) >= corrcut | abs(spe.corr[, 2]) >= corrc
 fit <- envfit(fish.pcoa, fishREL, perm = 999)
 ```
 
-***Question 9***: Address the following questions about the ordination results of the `doubs` data set:
+***Question 7***: Address the following questions about the ordination results of the `doubs` data set:
 
 a.  Generate a hypothesis about the grouping of sites in the Doubs River based on fish community composition.
 b.  Generate a hypothesis about which fish species are potential indicators of river quality.
 c.  Do the different approaches described in the ordination section agree or disagree? Explain. 
 
-> ***Answer 9a***:  
-> ***Answer 9b***:   
-> ***Answer 9c***:
+> ***Answer 7a***:  
+> ***Answer 7b***:   
+> ***Answer 7c***:
 
-## 6) HYPOTHESIS TESTING
+## 5) HYPOTHESIS TESTING
 
 The visualization tools that we just learned about (i.e., heatmaps, cluser analysis, and ordination) are powerful for exploratory analysis and for *generating* hypotheses. 
 In this section we introduce some methods that are better suited for *testing* hypotheses and predictions related to $\beta$-diversity.
@@ -515,7 +476,7 @@ As the name suggests, it evaluates differences according to a specified model by
 PERMANOVA can easily handle simple designs, but also accomodates nested and higher-order studies. 
 In addition, it can deal with missing values and unbalanced designs. 
 The PERMANOVA output is similar to the output of classic ANOVA; it includes (pseudo) F-tests, p-values, and $R^{2}$ values.
-We will implement PERMANOVA with the `adonis()` function in the `vegan` package. 
+We will implement PERMANOVA with the `adonis` function in the `vegan` package. 
 
 To run `adonis`, you first need a factor vector or matrix that specifies your treatments and replicates.
 This vector or matrix can either be provided in the form of a file that you open in R (e.g. `read.table()`) or a user-specified vector or matrix that you write within R.
@@ -558,10 +519,9 @@ summary(phi)
 
 To learn more about species-site group associations, see De Caceres and Legendre (2009).
 
-***Question 10***: Based on the PERMANOVA, IndVal, and phi coefficient analyses, what did you learn about the relationship between habitat quality and the fish species composition? 
+***Question 8***: Based on the PERMANOVA, IndVal, and phi coefficient analyses, what did you learn about the relationship between habitat quality and the fish species composition? 
 
-> ***Answer 10***: 
-
+> ***Answer 8***: 
 
 ### B.  Mutivariate Procedures for Continuous Designs
 
@@ -572,7 +532,7 @@ In addition, it produces a p-value that is derived from the deviation of observe
 
 In the following section, we will peform a Mantel test using the `mantel()` function in `vegan`. 
 This requires that we first have two distance matrices to compare. 
-Here, we will compare the Bray-Curtis distance matrix we created earlier with a new distance matrix of environmental factors (`doubs$env`).
+Here, we will compare the Bray-Curtis distance matrix we created earlier from the site-by-species matrix with the site-by-environment matrix (`doubs$env`).
 After creating the distance matrices, we will test the hypothesis that fish assemblages are correlated with stream environmental variables.
 
 ```{r, results = "hide"}
@@ -584,22 +544,24 @@ env.dist <- vegdist(scale(doubs$env[-8,]),method = "euclid")
 mantel(fish.dist,env.dist)
 ```
 
-***Question 11***: What do the results from our Mantel test suggest about fish diversity and stream environmental conditions? How might this relate to your hypothesis about stream quality influencing fish communities?
+***Question 9***: What do the results from our Mantel test suggest about fish diversity and stream environmental conditions? How might this relate to your hypothesis about stream quality influencing fish communities?
 
-> ***Answer 11***:  
+> ***Answer 9***:  
 
 ### ii.  Constrained Ordination
 Another way we can test hypotheses with continuous data is to use **constrained ordination**, which is sometimes referred to as canonical ordination.
 Constrained ordination explores the relationships between two matrices: an **explanatory matrix** and a **response matrix**. 
-Canonical correspondence analysis (CCA) and redundancy analysis (RDA) are two types of constrained ordination.
+Canonical correspondence analysis (CCA) and redundancy analysis (RDA) are two common types of constrained ordination.
 These techniques are based on the linear model framework and thus can be used to formally test hypotheses.
 Constrained ordination works by first conducting multivariate multiple linear regression followed either by correspondence analysis (CA) with CCA or Principal Components Analysis (PCA) with RDA, while using the matrix of fitted values to obtain a constrained ordination.
 A permutation test can then be used to test for overall significance. 
 
-Here, we will use environmental data to conduct a CCA on the fish assemblages of the Doubs River. 
+#### See APPENDIX for how to perform a CCA
+
+Here, we will use environmental data to conduct a CCA???????? on the fish assemblages of the Doubs River. 
 We will start by creating an explanatory matrix that contains water chemistry data.
 We will then use the `cca()` function from the `vegan` package.
-Note, we have to specify that we want the `cca` function in the `vegan` package because there are `cca` functions in both `vegan` and `ade4`!
+Note, we have to specify that we want the `cca`??????????? function in the `vegan` package because there are `cca` functions in both `vegan` and `ade4`!
 We will then use permutation tests to evaluate the significance of our model. 
 Finally, we will test the influence of each environmental variable on the constrained axes.
 
@@ -682,9 +644,9 @@ axis(side = 4, lwd.ticks=2, cex.axis=1.2, las = 1, col = "red", lwd = 2.2,
 ```
 
 
-***Question 12***: Based on the constrained ordination, what are the environmental variables (or groups of correlated variables) that seem to be contributing to variation in fish community structure?
+***Question 10***: Based on the constrained ordination, what are the environmental variables (or groups of correlated variables) that seem to be contributing to variation in fish community structure?
 
-> ***Answer 12***: 
+> ***Answer 10***: 
 
 ### iii. Variation Partitioning
 As seen in the site-by-species matrix, fish species abundances vary across sites. 
@@ -805,4 +767,110 @@ par(mar = c(2,2,2,2))
 plot(doubs.varpart)
 text(1, 0.25, "Space")
 text(0, 0.25, "Env")
+```
+
+## APPENDIX
+
+### Notes on incidence-based similarity:
+Jacard and Sørensen are perhaps the two most commonly used incidence-based measures of similarity. 
+Others include Ochiai, Kulczynski-Cody, and Lennon, which can be found in Table 6.1 of Magurran & McGill (2011). 
+The differences in these measures include how means are calculated (Sørensen = harmonic mean, Ochiai = geometric mean, and Kulczynski-Cody = arithmetic mean), and how unique species are dealt with if only one sample has unique species (Lennon). 
+Also, it is important to note that these metrics calculate similarity, but can (and in many cases should) be converted to dissimilarity (*D*). 
+In `vegan`, disimilarities (*D*) are usually returned from functions instead of similarities (*S*).
+The conversion between similarity and dissimilarity is calculated as `D = 1 - S`.
+
+### A Cautionary Note on Other Measures of Distance:
+There are other distance measures that you are likely to encounter because they are widely used.
+It is important to note that some of these should *not* be used for abundance-based data in biodiversity analyses. 
+This is because they lead to the **Species Abundance Paradox**, which is a phenomenon that occurs when the distance between two sites that have no species in common is smaller than the distance between sites with shared species.
+In particular, the paradox described above arises when Euclidean Distance and Manhattan Distance are used:
+
+***Euclidean Distance***: 
+$D_{1} = \sqrt{\sum\limits_{j =1}^{p} \left( y_{1j} - y_{2j} \right)^{2}}$
+
+***Manhattan Distance***: 
+$D_{7} = \sum\limits_{j = 1}^{p} \left| y_{ij} - y_{2j} \right|$
+
+Methods exist to transform species abundance data prior to implementing metrics like Euclidean Distance and Manhattan Distance (e.g., Chord transformation and Chi-Square transformation).
+It is recommended that you read more about these distance metrics if you are interested in implementing them to address your research questions.
+
+### Other ways to asses how well PCoA explains variaiton in your data
+Another way to evaluate our analysis is to assess whether or not the first few PCoA axes capture a disproportionately large amount of the total explained variation.
+First, the eigenvalues associated with the first few axes should be larger than the average of all the eigenvalues (*Kaiser-Guttman criterion*). 
+Second, we can compare the eigenvalues associated with the first few axes to the expectations of the *broken-stick model*, which we introduced in the $\alpha$-diversity exercise when discussing species abundance distributions (SAD). In the current context, the broken stick model assumes that the total sum of eigenvalues decreases sequentially with ordered PCoA axes. 
+
+We will evaluate these two criteria with the following plots:
+
+```{r, fig.width=6, fig.height=4}
+# Define Plot Parameters
+par(mar = c(5, 5, 1, 2) + 0.1)
+
+# Plot Eigenvalues
+plot(fish.pcoa$eig, xlab = "PCoA Axis", ylab = "Eigenvalue", 
+     las = 1, cex.lab = 1.5, pch = 16)
+
+# Add Expectation based on Kaiser-Guttman criterion and Broken Stick Model
+abline(h = mean(fish.pcoa$eig), lty = 2, lwd = 2, col = "blue")
+b.stick <- bstick(29, sum(fish.pcoa$eig))
+lines(1:29, b.stick, type = "l", lty = 4, lwd = 2, col = "red")
+
+# Add Legend
+legend("topright", legend = c("Avg Eigenvalue", "Broken-Stick"), 
+       lty = c(2, 4), bty = "n", col = c("blue", "red"))
+```
+
+***Question ***: Based on the three criteria described above, does the PCoA do a good job of explaining variation in the `doubs` data set? Please justify.
+
+### Example of how to perform a CCA
+
+```{r, results = "hide"}
+# Define Environmental Matrix
+env.chem <- as.matrix(doubs$env[-8 , 5:11])
+
+# Conduct CCA 
+doubs.cca <- vegan::cca(fish ~ env.chem)
+
+# Permutation Tests
+anova(doubs.cca, by = "axis")
+cca.fit <- envfit(doubs.cca, env.chem, perm = 999)
+cca.fit
+
+# Calculate Explained Variation
+cca.explainvar1 <- round(doubs.cca$CCA$eig[1] / 
+                         sum(c(doubs.cca$CCA$eig, doubs.cca$CA$eig)), 3) * 100
+cca.explainvar2 <- round(doubs.cca$CCA$eig[2] / 
+                         sum(c(doubs.cca$CCA$eig, doubs.cca$CA$eig)), 3) * 100
+
+# Define Plot Parameters
+par(mar = c(5, 5, 4, 4) + 0.1)
+
+# Initiate Plot
+plot(scores(doubs.cca, display = "wa"), xlim = c(-3.5, 2), ylim = c(-3.2, 3.2),
+     xlab = paste("CCA 1 (", cca.explainvar1, "%)", sep = ""),
+     ylab = paste("CCA 2 (", cca.explainvar2, "%)", sep = ""),
+     pch = 16, cex = 2.0, type = "n", cex.lab = 1.5, cex.axis = 1.2, axes = FALSE)
+
+# Add Axes
+axis(side = 1, labels = T, lwd.ticks = 2, cex.axis = 1.2, las = 1)
+axis(side = 2, labels = T, lwd.ticks = 2, cex.axis = 1.2, las = 1)
+abline(h = 0, v = 0, lty = 3)
+box(lwd = 2)
+
+# Add Points & Labels
+points(scores(doubs.cca, display = "wa"),
+       pch = 19, cex = 3, bg = "gray", col = "gray")
+text(scores(doubs.cca, display = "wa"), 
+     labels = row.names(scores(doubs.cca, display = "wa")))
+
+# Add Environmental Vectors
+vectors <- scores(doubs.cca, display = "bp")
+row.names(vectors) <- c("pH", "har", "pho", "nit", "amm", "oxy", "bdo")
+arrows(0, 0, vectors[,1] * 2, vectors[, 2] * 2, 
+       lwd = 2, lty = 1, length = 0.2, col = "red")
+text(vectors[,1] * 2, vectors[, 2] * 2, pos = 3, 
+     labels = row.names(vectors))
+axis(side = 3, lwd.ticks=2, cex.axis=1.2, las = 1, col = "red", lwd = 2.2,
+     at = pretty(range(vectors[, 1])) * 2, labels = pretty(range(vectors[, 1])))
+axis(side = 4, lwd.ticks=2, cex.axis=1.2, las = 1, col = "red", lwd = 2.2,
+     at = pretty(range(vectors[, 2])) * 2, labels = pretty(range(vectors[, 2])))
 ```
