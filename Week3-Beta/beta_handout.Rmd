@@ -9,8 +9,8 @@ geometry: margin=2.54cm
 ---
 
 ## OVERVIEW
-In this excercise, we move beyond the investigation of within-site $\alpha$-diversity.
-We will explore $\beta$-diversity, which is defined as the diveristy that occurs among sites. 
+In this exercise, we move beyond the investigation of within-site $\alpha$-diversity.
+We will explore $\beta$-diversity, which is defined as the diversity that occurs among sites. 
 To analyze how diversity varies across sites, we must examine the compositional similarity of assemblages that vary in space or time. 
 
 After completing this exercise you will know how to:
@@ -25,7 +25,7 @@ After completing this exercise you will know how to:
 ```{r, results = 'hide'}
 rm(list = ls())
 getwd()
-setwd("~/GitHub/QB-2017/Week3-Beta/")
+setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week3-Beta/")
 ```
 
 ### B. Load Packages 
@@ -51,9 +51,9 @@ require("ade4")
 data(doubs)
 ```
 
-### B. Introduction to a New Data Structure: Lists
+### B. Introduction to a R object class: Lists
 While working in R this semester, we have learned about vectors, matrices, and data frames. 
-Here we introduce another data structure: a **list**. 
+Here we introduce another object class in R: a **list**. 
 In R, a list is an object that contains a collection of other objects of similar or different types.
 To access objects within a list, place a dollar sign (`$`) between the name of the list and the object you want to call (e.g., `list$object`).
 
@@ -139,25 +139,26 @@ c.  What do these patterns say about the limitations of using richness when exam
 
 There are various ways to quantify $\beta$-diversity.
 Metrics of $\beta$-diversity can be broadly grouped into two categories: *variation* (non-directional) and *turnover* (directional). 
-Perhaps one of the simplest non-directional metrics is **Whittaker's** $\pmb\beta$-**Diversity**, developed by Robert Whittaker (1960). 
-This classic index (known as True Beta Diversity) quantifies how many times more diverse the regional species pool is (i.e., *S*, $\gamma$-diversity) than the average richness at each site within the region (i.e., $\bar{\alpha}$). 
-The equation for Whittaker's $\beta$-Diversity is as follows:
-$\beta_{W} = \frac{S}{\bar{\alpha}}$.
+One of the simplest metrics is **Whittaker's** $\pmb\beta$-**Diversity**, developed by Robert Whittaker (1960). 
+This classic index quantifies how many times more diverse the regional species pool (i.e., the richness across all sites, or $\gamma$-diversity) is than the average richness at each site within the region (i.e., $\bar{\alpha}$). 
+Whittaker proposed that the relationship between local ($\alpha$) and regional ($\gamma$) diversity is multiplicative.
+Thus, the equation for Whittaker's $\beta$-Diversity is:
+$\beta_{W} = \frac{\gamma}{\bar{\alpha}}$.
 
 We can write $\beta_{W}$ as a function in R as follows:
 
 ```{r}
 beta.w <- function(site.by.species = ""){
   SbyS.pa <- decostand(site.by.species, method = "pa") # convert to presence-absence
-  S <- ncol(SbyS.pa[,which(colSums(SbyS.pa) > 0)])     # how many species are in the region
+  S <- ncol(SbyS.pa[,which(colSums(SbyS.pa) > 0)])     # number of species in the region
   a.bar <- mean(specnumber(SbyS.pa))                   # average richness at each site
-  b.w <- round(S/a.bar, 3)
+  b.w <- round(S/a.bar, 3)                             # round to 3 decimal places
   return(b.w)
 }
 ```
 
 Whittaker also used his metric to measure turnover between two sites (often called Whittaker's species turnover). 
-Subtracting 1 scales $\beta_{w}$ to produce values ranging from 0 (minimum $\beta$-diversity) to 1 (maximum $\beta$-diversity). Thus, this metric becomes $\beta_{W} = \frac{S}{\bar{\alpha}}-1$.
+Subtracting 1 scales $\beta_{w}$ to produce values ranging from 0 (minimum $\beta$-diversity) to 1 (maximum $\beta$-diversity). Thus, this metric becomes $\beta_{W} = \frac{\gamma}{\bar{\alpha}}-1$, where $\gamma$ is now the combined richness of the two sites being compared.
 
 We can modify our function to also calculate pairwise $\beta_{W}$ for turnover as follows:
 
@@ -173,7 +174,6 @@ beta.w <- function(site1 = "", site2 = ""){
 }
 ```
 
-***Possibly sub this verion of the function for the previous one to demonstrate basic if/else statements, multi-argument functions, and error handling? Or is it too much?***
 ```{r}
 beta.w <- function(site.by.species = "", sitenum1 = "", sitenum2 = "", pairwise = FALSE){
 
@@ -217,8 +217,10 @@ b.  What is the $\beta$-diversity for fish assemblages sampled from site 1 and s
 c.  Based on the formula for $\beta_{w}$, what does this value represent?
 
 > ***Answer 3a***:  
-> ***Answer 3b***: 
-> ***Answer 3c***:
+> ***Answer 3b***:  
+> ***Answer 3c***:  
+
+#### See APPENDIX for more information on calculating $\beta$-diversity and on partitioning $\gamma$-diversity into its $\alpha$ and $\beta$ components.
 
 Often, we often want to compare the diversity of more than just a pair of samples.
 For example, it would be nice to be able to compare fish assemblages for *all* pairs of sites in the Doubs River. 
@@ -226,7 +228,7 @@ In the following sections, we will estimate $\beta$-diversity for multiple sampl
 During this process, you will learn how to generate similarity and dissimilarity matrices for different datasets that will be needed for visualizing and quantifying $\beta$-diversity. 
 
 ### A. Introducing the Resemblance Matrix
-In order to quantify $\beta$-diversity for more than two samples, we need to introduce our second primary ecological data structure: the **Resemblance Matrix**. 
+In order to quantify $\beta$-diversity for more than two samples, we need to introduce another primary ecological data structure: the **Resemblance Matrix**. 
 In the context of biodiversity, a resemblance matrix is a data structure that calculates the pairwise **similarity** or **dissimiliarity** for all samples in a site-by-species matrix. 
 The resemblance matrix can be generated from a site-by-species matrix containing incidence (presence-absence) data or abundance data. 
 In the sections below, we describe some of the similarity and dissimilarity metrics that are commonly used for constructing a resemblance matrix.
@@ -255,16 +257,6 @@ When you are working with presence-absence data, you can use the following metri
 
 In the above table, *a* = the number of species shared between assemblages, *b* = the number of unique species in the first assemblage, and *c* = the number of unique species in the second assemblage.
 
-***Question 4***: Answer the following questions about incidence-based measures of similarity:
-
-a.  What are the differences between Jaccard and Sørensen metrics?
-b.  When might you use one instead of the other?
-c.  In what situations would these metrics of $\beta$-diversity fail?
-
-> ***Answer 4a***:  
-> ***Answer 4b***:  
-> ***Answer 4c***:  
-
 #### See APPENDIX for additional information on incidence-based similarity metrics 
 
 ### C.  Abundance-Based Measures of Similarity and Dissimilarity
@@ -292,6 +284,14 @@ In the above table $y_{1j}$ is the abundance of each species ($1:p$) in site 1 a
 As with incidence-based measures, there are many other options for calculating similarity or dissimilarity between communities, including Mean Character Difference, Canberra, Coefficient of Divergence, and Gower. 
 
 #### See APPENDIX for a cautionary note on other measures of distance 
+
+***Question 4***: Answer the following questions about measures of (dis)similarity:
+
+a.  What are the key differences between incidence- and abundance-based metrics?
+b.  When might you use one instead of the other?
+
+> ***Answer 4a***:  
+> ***Answer 4b***:  
 
 ### D.  Constructing the Resemblance Matrix
 
@@ -396,7 +396,7 @@ gplots::heatmap.2(as.matrix(fish), distfun = function(x) vegdist(x, method = "br
           col = viridis, trace = "none", density.info = "none")
 ```
 
-***Question 6***: Based on cluster analyses and the introdutory plots that we generated after loading the data, develop a hypothesis for the `doubs` data set? 
+***Question 6***: Based on cluster analyses and the introdutory plots that we generated after loading the data, develop a hypothesis about the distribution of fish assemblages in the Doubs River? 
 
 > ***Answer 6***: 
 
@@ -486,19 +486,19 @@ These coordinates reflect the strength and direction that each species has on th
 
 require("BiodiversityR")
 
-# Calculating Relative Abundance
+# First we calculate the relative abundances of each species at each site
 fishREL <- fish
   for(i in 1:nrow(fish)){
     fishREL[i, ] = fish[i, ] / sum(fish[i, ])
     } 
 
-# Calculate and Add Species Scores
+# Now, we use this information to calculate and add species scores
 fish.pcoa <- add.spec.scores(fish.pcoa,fishREL,method = "pcoa.scores")
 text(fish.pcoa$cproj[ ,1], fish.pcoa$cproj[ ,2], 
      labels = row.names(fish.pcoa$cproj), col = "black")
 ```
 
-A more quantitative way of identifying influential species involves determining the correlation of each species along the PCoA axes.
+A more quantitative way of identifying influential species involves determining the correlation coefficient of each species along the PCoA axes.
 To do this, we will use the `add.spec.scores` function again.
 Then we can identify a correlation-coefficient cutoff (e.g. *r* = 0.70) to pull out important species.
 Finally, we will use the `envfit()` function from the `vegan` pacakge, to conduct a permutation test on these correlations.
@@ -606,16 +606,12 @@ mantel(fish.dist,env.dist)
 Another way we can test hypotheses with continuous data is to use **constrained ordination**, which is sometimes referred to as canonical ordination.
 Constrained ordination explores the relationships between two matrices: an **explanatory matrix** and a **response matrix**. 
 Canonical correspondence analysis (CCA) and redundancy analysis (RDA) are two common types of constrained ordination.
-These techniques are based on the linear model framework and thus can be used to formally test hypotheses.
-Constrained ordination works by first conducting multivariate multiple linear regression followed either by correspondence analysis (CA) with CCA or Principal Components Analysis (PCA) with RDA, while using the matrix of fitted values to obtain a constrained ordination.
-Thus, CCA preserves chi-squared distances (analogous to CA), while RDA preserves Euclidean distances (analogous to PCA).
-A permutation test can then be used to test for overall significance. 
 
-#### See APPENDIX for how to perform a CCA
+#### See APPENDIX for more information on these constrained ordination families, and for an example of how to perform a CCA
 
 Here, we will use environmental data to conduct a redundancy analysis on the fish assemblages of the Doubs River. 
 We will start by creating an explanatory matrix that contains water chemistry data.
-Note that RDA preserves Euclidean distances (and thus requires an appropriate transformation, e.g., Hellinger, see Appendix). 
+Note that RDA preserves Euclidean distances (and thus requires an appropriate transformation, e.g., Hellinger, see APPENDIX). 
 Analogous to PCoA, a method of constrained ordination called distance-based Redundancy Analysis (dbRDA) has been implemented that operates on a resemblance matrix, allowing the use of alternative metrics, such as Bray-Curtis distance.
 dbRDA uses all the principal coordinates of a PCoA performed on the resemblance matrix as the response variable in constrained ordination. 
 We will use the `dbrda()` function from the `vegan` package to perform it.
@@ -642,10 +638,11 @@ doubs.dbrda.mod0 <- dbrda(fish.db ~ 1, as.data.frame(env.chem))
 # so the axes suggest this is a simple MDS (i.e., PCoA)
 ordiplot(doubs.dbrda.mod0) 
 
-# Next, we will model the full model, like before
+# Next, we will model the full model, with all explanatory variables
 doubs.dbrda.mod1 <- dbrda(fish.db ~ ., as.data.frame(env.chem))
 
-# Now we will step through all permutations of the full model and just the intercept
+# Now we step through all combinations of explanatory variables in our model
+# The function returns the model with the lowest AIC value
 doubs.dbrda <- ordiR2step(doubs.dbrda.mod0, doubs.dbrda.mod1, perm.max = 200)
 
 # Lets look at the model that was selected
@@ -664,7 +661,7 @@ dbrda.explainvar2 <- round(doubs.dbrda$CCA$eig[2] /
                          sum(c(doubs.dbrda$CCA$eig, doubs.dbrda$CA$eig)), 3) * 100
 ```
 
-Now, let's plot the ordination
+Now, let's plot the ordination for the selected model.
 ```{r, fig.width=6, fig.height=4, fig.align='center'}
 # Define Plot Parameters
 par(mar = c(5, 5, 4, 4) + 0.1)
@@ -709,7 +706,7 @@ axis(side = 4, lwd.ticks=2, cex.axis=1.2, las = 1, col = "red", lwd = 2.2,
 We have shown that spatial variation in fish community structure in the Doubs River can be explained by environmental variables. 
 However, the environmental variables also vary across space. 
 A major question in the study of $\beta$-diversity is whether variation in community structure is more strongly driven by changes in underlying environmental variables (after controlling for spatial variation in those variables), by changes in spatial position alone (after controlling for environmental variation), or by spatially structured environmental variation.
-A common approach to answering these types of question is to use variation partitioning, which determines the amount of variation in a response variable that can be explained by two or more explanatory matrices, jointly and independently. 
+A common approach to answering these types of questions is to use variation partitioning, which determines the amount of variation in a response variable that can be explained by two or more explanatory matrices, jointly and independently. 
 For more detailed explanation of the application of variation partition in ecology, see Borcard et al. (1992), Legendre et al. (2005), and Peres-Neto et al. (2006).
 
 Here, we will perform variation partitioning using two constrained ordinations (by space and by environment) and two partial constrained ordinations (by space controlling for environment and by environment controlling for space).
@@ -759,17 +756,21 @@ plot(step.pcnm)
 step.pcnm$anova
 
 # We can now construct a spatial model using only the selected PCNM axes. 
-space.mod <- model.matrix(~ PCNM2 + PCNM3 + PCNM5 + PCNM1 + PCNM13 + PCNM16 + PCNM6, doubs.space)[,-1]
+space.mod <- model.matrix(~ PCNM2 + PCNM3 + PCNM5 + PCNM1 + 
+                            PCNM13 + PCNM16 + PCNM6, doubs.space)[,-1]
 ```
 
 Now we wish to determine the independent and joint explanatory power of the environmental and spatial datasets using variation partitioning.
-To do so, we will perform *partial constrained ordination* by controlling for a second explanatory matrix.
+To do so, we will perform **partial constrained ordination**, which requires a second explanatory matrix.
+We will control for the effects of one explanatory matrix on the other using `Condition()` in the model formula. 
 ```{r, results = "hide", message=FALSE}
-# First conduct constrained ordination
-doubs.env.cond.space <- dbrda(fish.db ~ env.mod + Condition(space.mod)) 
-doubs.space.cond.env <- dbrda(fish.db ~ space.mod + Condition(env.mod)) 
+# First conduct constrained ordinations
 doubs.total.env <- dbrda(fish.db ~ env.mod)
 doubs.total.space <- dbrda(fish.db ~ space.mod)
+
+# Next construct partial constrained ordinations
+doubs.env.cond.space <- dbrda(fish.db ~ env.mod + Condition(space.mod)) 
+doubs.space.cond.env <- dbrda(fish.db ~ space.mod + Condition(env.mod)) 
 
 # Next test for significance of the dbRDA fractions.
 permutest(doubs.env.cond.space, permutations = 999)
@@ -778,7 +779,7 @@ permutest(doubs.total.env, permutations = 999)
 permutest(doubs.total.space, permutations = 999)
 ```
 
-Now, we need to calculate the fractions of variation explained by space alone, environment alone, both space and environment, and neither space nor environment. Here, we will use the `varpart()` function from `vegan`. A more detailed explanation of how the constrained and partial constrained ordinations are being used to determine each component of variation explained can be found in the appendix.
+Now, we need to calculate the fractions of variation explained by space alone, environment alone, both space and environment, and neither space nor environment. Here, we will use the `varpart()` function from `vegan`. A more detailed explanation of how the constrained and partial constrained ordinations are being used to calculate each component of explained variation can be found in the APPENDIX.
 
 ```{r, results="hide", fig.align='center', fig.height=4, fig.width=4}
 # Using the built-in varpart() function
@@ -793,6 +794,13 @@ mtext("Variation Partitioning of\nDoubs Fish Diversity", side = 3, line = -3)
 ```
 
 ## APPENDIX
+
+### Diversity partitioning and beta diversity
+The history of $\beta$-diversity, and how it relates $\alpha$ to $\gamma$ diversity has enjoyed considerable debate over the past half century. 
+While Whittaker (1960, 1972) advocated a multiplicative approach, others have suggested addititive partitioning: $\gamma = \alpha + \beta$ (see Lande (1996) and Veech et al. (2002) for reviews). 
+Addititive partitioning changes the interpretation of $\beta$ from a measure of *how many times* more diverse the region is than local sites, to a measure of *how many more species* exist in the regional pool than in local sites. 
+There has been a rejuvenation of research on diversity partition over the past decade or so, particularly with the embrace of "numbers equivalents" or "Hill numbers" reflecting M. O. Hill's (1973) demonstration of the mathematical relationships between richness, Shannon's index, and Simpson's index. 
+More discussion of the usefulness of the numbers equivalents approach can be found in Jost (2006, 2007) and more recent debates that have emerged since their publication.
 
 ### Notes on incidence-based similarity:
 Jacard and Sørensen are perhaps the two most commonly used incidence-based measures of similarity. 
@@ -855,8 +863,13 @@ legend("topright", legend = c("Avg Eigenvalue", "Broken-Stick"),
        lty = c(2, 4), bty = "n", col = c("blue", "red"))
 ```
 
+### More on constrained ordination
+Constrained ordination techniques are based on the linear model framework and thus can be used to formally test hypotheses.
+Constrained ordination works by first conducting multivariate multiple linear regression followed either by correspondence analysis (CA) with CCA or Principal Components Analysis (PCA) with RDA, while using the matrix of fitted values to obtain a constrained ordination.
+Thus, CCA preserves chi-squared distances (analogous to CA), while RDA preserves Euclidean distances (analogous to PCA).
+A permutation test can then be used to test for overall significance. 
 
-### Example of how to perform a CCA
+#### Example of how to perform a CCA
 
 ```{r, results = "hide", fig.align='center', fig.height=4, fig.width=6}
 # Define Environmental Matrix
@@ -910,7 +923,7 @@ axis(side = 4, lwd.ticks=2, cex.axis=1.2, las = 1, col = "red", lwd = 2.2,
      at = pretty(range(vectors[, 2])) * 2, labels = pretty(range(vectors[, 2])))
 ```
 
-### Steps to conducting variation partitioning
+### Step-by-step demonstration of how to do variation partitioning
 ```{r}
 # First, calculate the total variation in the dataset
 doubs.ca <- dbrda(fish.db ~ 1)
