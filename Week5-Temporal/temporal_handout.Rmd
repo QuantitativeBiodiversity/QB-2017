@@ -1,0 +1,60 @@
+---
+title: 'Handout: Temporal Diversity'
+author: 'Z620: Quantitative Biodiversity, Indiana University'
+date: "February 10, 2017"
+header-includes:
+   - \usepackage{array}
+output: pdf_document
+geometry: margin=2.54cm
+---
+
+## OVERVIEW
+
+In this exercise, we will explore aspects of temporal diversity. We will review ecological concepts such as community turnover/ temporal beta diversity and stability as well as statistical concepts such as autocorrelation. In addition, we will review statistical tools such as repeated measures ANOVA, autocorrelation-corrected regressionas well as the visualization tool of the Muller plot. 
+
+## 1) SETUP
+### Retrieve and Set Your Working Directory
+
+```{r, results = 'hide'}
+rm(list=ls()) 
+getwd() 
+setwd("~/GitHub/QB-2017/Week5-Temporal") 
+```
+
+### Install Packages
+
+```{r, results = 'hide', warning=FALSE, message=FALSE}
+
+```
+
+## 2) LOADING DATA
+
+We will start by using the long-term monitoring dataset of rodents from the Chihuahuan Desert ecosystem near Portal, Arizona.
+
+```{r}
+portal <- read.table("data/Portal_rodents_19772002.csv", sep = ",", header = TRUE)
+```
+
+## 3) VISUALIZING TURNOVER
+
+First, we will write a function to clean the data and generate a time-by-species matrix. 
+
+```{r}
+portal.dates <- portal[,2:4]
+portal.dates.unique <- unique(portal.dates)
+
+# To-do. Initialize an empty dataframe with columns for day, month, year, and each species
+
+f <- function(x) {
+ new.data <- portal[ which( portal$mo == x[1] & portal$dy == x[2] & portal$yr == x[3]) , ]
+ species <- array(new.data$species)
+ remove <- c("<NA>")
+ species <- species[! species %in% remove]
+ species.df <- as.data.frame(table(species))
+ # append species abundances to empty dataframe, making sure to match species identity to column
+ #print(as.data.frame(table(species)))
+}
+
+test <- apply(portal.dates.unique, 1, f)
+```
+
