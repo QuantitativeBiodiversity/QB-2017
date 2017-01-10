@@ -9,7 +9,7 @@ geometry: margin=2.54cm
 ## OVERVIEW
 
 In this pre-class exercise, you will be introduced to the computing environment that we will be using in Quantitative Biodiversity.
-By the end of this exercise you will understand the basics of version control and how it is implemented using Git and GitHub, which will require elementary proficiency in UNIX. Last, you will become acquainted with RStudio. You will  learn how to perform basic operations and become familiar with how to work with vectors, a one-dimensional array of data. 
+By the end of this exercise you will understand the basics of version control and how it is implemented using Git and GitHub, which will require elementary proficiency in UNIX. Last, you will become acquainted with RStudio. You will learn how to perform basic operations and become familiar with how to work with vectors, a one-dimensional array of data. 
 
 ##1) VERSION CONTROL
 
@@ -25,7 +25,7 @@ Do you fear that data on a hard drive could get lost or damaged?
 Do you have a file somewhere that looks like this: "Dissertation-Project-StatsCode-Final-v23.R"?
 No need to worry.
 Version control can help you better manage changes to data, manuscripts, and computer code.
-Thougth this, you can become a more organized and responsible scientist.
+Through this, you can become a more organized and responsible scientist.
 If that isn't enough, funding agencies and many journals now require authors to provide curated data and can call on authors to provide proof of reproducibility.
 
 ### How version control works, in a nutshell
@@ -51,7 +51,7 @@ While many companies, agencies, and governments use GitHub (e.g., see <https://g
 
 ####Assignment 1: Create a GitHub account
 
-+ Navitate to <https://github.com/> and click on the "sign up" icon
++ Navigate to <https://github.com/> and click on the "sign up" icon
 + Step 1: supply a username, your email address, and a password
 + Step 2: choose the "Unlimited public repositories for free" plan 
 + Leave the "Help me set up an organization next" box unchecked for now
@@ -85,12 +85,12 @@ Markdown is a simple formatting syntax for authoring HTML, PDF, and other docume
 We will also use a tool called **knitr** (http://yihui.name/knitr/), which is a package that generates reports from R script and Markdown text. 
 For example, when you click the "Knit PDF" button in the scripting window of RStudio, a document will be generated that includes LaTeX (http://www.latex-project.org/) typesetting as well as the output of any embedded R code. 
 However, if there are errors in the Rcode in your Markdown document, you will not be able to knit a PDF file. 
-All subsequence assignments in this class will require that you successfully create a Markdown-generated PDF using knitr; you will then **push** this document to the course **respository** hosted on GitHub (<https://github.com/QuantitativeBiodiversity/QB-2017>) and generate a **pull request**.
+All subsequence assignments in this class will require that you successfully create a Markdown-generated PDF using knitr; you will then **push** this document to the course **repository** hosted on GitHub (<https://github.com/QuantitativeBiodiversity/QB-2017>) and generate a **pull request**.
 
 ### Introduction to RStudio
 
 Eventually, we will make sure that your personal computer is set up with the proper versions of all necessary software. 
-But for now, we are going to become familiar with a web-based version of RStudio that does not require an installations. 
+But for now, we are going to become familiar with a web-based version of RStudio that does not require an installation. 
 Open a web browser and type the following into the address bar: <https://rstudio.iu.edu>.
 Now, we're going to do some simple exercises to get you familiar with how to use R and RStudio.
 There are many on-line resources (websites, videos, etc.) that can provide additional background and instruction.
@@ -106,11 +106,11 @@ A second way to execute code is to type it into the **script editor pane** in th
 The code that you write can then be saved in an organized way as a *.Rmd file* when you are finished. 
 You can execute code from the script editor pane by hitting Command+Enter (Mac) or Ctrl+Enter (PC).
 This will submit all of the code for the line where your cursor is located.
-Altenratively, you can highlight multiple lines of code and submit as described above. 
+Alternatively, you can highlight multiple lines of code and submit as described above. 
 
 ### Use R as a calculator 
 
-R is capable of performing various calcuations using simple operators and built-in **functions**.
+R is capable of performing various calculations using simple operators and built-in **functions**.
 Use the **console pane** in the lower left of the Rstudio window to complete the following exercises:
 
 ***Addition***:
@@ -176,7 +176,7 @@ b <- a + 20
 
 Sometimes it's good practice to clear all variables from your R environment, especially if you've been working on multiple projects during the day. 
 This can be done in a couple of ways. 
-For example, you can just click `clear` in the **Environment tab** of the **Workspace and History pane** in the upper-right paenel of the R Studio window. 
+For example, you can just click `clear` in the **Environment tab** of the **Workspace and History pane** in the upper-right panel of the R Studio window. 
 The same procedure can be performed at the command line of the console or script editor pane.
 To do this, you can use the `ls` function to view a list of all the objects in the R environment:
 ```{r}
@@ -244,9 +244,9 @@ Here's how you can substitute a new value for the second element of `z`:
 z[2] <- 583 
 ```
 
-### Summary Statictics of Vectors
+### Summary Statistics of Vectors
 
-It's pretty easy to perform summary statistics on a vector of data using the built-in fuctions of R:
+It's pretty easy to perform summary statistics on a vector of data using the built-in functions of R:
 ```{r, results = 'hide'}
 max(z)    # maximum
 min(z)    # minimum
