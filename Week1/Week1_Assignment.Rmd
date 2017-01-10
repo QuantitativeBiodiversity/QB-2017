@@ -17,7 +17,7 @@ You will not be able to complete the exercise if you do not have your handout.
 2. Complete as much of the assignment as possible during class; what you do not complete in class will need to be done on your own outside of class.
 3. Use the handout as a guide; it contains a more complete description of data sets along with the proper scripting needed to carry out the exercise.
 4. Be sure to **answer the questions** in this assignment document.
-Space for your answers are provided in this document and is indicated by the ">" character.
+Space for your answers is provided in this document and is indicated by the ">" character.
 If you need a second paragraph be sure to start the first line with ">".
 You should notice that the answer is highlighted in green by RStudio. 
 5. Before you leave the classroom today, it is *imperative* that you **push** this file to your GitHub repo.
@@ -27,7 +27,7 @@ This will save the PDF output in your Week1 folder.
 8. After Knitting, please submit the completed exercise by creating a **pull request** via GitHub.
 Your pull request should include this file (*Week1_Assignment.Rmd*; with all code blocks filled out and questions answered) and the PDF output of `Knitr` (*Week1_Assignment.pdf*).
 
-The completed exercise is due on **Wednesday, January 18^st^, 2017 before 12:00 PM (noon)**.
+The completed exercise is due on **Wednesday, January 18^th^, 2017 before 12:00 PM (noon)**.
 
 ## 1) HOW WE WILL BE USING R AND OTHER TOOLS
 
@@ -269,7 +269,7 @@ Using the R code chunk below, use the code provided in the handout to determine 
 + Bottom left: again, looking for a random distribution of sqrt(standardized residuals)
 + Bottom right: leverage indicates the influence of points; contours correspond with Cook's distance, where values > |1| are "suspicious"
 
-### ANALYSIS OF VARIANCE (ANOVA)
+### Analysis of Variance (ANOVA)
 
 Using the R code chunk below, do the following:
 1) Order the nutrient treatments from low to high (see handout).
