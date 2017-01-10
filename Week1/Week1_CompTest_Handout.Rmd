@@ -1,5 +1,5 @@
 ---
-title: "Week 1: Computer Test"
+title: "Week 1 Handout: Computer Test"
 author: "Z620: Quantitative Biodiversity, Indiana University"
 date: "January 13, 2017"
 output: pdf_document

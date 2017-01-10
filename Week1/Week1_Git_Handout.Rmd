@@ -1,5 +1,5 @@
 ---
-title: 'Week 1: Git and GitHub'
+title: 'Week 1 Handout: Git and GitHub'
 author: 'Z620: Quantitative Biodiversity, Indiana University'
 date: "January 16, 2015"
 output: pdf_document
@@ -106,7 +106,8 @@ We *stronly* recommend that you configure this behavior in order to prevent any 
     \includegraphics[height=0.75cm]{images/github_edit_btn.png}
 
 ## Fork and Clone a Repo
-1. Navigate to and click on your student repository (repo) on https://github.com/QuantitativeBiodiversity/QB-2017
+1. Navigate to the QB student organization: https://github.com/QBstudents
+2. Click on the repository (repo) with your name
 2. Fork your repo by clicking on the Fork Icon in the top right of your screen<br>
 
     \includegraphics[width=2cm]{images/github_fork_btn.png}
@@ -114,24 +115,24 @@ We *stronly* recommend that you configure this behavior in order to prevent any 
     You should now see the repo on your GitHub page.
 
 3. Clone the repo onto your local machine using the command line (terminal or GitBash).
-Replace "User_Name" with your IU Username and "Repo" with your QB Repository.
+Replace "username" with your GitHub username and "repo" with the name of the repo in the QBStudent organization (e.g., QB2017_Lennon)
 
     ```sh
     cd ~/GitHub
-    git clone https://github.iu.edu/User_Name/Repo
+    git clone https://github.com/sername/repo
     cd ./Repo
     git status
     ```
 
-The repo should have downloaded onto your local computer and the status should stay "all up to date". You should also see that the only thing in your repo is a file named README.md
+The repo should have downloaded onto your local computer and the status should stay "all up to date". 
 
 4. Check and update remote repo location
 The following commands will set the location of your **upstream remote repository** on the QB Course GitHub site. 
-(In the example bleow, you will need to replace "Repo" with the nambe of your QB Repository)
+(In the example bleow, you will need to replace "repo" with the name of your QB Repository)
 
     ```sh
     git remote -v
-    git remote add upstream https://github.iu.edu/2017-QuantitativeBiodiversity/Repo
+    git remote add upstream https://github.com/QBStudents/repo
     git remote -v
     ```
     You can copy and paste the URL for your upstream repo from the GitHub website.
@@ -142,7 +143,7 @@ The following commands will set the location of your **upstream remote repositor
     Markdown is markup language for writing and editing text that can be easily converted to other formats (e.g. HTML, PDF, Word).
     During this semester, we will edit Markdown files using RStudio.
     On the lab computers, you can find RStudio in the **Analysis & Modeling Folder**.
-    From RStudio, navigate to and open your README.md file.
+    From RStudio, navigate to and open your README.md file in the root of your student repo  .
     Update your '*Student Name*' with your full name. 
     Enter your email address. 
     Write a short biography (~1 paragraph) and share something about yourself that we might not otherwise know. 
