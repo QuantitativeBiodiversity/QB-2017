@@ -18,7 +18,7 @@ S.ace <- function(x = "", thresh = 10){
   S.rare  <- length(which(x <= thresh)) # richness of rare taxa
   singlt  <- length(which(x == 1))      # number of singleton taxa
   N.rare  <- sum(x[which(x <= thresh)]) # abundance of rare individuals
-  C.ace   <- 1 - (singlt / N.rare)      # coverage (prop non-singlt rare inds)
+  C.ace   <- 1 - (singlt / N.rare)      # coverage (prop non-single rare inds)
   i       <- c(1:thresh)                # threshold abundance range
   count   <- function(i, y){            # counter to go through i range
     length(y[y == i])
@@ -32,7 +32,7 @@ S.ace <- function(x = "", thresh = 10){
 ```
 
 _Notes_
-+ `estimateR` is a function in the `vegan` pakcage 
++ `estimateR` is a function in the `vegan` package 
 + It will spit out observed richness, along with Chao1, ACE, and their associated confidence intervals. 
 + You can look more into the code in R packages using commands like this: vegan:::estimateR.default
 + Try it out!
@@ -44,10 +44,10 @@ Finally, subtracting this from one allows low evenness to be associated with val
 We can confirm this with a more explicit R chunk:
 
 ```{r}
-P <- log(log(site1.ab)) # log-tranform the abundances of the RAC and assign them to a vector P
+P <- log(log(site1.ab)) # log-transform the abundances of the RAC and assign them to a vector P
 AvgAb <- mean(P) # find the average of the log abundances
 X <- 0 # assign zero to variable X
-Evar <- 0 # declare a scalar varible Evar
+Evar <- 0 # declare a scalar variable Evar
 
 for (x in P) { # making use of a 'for' loop. for loops are an elementary control structure in all programming languages.
   X = X + (x - AvgAb)^2 / (S - 1)
@@ -76,7 +76,7 @@ Fisher
 As we can see, the two measurements are somewhat similar. 
 They would converge if our community was much greater in total abundance and richness. 
 However, discussion of Fisher's $\alpha$ introduces a new concept, that is, of estimating diversity instead of just calculating a diversity metric. 
-The difference being that an estimate of diversity implicitly or explicitly accounts for samplign error, that is, the fact that when samplign most ecological communities that we are not observing every single individual.
+The difference being that an estimate of diversity implicitly or explicitly accounts for sampling error, that is, the fact that when sampling most ecological communities that we are not observing every single individual.
 
 
 We can use the information from the `rarefy` function to create a barplot that compares each site.

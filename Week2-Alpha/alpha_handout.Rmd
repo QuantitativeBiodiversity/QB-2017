@@ -193,7 +193,7 @@ One of the most common ways to visualize evenness is with a **rank-abundance cur
 A RAC can be constructed by ranking species from the most-to-least abundant.
 
 Let's write a function to construct an RAC.
-First, we will remove species that have zero abundances.
+First, we will remove species that have an abundance of zero.
 Then, we will order the vector from greatest (most abundant) to least (least abundant).
 
 ```{r}
@@ -340,7 +340,7 @@ diversity(site1, index = "shannon")
 ```
 
 ### B. Simpson's Diversity (or Dominance)
-Simpsons diversity is a straightforward metric and is calculated as ${D = } \sum p_i^2$ where again, $p_i$ is the proportion of individuals found in the *i*th species. 
+Simpson's diversity is a straightforward metric and is calculated as ${D = } \sum p_i^2$ where again, $p_i$ is the proportion of individuals found in the *i*th species. 
 Simpson's index is commonly expressed as 1/*D* so that index values naturally increase with diversity.
 Let's calculate Simpson's diversity for `site1` and then compare it to the `vegan` estimate:
 
@@ -355,17 +355,18 @@ SimpD <- function(x = ""){
 }
 ```
 
-And now let's express Simpsons's diversity as 1/*D* (invD) and 1-*D*:
-***The above statement doesn't agree with the following code. We should probably decide on using invD or D.inv in both cases for clarity, and are we still planning to calculate 1-D?***
+And now let's express Simpson's diversity as 1/*D* (`D.inv`) and 1-*D* (`D.sub`):
+
 ```{r, results='hide'}
 D.inv <- 1/SimpD(site1)
+D.sub <- 1-SimpD(site1)
 ```
 
 Now that we have written functions to understand how some of these metrics are quantified, we can also use `vegan` to estimate Simpsons's index:
 
 ```{r, results="hide"}
-diversity(site1, "simp")
 diversity(site1, "inv")
+diversity(site1, "simp")
 ```
 
 ##6) MOVING BEYOND UNIVARIATE METRICS OF $\alpha$-DIVERSIY 
@@ -476,7 +477,7 @@ S.ace <- function(x = "", thresh = 10){
 ```
 
 _Notes_
-+ `estimateR` is a function in the `vegan` pakcage 
++ `estimateR` is a function in the `vegan` package 
 + It will spit out observed richness, along with Chao1, ACE, and their associated confidence intervals. 
 + You can look more into the code in R packages using commands like this: vegan:::estimateR.default
 + Try it out!
@@ -489,10 +490,10 @@ We can confirm this with a more explicit R chunk:
 
 ```{r, eval=FALSE}
 # site1.ab <- site1[site1 > 0]
-# P <- log(log(site1.ab))   # log-tranform the abundances of the RAC and assign them to a vector P
+# P <- log(log(site1.ab))   # log-transform the abundances of the RAC and assign them to a vector P
 # AvgAb <- mean(P)          # find the average of the log abundances
 # X <- 0                    # assign zero to variable X
-# Evar <- 0                 # declare a scalar varible Evar
+# Evar <- 0                 # declare a scalar variable Evar
 # 
 # for (x in P) { 
 #   X = X + (x - AvgAb)^2 / (S - 1)
