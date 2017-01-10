@@ -39,9 +39,9 @@ setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week1")
 
 **Matrices** are another data type in R. 
 They are just two-dimensional vectors containing data of the same type (e.g., numeric, integer, character). 
-Thereofore, much of what we discussed in Week 0 about vectors translates directly into dealing with matrices. 
+Therefore, much of what we discussed in Week 0 about vectors translates directly into dealing with matrices. 
 
-### Making A Matrix
+### A. Making A Matrix
 
 There are three common ways to create a matrix in R. 
 
@@ -77,7 +77,7 @@ dim(k)
 **Approach 2** to making a matrix is to use the `matrix` function along with arguments that specify the number of rows (`nrow`) and columns (`ncol`):
 
 ```{r}
-l <- matrix(c(2, 4, 3, 1, 5, 7), nrow = 3, ncol = 2) 
+l <- matrix(c(2, 4, 3, 1, 5, 7), nrow = 3, ncol = 2, byrow = FALSE) 
 ```
 
 **Approach 3** to making a matrix is to import or **load a dataset** from your working directory:
@@ -99,7 +99,7 @@ n <- t(m)
 
 **Q2:** What are the dimensions of the matrix you just transposed?
 
-### Indexing a Matrix
+### B. Indexing a Matrix
 
 Frequently, you will need to **index** or retrieve a certain portion of a matrix. 
 As with the vector example above, we will use the square brackets to return data from a matrix. 
@@ -128,11 +128,11 @@ n <- m[, c(1:2, 5)]
 **Q3:** Describe what we just did in the last indexing operation?
 
 ## 3) BASIC DATA VISUALIZATION AND STATISTICAL ANALYSIS
-### Load Aquatic Mesocosm Dataset
+### A. Load Aquatic Mesocosm Dataset
 
 In the following exercise, we will use a dataset from Lennon et al. (2003) (http://goo.gl/JplHwd), which looked at zooplankton communities along an experimental nutrient gradient in aquatic mesocosms. 
 Inorganic nitrogen and phosphorus were added to mesocosms for six weeks at three different levels (low, medium, and high), but we also directly measured nutrient concentrations of water samples. 
-So we have **categorical** and **continuous** predictors that we're going to use to help explain variaiton in zooplankton biomass.  
+So we have **categorical** and **continuous** predictors that we're going to use to help explain variation in zooplankton biomass.  
 
 The first thing we're going to do is load the nutrient data:
 
@@ -149,7 +149,7 @@ str(meso)
 How does this dataset differ from the `m` dataset above? 
 Remember, **matrices** and **vectors** are only comprised of a _single_ data type.
 In contrast, the `meso` dataset has a combination of numeric and character data; note the `Factor`, `int`, and `num` data types generated from `str` function. 
-So, this means we're dealing with a new type of **data structure**: a **data frame**
+So, this means we're dealing with a new type of **data structure**: a **data frame**.
 
 Here is a description of the column headers:
 
@@ -169,11 +169,11 @@ Here is a description of the column headers:
   
   + ZP = zooplankton biomass (mg/L)
   
-### Correlation
+### B. Correlation
 
 A common step in data exploration is to look at correlations among variables. 
-Before we do this, let's **index** our numerical (continuous) data in the 'meso' dataframe. 
-(Correlations typiclly don't work well on categorical data.)
+Before we do this, let's **index** our numerical (continuous) data in the 'meso' data frame. 
+(Correlations typically don't work well on categorical data.)
 
 ```{r}
 meso.num <- meso[,3:8]
@@ -181,7 +181,7 @@ meso.num <- meso[,3:8]
 
 We can conveniently visualize pairwise **bi-plots** of the data using the following command:
 
-```{r}
+```{r, fig.align='center'}
 pairs(meso.num)
 ```
 
@@ -193,8 +193,8 @@ cor1 <- cor(meso.num)
 
 **Q4:** Describe some of the general features based on the visualization and correlation anaylysis above?
 
-### Loading Contributed Packages
-The base pakcage in R won't always meet all of our needs. 
+### C. Loading Contributed Packages
+The base package in R won't always meet all of our needs. 
 This is why there are > 6,000 **contributed packages** that have been developed for R. 
 This may seem overwhelming, but it also means that there are tools (and web support) for just about any problem you might encounter.  
 
@@ -206,7 +206,7 @@ This function generates **p-values** for each pairwise correlation.
 
 You can load an R package and its dependencies using the `require()` function: 
 
-```{r, results = 'hide'}
+```{r, results = 'hide', message = FALSE, warning = FALSE}
 require("psych")
 ```
 
@@ -238,13 +238,13 @@ With the Pearson's method, is there evidence for false discovery rate due to mul
 
 Now, let's load another package that will let us visualize the direction and strength of the correlations:
 
-```{r}
+```{r, message=FALSE, fig.align='center', warning=FALSE, results='hide'}
 require("corrplot")
 corrplot(cor1, method = "ellipse")
 dev.off()
 ```
 
-### Linear Regression
+### D. Linear Regression
 It seems that total nitrogen (TN) is a fairly good predictor of zooplankton biomass (ZP) and this is something that we directly manipulated. 
 This gives us license to conduct a linear regression analysis. 
 We can do this in R using the `lm` function:
@@ -263,7 +263,7 @@ summary(fitreg)
 
 Now, let's look at a plot of the data used in the regression analysis:
 
-```{r reglayer1, eval = TRUE} 
+```{r reglayer1, eval = TRUE, fig.align='center'} 
 plot(meso$TN, meso$ZP, ylim = c(0, 10), xlim = c(500, 5000), 
      xlab = expression(paste("Total Nitrogen (", mu,"g/L)")),
      ylab = "Zooplankton Biomass (mg/L)", las = 1)
@@ -271,7 +271,7 @@ plot(meso$TN, meso$ZP, ylim = c(0, 10), xlim = c(500, 5000),
 
 We can add some text to the plot to visualize the categorical nutrient treatments:
 
-```{r reglayer2, echo=-1}
+```{r reglayer2, echo=-1, fig.align='center'}
 <<reglayer1>>
 text(meso$TN, meso$ZP, meso$NUTS, pos = 3, cex = 0.8)
 ```
@@ -291,7 +291,7 @@ regline <- predict(fitreg, newdata = data.frame(TN = newTN))
 lines(newTN, regline)
 ```
 
-Now let's create and plot the **95% confidence intervals** using the same procedure as above, that is, use 'newTN' to generate corresponding confidence intervals from our regression model:
+Now let's create and plot the **95% confidence intervals** using the same procedure as above, that is, use `newTN` to generate corresponding confidence intervals from our regression model:
 
 ```{r reglayer4, echo = -1}
 <<reglayer3>>
@@ -306,17 +306,17 @@ We should also look at the residuals (i.e., observed values - predicted values) 
 Specifically, we want to make sure that the residuals are normally distributed and that they are homoskedastic (i.e., equal variance). 
 We can look for patterns in our residuals using the following diagnostics:
 
-```{r}
+```{r, fig.align='center'}
 par(mfrow = c(2, 2), mar = c(5.1 ,4.1 ,4.1 ,2.1))
 plot(fitreg)
 ```
 
 + Upper left: is there a random distribtion of the residuals around zero (horizontal line)?
 + Upper right: is there a resonably linear relationship between standardized residuals and theoretical quantiles? Try `help(qqplot)`
-+ Bottom left: again, looking for a random distribution of sqrt(standardized residuals)
++ Bottom left: again, looking for a random distribution of $\sqrt{\textrm{standardized residuals}}$
 + Borrom right: leverage indicates the influence of points; contours correspond with Cook's distance, where values > |1| are "suspicious"
 
-### ANALYSIS OF VARIANCE (ANOVA)
+### E. Analysis of Variance (ANOVA)
 
 We also have the option of looking at the relationship between zooplankton and nutrients where the manipulation is treated categorically (low, medium, high). First, let's order the categorical nutrient treatments from low to high (R's default is to order alphabetically):
 
@@ -338,7 +338,7 @@ zp.sem <- tapply(meso$ZP, NUTS, sem)
 
 Now let's make the barplot:
 
-```{r boxlayer1, eval = TRUE}
+```{r boxlayer1, eval = TRUE, fig.align='center'}
 bp <- barplot(zp.means, ylim =c(0, round(max(meso$ZP), digits = 0)), 
               pch = 15, cex = 1.25, las = 1, cex.lab = 1.4, cex.axis = 1.25, 
               xlab = "nutrient supply", 
@@ -348,7 +348,7 @@ bp <- barplot(zp.means, ylim =c(0, round(max(meso$ZP), digits = 0)),
 
 We need to add the error bars ($\pm$ sem) "manually" as follows:
 
-```{r boxlayer2, echo = -1}
+```{r boxlayer2, echo = -1, fig.align='center'}
 <<boxlayer1>>
 arrows(x0 = bp, y0 = zp.means, y1 = zp.means - zp.sem, angle = 90,
        length = 0.1, lwd = 1)
@@ -375,12 +375,12 @@ This will tell us whether or not there are differences (alpha = 0.05) among pair
 TukeyHSD(fitanova)
 ```
 
-**Q8** How do you interpret the ANOVA results relative to the regression results?
+**Q8:** How do you interpret the ANOVA results relative to the regression results?
 Do you have any concerns about this analysis?
 
 Just like the regression analysis above, it's good to look at the residuals:
 
-```{r}
+```{r, fig.align='center'}
 par(mfrow = c(2, 2), mar = c(5.1, 4.1, 4.1, 2.1))
 plot(fitanova)
 ```
@@ -389,8 +389,8 @@ plot(fitanova)
 During Quantitative Biodiversity this semester, you will be introducted to a few fundamental data structures that are critical for analyzing biodiversity data. 
 The first of these is the **site-by-species matrix**. 
 This site-by-speces matrix contains abundances, relative abundances, or the presence of species (or other taxonomic units) observed at different sampling sites. 
-The site-by-species matrix is also very similar to other types of data that you might encounter if you are working with genomic, metagenomic, transriptomic, or metabolomic datasets. 
-This means that, even if you don't care about biodiversity *per se*, the tools that you are learning in Quantitative Biodiversity can be transferred to address questions in other sytems!
+The site-by-species matrix is also very similar to other types of data that you might encounter if you are working with genomic, metagenomic, transcriptomic, or metabolomic datasets. 
+This means that, even if you don't care about biodiversity *per se*, the tools that you are learning in Quantitative Biodiversity can be used to address questions in other systems!
 The table below is an example of what a typical site-by-species matrix looks like:
 
 \begin{center}
