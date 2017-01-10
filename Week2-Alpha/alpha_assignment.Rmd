@@ -29,10 +29,17 @@ Your pull request should include this file *alpha_assignment.Rmd* and the PDF ou
 ## 1) R SETUP
 
 In the R code chunk below, please provide the code to: 
+<<<<<<< HEAD
 1) Clear your R environment,
 2) Print your current working directory,
 3) Set your working directory to your */Weed2-Alpha* folder, and
 4) Load the `vegan` R package (be sure to install if needed).
+=======
+1) clear your R environment,
+2) print your current working directory,
+3) set your working directory to your */Week2-Alpha* folder, and
+4) load the `vegan` R package (be sure to install if needed).
+>>>>>>> upstream/master
 
 ```{r}
 
@@ -176,7 +183,7 @@ In the R code chunk below, do the following:
 
 ```
 
-## Rarefaction
+### Rarefaction
 
 In the R code chunk below, please do the following:
 
