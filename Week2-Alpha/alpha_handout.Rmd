@@ -15,7 +15,7 @@ We will quantify the two primary components of $\alpha$-diversity (**richness** 
 From there, we will discuss ways to integrate richness and evenness, which will include univariate metrics of diversity and an investigation of the **species-abundance distribution (SAD)**.
 
 ## 1) SETUP
-### Retrieve and Set Your Working Directory
+### A. Retrieve and Set Your Working Directory
 
 ```{r, results = 'hide'}
 rm(list=ls()) 
@@ -23,7 +23,7 @@ getwd()
 setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week2-Alpha") 
 ```
 
-### Install Packages
+### B. Install Packages
 
 In this exercise, we will use a popular R package called `vegan`, which contains tools commonly used in ecological research, including analyses of $\alpha$-diversity.
 Jari Oksanen has created an excellent tutorial that provides an overview of the `vegan` package: http://cc.oulu.fi/~jarioksa/opetus/metodi/vegantutor.pdf
@@ -56,11 +56,12 @@ data(BCI)
 **Species richness (S)** is the number of species in a system or the number of species observed in a sample.
 Species richness is also the foremost aspect of diversity. 
 In fact, it is usually what most people are referring to when they talk about $\alpha$-diversity.
-Calculating species richness for a sample is often straightforward, i.e., count the number of species present in a sample.
-However, estimating species richness for a community from an incomplete sample requires assumptions about the nature of the sampling effort, which could include biases or issues related to coverage.
+Calculating species richness for a sample is often straightforward: count the number of species present in a sample.
+However, a complete census of every individual in a community is typically unfeasible, and therefore we often rely on sampling to estimate species richness.
+Estimating species richness for a community from an incomplete sample requires assumptions about the nature of the sampling effort, which could include biases or issues related to coverage.
 In this part of the handout, you will see that there are several ways to estimate richness, which attempt to account for the number of species that were not detected.
 
-### Observed Richness
+### A. Observed Richness
 
 The simplest way to calculate species richness is to just add up the number of species that were detected in a sample.
 It is important to note that, in most site-by-species matrices, not every species will be present at each site.
@@ -68,7 +69,7 @@ Consequently, we cannot simply count the columns of the site-by-species matrix t
 
 Let's write a function that calculates observed species richness of a site.
 Functions are central to the use of most any computing software and, in short, are simply pieces of code that operate on one or more variables or objects (e.g., scalars, lists, matrices, etc.).
-In fact, you've already used several native R functions, e.g., dim(BCI).
+In fact, you've already used several native R functions, e.g., `dim(BCI)`.
 
 ```{r}
 S.obs <- function(x = ""){
@@ -80,7 +81,7 @@ We can then call the function by typing `S.obs()` and placing the name of our ve
 There is also a function in the `vegan` package called `specnumber()` that calculates observed richness.
 
 
-### Coverage: How Well Did You Sample Your Site?
+### B. Coverage: How Well Did You Sample Your Site?
 
 Accurate estimates of richness are influenced by sampling effort and sampling bias.
 Even when the sampling effort is unbiased, the more individuals that are censused, the more likely you are to encounter new species.
@@ -96,7 +97,7 @@ C <- function(x = ""){
   }
 ```
   
-### Estimated Richness
+### C. Estimated Richness
 
 There are few systems on Earth that have been better surveyed than the trees at BCI.
 For most ecological systems, sample size is much smaller than *N* and many taxa can easily go undetected.
@@ -152,11 +153,11 @@ S.chao2 <- function(site = "", SbyS = ""){
   }
 ```
 
-Notice that this function is a bit more complicated than previous functions we have written, so we will take time to deconstruct it. We can see that the function S.chao2 takes two arguments, i.e. the site of interest and the site-by-species matrix. The function first converts the site-by-species matrix into a data frame. From there we select the site of interest and count the number of singletons and doubletons among all sites. The code in the function following the line defining doubletons should look very familiar. In fact, it is nearly identical to the S.chao1 operator, the only difference being that we are dealing with singletons and doubletons across all sites rather than within a single site. 
+Notice that this function is a bit more complicated than previous functions we have written, so we will take time to deconstruct it. We can see that the function `S.chao2` takes two arguments: the site of interest and the site-by-species matrix. The function first converts the site-by-species matrix into a data frame. From there we select the site of interest and count the number of singletons and doubletons among all sites. The code to calculate Chao2 (`S.obs(x) + (Q1^2)/(2 * Q2)`) should look very familiar. In fact, it is nearly identical to the S.chao1 operator, the only difference being that we are dealing with singletons and doubletons across all sites rather than within a single site. 
 
 In Chapter 5, pages 56 and 57, of "Biological Diversity: frontier in measurement and assessment" you will see that Chao1 and Chao2 are mathematically very similar, and mainly differ in whether we are considering the abundance of species at one site (Chao1) or the presence of species across multiple sites (Chao2).
 
-## Rarefaction
+### D. Rarefaction
 
 Often researchers want to compare the richness of two or more ecological communities.
 Ideally, we would sample our sites with equal effort, all of our sites would have equal densities of individuals, and all individuals would have equal probabilities of being detected.
@@ -187,7 +188,7 @@ There is more to $\alpha$-diversity than just the number of species in a sample.
 Specifically, it is important to consider how abundance varies among species (or other taxonomic groups), that is, **evenness**.
 Many important biodiversity issues such as species coexistence, community stability, the detection of rare taxa, and biological invasions relate to evenness.
 
-### Visualizing Evenness: The Rank-Abundance Curve (RAC)
+### A. Visualizing Evenness: The Rank-Abundance Curve (RAC)
 One of the most common ways to visualize evenness is with a **rank-abundance curve**, which is sometimes referred to as a rank-abundance distribution (RAD).
 A RAC can be constructed by ranking species from the most-to-least abundant.
 
@@ -237,7 +238,7 @@ For this reason, useful metrics are often bound between a minimum evenness of 0 
 Another important feature is that evenness values should be independent of richness *S*. That is, we don't want evenness to simply be a reflection of *S*. 
 Here, we will introduce two metrics of evenness that meet the above criteria: Simpson's evenness ($E_{1/D}$) and Smith and Wilson's evenness index ($E_{var}$).
 
-### Simpson's Evenness ($E_{1/D}$)
+### B. Simpson's Evenness ($E_{1/D}$)
 
 Simpson's evenness metric essentially reflects the sample variance of the rank-abundance curve, and is calculated as ${E_{1/D} = } \frac{1}{S} \sum \frac{N(N-1)} {n_i(n_i-1)}$, where *S* is species richness, *N* is total abundance, $n_{i}$ is the *i*th species. 
 
@@ -267,7 +268,7 @@ However, Simpson's evenness has been criticized for being biased by the most abu
 That is, the value of the metric is reportedly sensitive to differences in the few most abundant species.
 Let's examine the value of evenness for `site1` using a slightly more involved metric that is less biased by abundant species.
 
-### Smith and Wilson's Evenness Index ($E_{var}$)
+### C. Smith and Wilson's Evenness Index ($E_{var}$)
 
 After reviewing existing metrics, Smith and Wilson (1996) derived a more robust measure of evenness, which they called $E_{var}$. 
 This metric is standardized to take values between 0 (no evenness) and 1 (perfect evenness).
@@ -300,7 +301,7 @@ While we often examine each of these independently, the interaction between rich
 Here, we will estimate popular indices of diversity, which explicitly incorporate richness and evenness.
 We will write our own diversity functions and compare them against the functions in `vegan`. 
 
-### Shannon's Diversity (a.k.a., Shannon's Entropy)
+### A. Shannon's Diversity (a.k.a., Shannon's Entropy)
 Shannon's diversity metric is derived from Shannon's information entropy, and is essentially a measure of uncertainty. 
 This metric is used across the natural sciences and is calculated as ${H' = -}  \sum p_i ln(p_i)$ where $p_i$ is the proportion of individuals found in the *i*th species.
 A greater value of Shannon's diversity implies a greater chance that the next sampled individual will belong to a different species.
@@ -321,12 +322,12 @@ ShanH <- function(x = ""){
 
 The basic structure of `ShanH` should look familiar, but there are some new features in this function.  
 Namely, it includes a **for loop** and an **if statement**. 
-The for loop iterates through each item (i.e., n_i) in the argument that is passed to the function. 
-Since this function, like the Chao functions above, takes a single site (i.e., x) as an argument, the for loop iterates through the abundance of each species (i.e., n_i) in the site. 
+The for loop iterates through each item (i.e., `n_i`) in the argument that is passed to the function. 
+Since this function, like the Chao functions above, takes a single site (i.e., `x`) as an argument, the for loop iterates through the abundance of each species (i.e., `n_i`) in the site. 
 In the next line, the if statement asks whether or not the abundance of a species meets a given criterion. 
 Here, we are asking whether the abundance of a species is greater than zero. 
 This is important because Shannon's H involves calculating the natural logarithm of the abundance, which is undefined for the value zero. 
-If the abundance is greater than zero the function calculates the relative frequency (i.e., p) of the species in the site, takes the natural logarithm of the frequency, multiplies the logarithm by the frequency, and subtracts it from H 
+If the abundance is greater than zero the function calculates the relative frequency (i.e., `p`) of the species in the site, takes the natural logarithm of the frequency, multiplies the logarithm by the frequency, and subtracts it from H. 
 Each species contributes to H, which starts off at zero (i.e., H = 0), based on its proportion in the sample.
 Therefore, H grows each time it loops through a species. 
 Once this operation has been performed for all species in the site the value H is returned to the user.
@@ -338,7 +339,7 @@ Now we will use `vegan` to estimate Shannon's index:
 diversity(site1, index = "shannon")
 ```
 
-### Simpson's Diversity (or Dominance)
+### B. Simpson's Diversity (or Dominance)
 Simpsons diversity is a straightforward metric and is calculated as ${D = } \sum p_i^2$ where again, $p_i$ is the proportion of individuals found in the *i*th species. 
 Simpson's index is commonly expressed as 1/*D* so that index values naturally increase with diversity.
 Let's calculate Simpson's diversity for `site1` and then compare it to the `vegan` estimate:
@@ -355,8 +356,9 @@ SimpD <- function(x = ""){
 ```
 
 And now let's express Simpsons's diversity as 1/*D* (invD) and 1-*D*:
+***The above statement doesn't agree with the following code. We should probably decide on using invD or D.inv in both cases for clarity, and are we still planning to calculate 1-D?***
 ```{r, results='hide'}
-D.inv <- 1/SimpD(site1) 
+D.inv <- 1/SimpD(site1)
 ```
 
 Now that we have written functions to understand how some of these metrics are quantified, we can also use `vegan` to estimate Simpsons's index:
@@ -485,7 +487,7 @@ $E_{var}$ uses the arctangent, which varies between -$\pi$/2 and $\pi$/2 and wit
 Finally, subtracting this from one allows low evenness to be associated with values near 0 and high evenness to be associated with values near 1. 
 We can confirm this with a more explicit R chunk:
 
-# ```{r}
+```{r, eval=FALSE}
 # site1.ab <- site1[site1 > 0]
 # P <- log(log(site1.ab))   # log-tranform the abundances of the RAC and assign them to a vector P
 # AvgAb <- mean(P)          # find the average of the log abundances
