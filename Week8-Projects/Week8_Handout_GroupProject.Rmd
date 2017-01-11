@@ -1,7 +1,7 @@
 ---
 title: "Week 8: Group Diversity Projects "
 author: "Z620: Quantitative Biodiversity, Indiana University"
-date: "January 10, 2017"
+date: "February 3, 2017"
 output: pdf_document
 geometry: margin=2.54cm
 ---
