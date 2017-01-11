@@ -18,7 +18,7 @@ In this exercise, we will explore aspects of temporal diversity. We will review 
 ```{r, results = 'hide'}
 rm(list=ls()) 
 getwd() 
-setwd("~/GitHub/QB-2017/Week5-Temporal") 
+setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week5-Temporal/") 
 ```
 
 ### Install Packages
@@ -58,3 +58,28 @@ f <- function(x) {
 test <- apply(portal.dates.unique, 1, f)
 ```
 
+Here's another, perhaps easier though less obvious way to create the site-by-time matrix
+```{r}
+require(tidyr)
+require(dplyr)
+
+# combine dates into one column
+portal <- unite(portal, col = date, c(yr, mo, dy), sep = "-")
+
+# Create the site-by-time matrix
+time.by.species <- group_by(portal, date) %>% count(species) %>% spread(key = species, value = n, fill = 0)
+time.by.species <- as.data.frame(time.by.species)
+head(time.by.species)
+
+# make column 1 the row names
+rownames(time.by.species) <- time.by.species[,1]
+time.by.species <- time.by.species[,-c(1,2)]
+head(time.by.species)
+ncol(time.by.species)
+
+# remove column of NAs and empty rows
+time.by.species <- time.by.species[,-48]
+time.by.species <- time.by.species[-which(rowSums(time.by.species) == 0),]
+
+time.by.species
+```
