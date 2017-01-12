@@ -125,7 +125,7 @@ It's easy when you understand how to reference data within a matrix:
 n <- m[, c(1:2, 5)]
 ```
 
-**Q3:** Describe what we just did in the last indexing operation?
+**Q3:** Describe what we just did in the last indexing operation.
 
 ## 3) BASIC DATA VISUALIZATION AND STATISTICAL ANALYSIS
 ### A. Load Aquatic Mesocosm Dataset
@@ -191,7 +191,7 @@ Now let's conduct a simple **Pearson's correlation** analysis with the `cor()` f
 cor1 <- cor(meso.num)
 ```
 
-**Q4:** Describe some of the general features based on the visualization and correlation analysis above?
+**Q4:** Describe some of the general features based on the visualization and correlation analysis above.
 
 ### C. Loading Contributed Packages
 The base package in R won't always meet all of our needs. 
@@ -214,7 +214,7 @@ If the package is not found, you will need to install it first and then load dep
 
 ```{r, eval = FALSE}
 # install.packages("psych")
-# require("psych")
+require("psych")
 ```
 
 Now, let's look at the correlations among variables and assess whether they are signficant:
@@ -260,7 +260,7 @@ Let's examine the output of the regression model:
 summary(fitreg)
 ```
 
-**Q6:** Interpret the results from the regression model
+**Q6:** Interpret the results from the regression model.
 
 Now, let's look at a plot of the data used in the regression analysis:
 
@@ -301,7 +301,7 @@ conf95 <- predict(fitreg, newdata = data.frame(TN = newTN),
 matlines(newTN, conf95[, c("lwr", "upr")], type="l", lty = 2, lwd = 1, col = "black")
 ```
 
-**Q7:** Explain what you were just using the `predict()` function for?
+**Q7:** Explain what you were just using the `predict()` function for.
 
 We should also look at the residuals (i.e., observed values - predicted values) to see if our data meet the assumptions of linear regression. 
 Specifically, we want to make sure that the residuals are normally distributed and that they are homoscedastic (i.e., equal variance). 
