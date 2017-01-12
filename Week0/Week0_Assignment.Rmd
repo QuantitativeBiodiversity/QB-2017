@@ -8,19 +8,24 @@ geometry: margin=2.54cm
 
 ## OVERVIEW
 
-In this pre-class exercise, you will be introduced to the computing environment that we will be using in Quantitative Biodiversity.
-By the end of this exercise you will understand the basics of version control and how it is implemented using Git and GitHub, which will require elementary proficiency in UNIX. Last, you will become acquainted with RStudio. You will learn how to perform basic operations and become familiar with how to work with vectors, a one-dimensional array of data. 
+In this pre-class exercise, you will be introduced to the computational tools that we will be using in Quantitative Biodiversity.
+By the end of this exercise you will understand the basics of version control and how it is implemented using Git and GitHub, and basic Linux commands. 
+Last, you will become acquainted with the data analysis language R and the R-based development environment RStudio. 
+You will learn how to perform basic statistics and operations on data structures such as vectors. 
 
 ##1) VERSION CONTROL
 
 ### What is version control?
 
-Version control is an approach to writing text, managing data, and developing computer code that allows users the ability to examine, comment on, and revert back to changes within the entire life of a document, and without being tied to any single computer.
-In addition, version control allows multiple people in remote locations to collaborate on the same text, code, and data without losing or overwriting any changes.
+Version control is an approach to writing text, managing data, and developing computer code that saves all recorded changes throughout the entire life of a document.
+Any recorded change can be commented on, revisited, or reverted back to at any point.
+Version control provides the highest degree of safety and protection when editing most any kind of file.
+Version control frees you from reliance on a single computer, which can be lost, damaged, or compromised.
+Version control allows collaborators in remote locations to work on the same text, code, and data without losing or overwriting any changes.
 
 ### Why is version control important?
 
-Do you email versions of renamed files with your collaborators?
+Does emailing renamed versions of files between collaborators seem problematic?
 Do you fear that data on a hard drive could get lost or damaged?
 Do you have a file somewhere that looks like this: "Dissertation-Project-StatsCode-Final-v23.R"?
 No need to worry.
@@ -30,13 +35,13 @@ If that isn't enough, funding agencies and many journals now require authors to 
 
 ### How version control works, in a nutshell
 
-Version control works by centralizing a project in a repository (a.k.a., **repo**) located on a server (e.g., a computer connected to the internet). 
+Version control works by centralizing a project in a repository (a.k.a., **repo**) located on a server (i.e., a computer connected to the internet).
 The individual user never directly edits the code, data, or text in this online repo.
 Instead, the user makes changes to a local version of the project (e.g., on your laptop) and **pushes** those changes to the online version.
 The entire history of the online version is tracked and protected.
-Likewise, if the online version is modified by a collaborator, then the user merely **pulls** in the changes from the online version.
+When the online version is modified by a collaborator, then the user merely **pulls** in those changes to their local version.
 All this pushing, pulling, and deciding how different versions from different computers get merged together is done by version control software.
-In this class, we will use the most popular and powerful version-control software available, i.e. Git and GitHub.
+In this class, we will use the most popular and powerful version-control software available, i.e. Git.
 
 ### Git and GitHub
 
@@ -47,7 +52,7 @@ Therefore, we will work with Git using the **shell**, which is a command-line wa
 **GitHub** is a web-based service for hosting projects that use the Git version control system.
 GitHub provides an attractive interface for viewing and managing a project's code, data, and text files.
 If your project is visible to others (public), then GitHub also serves as a way to let the world know about the awesome science you're doing and even how to join in and share tools.
-While many companies, agencies, and governments use GitHub (e.g., see <https://government.github.com/>), it is a great central location to manage any project.
+While most any technology company, federal agency, research or data center (e.g. CERN, NCBI), or world government (e.g., see <https://government.github.com/>) uses it, GitHub is a great central location to manage any project.
 
 ####Assignment 1: Create a GitHub account
 
@@ -63,10 +68,10 @@ While many companies, agencies, and governments use GitHub (e.g., see <https://g
 + Blischak JD, Davenport ER, Wilson G (2016) A quick introduction to version control with Git and GitHub. PLoS Comput Biol 12(1): e1004668. doi:10.1371/journal.pcbi.1004668
 + An open-access copy of the paper can be found on line, but is also posted on the course Canvas site: <https://canvas.iu.edu>
 
-####Assignment 3: UNIX tutorial
+####Assignment 3: Linux tutorial
 
 As mentioned above, version control using Git and GitHub will require that you be competent with some basic UNIX commands. 
-You may have been introduced to UNIX at some point, but it may have been years ago. 
+You may have been introduced to Linux at some point, but it may have been years ago. 
 That's OK. 
 The following website will help you get up to speed <http://www.ee.surrey.ac.uk/Teaching/Unix/>
 
@@ -138,7 +143,8 @@ Use the **console pane** in the lower left of the Rstudio window to complete the
 sin(4) 
 ```
 
-***Logarithms*** (another example of functions and arguments)
+***Logarithms*** Another example of functions and arguments. It is common for people, even scientists, to forget what logarithms are. A logarithm is simply the exponent needed to raise one number (i.e., the base) to obtain another number. For example, the exponent needed to raise 10 to 100 is 2. So, 2 is the logarithm of 100 using base 10.
+
 ```{r, results = 'hide'}
 log10(100)  # log base 10
 log(100)    # log base e "natural log"
