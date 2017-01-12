@@ -10,7 +10,7 @@ geometry: margin=2.54cm
 
 This handout builds from the Week 0 introduction to R and RStudio, which highlighted operators, vectors, and simple commands that will be useful to you during the course and beyond. 
 Now, you will be introduced to some new data types, specifically matrices and dataframes. 
-After learning how to work with these data types, you will learn about contributed packages, which will aid in the visualization of data and with peforming descriptive and hypothesis-testing statistical procedures, including linear regression and ANOVA.
+After learning how to work with these data types, you will learn about contributed packages, which will aid in the visualization of data and with performing descriptive and hypothesis-testing statistical procedures, including linear regression and ANOVA.
 
 ## 1) SETTING YOUR WORKING DIRECTORY
 
@@ -155,7 +155,7 @@ Here is a description of the column headers:
 
   + TANK = unique mesocosm identifier
 
-  + NUTS = categorical nutrient treament: "L" = low, "M" = medium, "H" = high
+  + NUTS = categorical nutrient treatment: "L" = low, "M" = medium, "H" = high
   
   + TP = total phosphorus concentration (µg/L)
   
@@ -191,7 +191,7 @@ Now let's conduct a simple **Pearson's correlation** analysis with the `cor()` f
 cor1 <- cor(meso.num)
 ```
 
-**Q4:** Describe some of the general features based on the visualization and correlation anaylysis above?
+**Q4:** Describe some of the general features based on the visualization and correlation analysis above?
 
 ### C. Loading Contributed Packages
 The base package in R won't always meet all of our needs. 
@@ -233,12 +233,13 @@ This process corrects for **false discovery rate**, which arises whe making mult
 
 **Q5:** Describe what you learned from corr.test. 
 Specifically, are the results sensitive to whether you use parametric (i.e., Pearson's) or non-parametric methods?
-When should one use non-parameteric methods instead of parameteric methods?
+When should one use non-parametric methods instead of parametric methods?
 With the Pearson's method, is there evidence for false discovery rate due to multiple comparisons? Why is false discovery rate important?
 
 Now, let's load another package that will let us visualize the direction and strength of the correlations:
 
 ```{r, message=FALSE, fig.align='center', warning=FALSE, results='hide'}
+#install.packages("corrplot") 
 require("corrplot")
 corrplot(cor1, method = "ellipse")
 dev.off()
@@ -303,7 +304,7 @@ matlines(newTN, conf95[, c("lwr", "upr")], type="l", lty = 2, lwd = 1, col = "bl
 **Q7:** Explain what you were just using the `predict()` function for?
 
 We should also look at the residuals (i.e., observed values - predicted values) to see if our data meet the assumptions of linear regression. 
-Specifically, we want to make sure that the residuals are normally distributed and that they are homoskedastic (i.e., equal variance). 
+Specifically, we want to make sure that the residuals are normally distributed and that they are homoscedastic (i.e., equal variance). 
 We can look for patterns in our residuals using the following diagnostics:
 
 ```{r, fig.align='center'}
@@ -311,10 +312,10 @@ par(mfrow = c(2, 2), mar = c(5.1 ,4.1 ,4.1 ,2.1))
 plot(fitreg)
 ```
 
-+ Upper left: is there a random distribtion of the residuals around zero (horizontal line)?
-+ Upper right: is there a resonably linear relationship between standardized residuals and theoretical quantiles? Try `help(qqplot)`
++ Upper left: is there a random distribution of the residuals around zero (horizontal line)?
++ Upper right: is there a reasonably linear relationship between standardized residuals and theoretical quantiles? Try `help(qqplot)`
 + Bottom left: again, looking for a random distribution of $\sqrt{\textrm{standardized residuals}}$
-+ Borrom right: leverage indicates the influence of points; contours correspond with Cook's distance, where values > |1| are "suspicious"
++ Bottom right: leverage indicates the influence of points; contours correspond with Cook's distance, where values > |1| are "suspicious"
 
 ### E. Analysis of Variance (ANOVA)
 
@@ -324,7 +325,7 @@ We also have the option of looking at the relationship between zooplankton and n
 NUTS <- factor(meso$NUTS, levels = c('L', 'M', 'H'))
 ```
 
-Before plotting, we need to calcualte the means and standard errors for zooplankton biomass in our nutrient treatments. We are goint to use an important function called `tapply`. This allows us to apply a function (e.g., mean) to a vector (e.g., ZP) based on information in another column (e.g., nutrient treatment). 
+Before plotting, we need to calculate the means and standard errors for zooplankton biomass in our nutrient treatments. We are going to use an important function called `tapply`. This allows us to apply a function (e.g., mean) to a vector (e.g., ZP) based on information in another column (e.g., nutrient treatment). 
 
 ```{r}
 zp.means <- tapply(meso$ZP, NUTS, mean)
@@ -386,9 +387,9 @@ plot(fitanova)
 ```
 
 ## 4) AN INTRODUCTION TO THE SITE-BY-SPECIES MATRIX
-During Quantitative Biodiversity this semester, you will be introducted to a few fundamental data structures that are critical for analyzing biodiversity data. 
+During Quantitative Biodiversity this semester, you will be introduced to a few fundamental data structures that are critical for analyzing biodiversity data. 
 The first of these is the **site-by-species matrix**. 
-This site-by-speces matrix contains abundances, relative abundances, or the presence of species (or other taxonomic units) observed at different sampling sites. 
+This site-by-species matrix contains abundances, relative abundances, or the presence of species (or other taxonomic units) observed at different sampling sites. 
 The site-by-species matrix is also very similar to other types of data that you might encounter if you are working with genomic, metagenomic, transcriptomic, or metabolomic datasets. 
 This means that, even if you don't care about biodiversity *per se*, the tools that you are learning in Quantitative Biodiversity can be used to address questions in other systems!
 The table below is an example of what a typical site-by-species matrix looks like:

@@ -15,7 +15,7 @@ geometry: margin=2.54cm
 ## 1) Git Installation
 If you do not have a current Git installation, please do the following:
 
-1. Open a web browser and naviate to git-scm.com/download/
+1. Open a web browser and navigate to git-scm.com/download/
 2. Select the appropriate operating system
 3. The download should start automatically
 4. Open the installer and follow the onscreen directions
@@ -79,9 +79,9 @@ We will also set two parameters: push.default and credential.helper
 Line endings are invisible characters that your operating system places at the end of each line in a document.
 On Unix machines (e.g., Mac), this is the linefeed character (LF).
 On Windows machines, this is the carriage-return (CR) and linefeed (LF) characters.
-This difference in line endings between Mac and Windows causes incompatabilities between the two systems.
+This difference in line endings between Mac and Windows causes incompatibilities between the two systems.
 However, Git is enabled to handle the differences by silently converting line endings when repos are pushed to remote servers.
-We *stronly* recommend that you configure this behavior in order to prevent any future issues when collaborating across computer platforms.
+We *strongly* recommend that you configure this behavior in order to prevent any future issues when collaborating across computer platforms.
 
     **On Mac**
 
@@ -128,7 +128,7 @@ The repo should have downloaded onto your local computer and the status should s
 
 4. Check and update remote repo location
 The following commands will set the location of your **upstream remote repository** on the QB Course GitHub site. 
-(In the example bleow, you will need to replace "repo" with the name of your QB Repository)
+(In the example below, you will need to replace "repo" with the name of your QB Repository)
 
     ```sh
     git remote -v
@@ -143,7 +143,7 @@ The following commands will set the location of your **upstream remote repositor
     Markdown is markup language for writing and editing text that can be easily converted to other formats (e.g. HTML, PDF, Word).
     During this semester, we will edit Markdown files using RStudio.
     On the lab computers, you can find RStudio in the **Analysis & Modeling Folder**.
-    From RStudio, navigate to and open your README.md file in the root of your student repo  .
+    From RStudio, navigate to and open your README.md file in the root of your student repo.
     Update your '*Student Name*' with your full name. 
     Enter your email address. 
     Write a short biography (~1 paragraph) and share something about yourself that we might not otherwise know. 
@@ -161,7 +161,7 @@ The following commands will set the location of your **upstream remote repositor
 
 7. Now push the changes to GitHub.
 Before we push our changes, we always want to check for any changes that others have made; otherwise we can create **conflicts** that need to be fixed. 
-We check for these cahnges using the git commands **fetch** and **merge** as follows:
+We check for these changes using the git commands **fetch** and **merge** as follows:
 
     ```sh
     git fetch upstream
@@ -181,7 +181,7 @@ If so, submit a Pull Request to submit your file to the course instructors. <br>
     
 9. To get new assignments, you will pull (fetch & merge) your upstream repo. 
 This will allow any updates your instructors have made to be merged with your local documents.
-In addition to pulling youe upstream repo, you always want to push any updates to your origin.
+In addition to pulling your upstream repo, you always want to push any updates to your origin.
 
     ```sh
     git status
@@ -191,7 +191,7 @@ In addition to pulling youe upstream repo, you always want to push any updates t
     git status
     ```
 
-During this course, you will recieve and submit all assignments using these methods.
+During this course, you will receive and submit all assignments using these methods.
 In addition, you will use Git and GitHub to contribute to assignments in class and on your personal computers.
 
 

@@ -25,7 +25,8 @@ After completing this exercise you will know how to:
 ```{r, results = 'hide'}
 rm(list = ls())
 getwd()
-setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week3-Beta/")
+setwd("~/GitHub/QB-2017/Week3-Beta/")
+#/QuantitativeBiodiversity
 ```
 
 ### B. Load Packages 
@@ -33,6 +34,7 @@ setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week3-Beta/")
 We will be using the `vegan` package again; let's load it now. 
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
+#install.packages("vegan") 
 require("vegan")
 ```
 
@@ -47,6 +49,7 @@ The data set has previously been used to demonstrate that fish communities can b
 Let's load the `ade` package, which contains the `doubs` data set. 
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
+#install.packages("ade4") 
 require("ade4")
 data(doubs)
 ```
@@ -229,7 +232,7 @@ During this process, you will learn how to generate similarity and dissimilarity
 
 ### A. Introducing the Resemblance Matrix
 In order to quantify $\beta$-diversity for more than two samples, we need to introduce another primary ecological data structure: the **Resemblance Matrix**. 
-In the context of biodiversity, a resemblance matrix is a data structure that calculates the pairwise **similarity** or **dissimiliarity** for all samples in a site-by-species matrix. 
+In the context of biodiversity, a resemblance matrix is a data structure that calculates the pairwise **similarity** or **dissimilarity** for all samples in a site-by-species matrix. 
 The resemblance matrix can be generated from a site-by-species matrix containing incidence (presence-absence) data or abundance data. 
 In the sections below, we describe some of the similarity and dissimilarity metrics that are commonly used for constructing a resemblance matrix.
 Throughout this handout, we adopt the notations of Table 7.2 in Legendre & Legendre (2012); this book can be electronically accessed via the IU library (see the course syllabus [http://goo.gl/y4oK7c]). 
@@ -396,7 +399,7 @@ gplots::heatmap.2(as.matrix(fish), distfun = function(x) vegdist(x, method = "br
           col = viridis, trace = "none", density.info = "none")
 ```
 
-***Question 6***: Based on cluster analyses and the introdutory plots that we generated after loading the data, develop a hypothesis about the distribution of fish assemblages in the Doubs River? 
+***Question 6***: Based on cluster analyses and the introductory plots that we generated after loading the data, develop a hypothesis about the distribution of fish assemblages in the Doubs River? 
 
 > ***Answer 6***: 
 
@@ -408,8 +411,8 @@ Ordination plots are particularly useful for visualizing the similarity among ob
 For example, in the context of $\beta$ diversity, sites that are closer in ordination space have species assemblages that are more similar to one another than sites that are further apart in ordination space.
 
 There are various ordination techniques that can be applied to multivariate biodiversity data.
-Common methods include: Principal Components Analysis (PCA), Correspondence Analysis (CA), Principal Coordinates Analysis (PCoA), Factor Analysis (FA), and Nonmetric Multidemensional Scaling (NMDS).
-When choosing an ordination technique, careful consideration should be given to the data type (continuous vs. categorical), model assumptions (i.e., which distances are preserved), and the underlying mathematical procedures that are invovled.
+Common methods include: Principal Components Analysis (PCA), Correspondence Analysis (CA), Principal Coordinates Analysis (PCoA), Factor Analysis (FA), and Nonmetric Multidimensional Scaling (NMDS).
+When choosing an ordination technique, careful consideration should be given to the data type (continuous vs. categorical), model assumptions (i.e., which distances are preserved), and the underlying mathematical procedures that are involved.
 
 ### i. An Overview of Principal Coordinates Analysis (PCoA)
 In this exercise, we focus on Principal Coordinates Analysis (PCoA), which is sometimes referred to as metric multidimensional scaling (MDS). 
@@ -425,7 +428,7 @@ In addition, we are going to set *k* = 3 (number of dimensions we want returned)
 fish.pcoa <- cmdscale(fish.db, eig = TRUE, k = 3) 
 ```
 
-###ii. Interpetting PCoA Output
+###ii. Interpreting PCoA Output
 The `cmdscale` function produces a list of output.
 The first item *points* contains the coordinates for each site in each reduced dimension.
 The second item *eig* contains the eigenvalues.
@@ -433,7 +436,7 @@ The last three items pertain to other options of the analysis that we will not c
 
 First, we want to examine the eigenvalues.
 The eigenvalues are the scaling factors that allowed us to reduce the dimensionality of a data set. 
-The eigenvalues can also be used to calcualte the amount of variation that is explained by each orthogonal axis.
+The eigenvalues can also be used to calculate the amount of variation that is explained by each orthogonal axis.
 To do this, we divide the eigenvalue of each axis by the sum of all eigenvalues.
 In the following chunk of R code, we quantify the percent variation in the `doubs` data set that is explained by the first three axes of the PCoA.
 
@@ -444,7 +447,7 @@ explainvar3 <- round(fish.pcoa$eig[3] / sum(fish.pcoa$eig), 3) * 100
 sum.eig <- sum(explainvar1, explainvar2, explainvar3)
 ```
 
-#### See APPENDIX for other ways to asses how well PCoA explains variaiton in your data 
+#### See APPENDIX for other ways to asses how well PCoA explains variation in your data 
 
 ###iii. Creating a PCoA Ordination Plot 
 Having evaluated the PCoA output, now we will create an ordination plot.
@@ -483,7 +486,7 @@ These coordinates reflect the strength and direction that each species has on th
 
 ```{r pcoalayer2, message = FALSE, warning = FALSE, echo=-c(1:16), fig.width=6, fig.height=4, fig.align='center'}
 <<pcoalayer1>>
-
+#install.packages("BiodiversityR") 
 require("BiodiversityR")
 
 # First we calculate the relative abundances of each species at each site
@@ -501,7 +504,7 @@ text(fish.pcoa$cproj[ ,1], fish.pcoa$cproj[ ,2],
 A more quantitative way of identifying influential species involves determining the correlation coefficient of each species along the PCoA axes.
 To do this, we will use the `add.spec.scores` function again.
 Then we can identify a correlation-coefficient cutoff (e.g. *r* = 0.70) to pull out important species.
-Finally, we will use the `envfit()` function from the `vegan` pacakge, to conduct a permutation test on these correlations.
+Finally, we will use the `envfit()` function from the `vegan` package, to conduct a permutation test on these correlations.
 
 ```{r}
 spe.corr <- add.spec.scores(fish.pcoa, fishREL, method = "cor.scores")$cproj
@@ -524,7 +527,7 @@ c.  Do the different approaches described in the ordination section agree or dis
 
 ## 5) HYPOTHESIS TESTING
 
-The visualization tools that we just learned about (i.e., heatmaps, cluser analysis, and ordination) are powerful for exploratory analysis and for *generating* hypotheses. 
+The visualization tools that we just learned about (i.e., heatmaps, cluster analysis, and ordination) are powerful for exploratory analysis and for *generating* hypotheses. 
 In this section we introduce some methods that are better suited for *testing* hypotheses and predictions related to $\beta$-diversity.
 
 ### A.  Multivariate Procedures for Categorical Designs
@@ -555,6 +558,7 @@ For example, the presence of certain invertebrate taxa often indicates stream wa
 To determine whether any fish species in our dataset can be used as indicators of habitat quality, we can calculate an Indicator Value (IndVal) for each species in each habitat group, and evaluate its significance using a permutation test.
 Significant IndVal scores close to 1 suggest that the species is a strong indicator of that site group.
 ```{r, results="hide", message=FALSE}
+#install.packages("indicspecies") 
 require(indicspecies)
 indval <- multipatt(fish, cluster = quality, func = "IndVal.g", control = how(nperm=999)) 
 summary(indval)
@@ -564,7 +568,7 @@ Alternatively, we may ask about the habitat preferences of each species.
 In this case, we can calculate the phi coefficient of association ($r_{\phi}$).
 This is the Pearson correlation between a vector of sites indicating species presence (1) or absence (0), and a vector of sites indicating in (1) or out (0) of the focal group. 
 This approach can also be extended to abundance data by replacing the 1s of the species vector with species abundances.
-Values of the phi coefficient range from $-1$ (suggesting strong avoidance of a group) to 0 (suggesting no preference) to $+1$ (suggesting strong perference for a group). 
+Values of the phi coefficient range from $-1$ (suggesting strong avoidance of a group) to 0 (suggesting no preference) to $+1$ (suggesting strong preference for a group). 
 ```{r, results="hide", message=FALSE}
 fish.rel <- decostand(fish, method = "total")
 phi <- multipatt(fish.rel, cluster = quality, func = "r.g", control = how(nperm=999)) 
@@ -581,10 +585,10 @@ To learn more about species-site group associations, see Dufrêne and Legendre (
 
 ### i.  Mantel Test
 A Mantel test is essentially a multivariate correlation analysis that looks for monotonic correlations between elements of two matrices. 
-It produces an *r* value that is analagous to the Pearson's correlation coefficient. 
+It produces an *r* value that is analogous to the Pearson's correlation coefficient. 
 In addition, it produces a p-value that is derived from the deviation of observed correlation to that of correlations derived from randomizations of the two matrices. 
 
-In the following section, we will peform a Mantel test using the `mantel()` function in `vegan`. 
+In the following section, we will perform a Mantel test using the `mantel()` function in `vegan`. 
 This requires that we first have two distance matrices to compare. 
 Here, we will compare the Bray-Curtis distance matrix we created earlier from the site-by-species matrix with the site-by-environment matrix (`doubs$env`).
 After creating the distance matrices, we will test the hypothesis that fish assemblages are correlated with stream environmental variables.
@@ -724,7 +728,7 @@ Next, we will create the spatial model.
 The spatial model is a bit more involved, but just follow along for now. 
 We will perform Principal Coordinates of Neighbor Matrices (Borcard and Legendre 2002), a special form of distance based Moran's Eigenvector Maps (dbMEMs, Dray et al. 2006). 
 In general, we will create a spatial distance matrix between our sites, truncate sites that are far away from each other (hence the "Neighbor Matrices"), then create spatial eigenvectors from this truncated matrix (hence the "Principal Coordinates"). 
-Our goal is to represent "space" as some combination of these eigenvectors, so that we can indentify spatial structure in species abundances on broad, intermediate, and fine spatial scales.
+Our goal is to represent "space" as some combination of these eigenvectors, so that we can identify spatial structure in species abundances on broad, intermediate, and fine spatial scales.
 The resulting eigenvectors model space from broad scale to fine scale with increasing eigenvector number. 
 
 
@@ -797,8 +801,8 @@ mtext("Variation Partitioning of\nDoubs Fish Diversity", side = 3, line = -3)
 
 ### Diversity partitioning and beta diversity
 The history of $\beta$-diversity, and how it relates $\alpha$ to $\gamma$ diversity has enjoyed considerable debate over the past half century. 
-While Whittaker (1960, 1972) advocated a multiplicative approach, others have suggested addititive partitioning: $\gamma = \alpha + \beta$ (see Lande (1996) and Veech et al. (2002) for reviews). 
-Addititive partitioning changes the interpretation of $\beta$ from a measure of *how many times* more diverse the region is than local sites, to a measure of *how many more species* exist in the regional pool than in local sites. 
+While Whittaker (1960, 1972) advocated a multiplicative approach, others have suggested additive partitioning: $\gamma = \alpha + \beta$ (see Lande (1996) and Veech et al. (2002) for reviews). 
+Additive partitioning changes the interpretation of $\beta$ from a measure of *how many times* more diverse the region is than local sites, to a measure of *how many more species* exist in the regional pool than in local sites. 
 There has been a rejuvenation of research on diversity partition over the past decade or so, particularly with the embrace of "numbers equivalents" or "Hill numbers" reflecting M. O. Hill's (1973) demonstration of the mathematical relationships between richness, Shannon's index, and Simpson's index. 
 More discussion of the usefulness of the numbers equivalents approach can be found in Jost (2006, 2007) and more recent debates that have emerged since their publication.
 
@@ -808,7 +812,7 @@ Note: Sørensen's coefficient of similarity ($S_8$) is related to pairwise $\bet
 Others include Ochiai, Kulczynski-Cody, and Lennon, which can be found in Table 6.1 of Magurran & McGill (2011). 
 The differences in these measures include how means are calculated (Sørensen = harmonic mean, Ochiai = geometric mean, and Kulczynski-Cody = arithmetic mean), and how unique species are dealt with if only one sample has unique species (Lennon). 
 Also, it is important to note that these metrics calculate similarity, but can (and in many cases should) be converted to dissimilarity (*D*). 
-In `vegan`, disimilarities (*D*) are usually returned from functions instead of similarities (*S*).
+In `vegan`, dissimilarities (*D*) are usually returned from functions instead of similarities (*S*).
 The conversion between similarity and dissimilarity is calculated as `D = 1 - S`.
 
 ### A Cautionary Note on Other Measures of Distance:
@@ -838,7 +842,7 @@ fish.hel <- decostand(fish, method = "hellinger") # hellinger transform
 fish.dh <- vegdist(fish.hel, method = "euclidean") # distances
 ```
 
-### Other ways to asses how well PCoA explains variaiton in your data
+### Other ways to assess how well PCoA explains variation in your data
 Another way to evaluate our analysis is to assess whether or not the first few PCoA axes capture a disproportionately large amount of the total explained variation.
 First, the eigenvalues associated with the first few axes should be larger than the average of all the eigenvalues (*Kaiser-Guttman criterion*). 
 Second, we can compare the eigenvalues associated with the first few axes to the expectations of the *broken-stick model*, which we introduced in the $\alpha$-diversity exercise when discussing species abundance distributions (SAD). In the current context, the broken stick model assumes that the total sum of eigenvalues decreases sequentially with ordered PCoA axes. 
@@ -956,6 +960,6 @@ resid.var <- 100 - sum(step.1 + step.4)
 sum(c(pure.env, env.space, pure.space, resid.var))
 
 # Note that the individual fractions line up with the fractions from varpart()
-# however, varpart() applies a correction the the partial fractions
+# however, varpart() applies a correction the partial fractions
 
 ```

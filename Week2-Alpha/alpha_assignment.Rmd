@@ -29,10 +29,10 @@ Your pull request should include this file *alpha_assignment.Rmd* and the PDF ou
 ## 1) R SETUP
 
 In the R code chunk below, please provide the code to: 
-1) clear your R environment,
-2) print your current working directory,
-3) set your working directory to your */Week2-Alpha* folder, and
-4) load the `vegan` R package (be sure to install if needed).
+1) Clear your R environment,
+2) Print your current working directory,
+3) Set your working directory to your */Week2-Alpha* folder, and
+4) Load the `vegan` R package (be sure to install if needed).
 
 ```{r}
 
@@ -44,8 +44,8 @@ In the R code chunk below, please provide the code to:
 ## 2) LOADING DATA
 
 In the R code chunk below, do the following:
-1) load your dataset, and 
-2) display the structure of the dataset (if the structure is long, use `max.level=0` to show just basic information).
+1) Load your dataset, and 
+2) Display the structure of the dataset (if the structure is long, use `max.level=0` to show just basic information).
 
 ```{r}
 
@@ -85,9 +85,9 @@ What is the species richness of the first 4 sites (i.e., rows) of the BCI matrix
 
 In the R code chunk below, do the following:
 
-1. write a function to calculate Good's Coverage, and
+1. Write a function to calculate Good's Coverage, and
 
-2. use that function to calculate coverage for all sites in the BCI matrix.
+2. Use that function to calculate coverage for all sites in the BCI matrix.
 
 ```{r}
 
@@ -114,15 +114,15 @@ d.  Make some observations about coverage at the BCI plots.
 
 In the R code chunk below, do the following:
 
-1. load the microbial dataset (located in the */Week2-Alpha/data* folder),
+1. Load the microbial dataset (located in the */Week2-Alpha/data* folder),
 
-2. transform and transpose the data as needed (see handout),
+2. Transform and transpose the data as needed (see handout),
 
-3. create a vector (soilbac1) with the bacterial OTU abundances at any site in the dataset,
+3. Create a vector (soilbac1) with the bacterial OTU abundances at any site in the dataset,
 
-4. calculate the observed richness at that particular site, and 
+4. Calculate the observed richness at that particular site, and 
 
-5. calculate the coverage at that particular site
+5. Calculate the coverage at that particular site
 
 ```{r}
 
@@ -150,11 +150,11 @@ c.  How does coverage compare between the BCI sample (`site1`) and the KBS sampl
 
 In the R code chunk below, do the following:
 
-1. write a function to calculate **Chao1**,
+1. Write a function to calculate **Chao1**,
 
-2. write a function to calculate **Chao2**, and
+2. Write a function to calculate **Chao2**, and
 
-3. use these functions to estimate richness at both `site1` and `soilbac1`. 
+3. Use these functions to estimate richness at both `site1` and `soilbac1`. 
 
 ```{r}
 
@@ -180,15 +180,15 @@ In the R code chunk below, do the following:
 
 In the R code chunk below, please do the following:
 
-1. calculate observed richness for all samples in `soilbac`,
+1. Calculate observed richness for all samples in `soilbac`,
 
-2. determine the size of the smallest sample,
+2. Determine the size of the smallest sample,
 
-3. use the `rarefy()` function to rarefy each sample to this level,
+3. Use the `rarefy()` function to rarefy each sample to this level,
 
-4. plot the rarefaction results, and
+4. Plot the rarefaction results, and
 
-5. add the 1:1 line and label.
+5. Add the 1:1 line and label.
 
 
 ```{r}
@@ -209,13 +209,13 @@ An RAC can be constructed by ranking species from the most abundant to the least
 
 In the R code chunk below, do the following:
 
-1. write a function to construct a RAC,
+1. Write a function to construct a RAC,
 
-2. be sure your function removes species that have zero abundances, 
+2. Be sure your function removes species that have zero abundances, 
 
-3. order the vector (RAC) from greatest (most abundant) to least (least abundant), and 
+3. Order the vector (RAC) from greatest (most abundant) to least (least abundant), and 
 
-4. return the ranked vector
+4. Return the ranked vector
 
 ```{r}
 
@@ -231,9 +231,9 @@ Now, let's examine the RAC for `site1` of the BCI data set.
 
 In the R code chunk below, do the following:
 
-1. create a sequence of ranks and plot the RAC with natural-log-transformed abundances,
+1. Create a sequence of ranks and plot the RAC with natural-log-transformed abundances,
 
-2. label the x-axis "Rank in abundance" and the y-axis "log(abundance)"
+2. Label the x-axis "Rank in abundance" and the y-axis "log(abundance)"
 
 ```{r}
 
@@ -255,9 +255,9 @@ Now that we have visualized unevennes, it is time to quantify it using Simpson's
 
 In the R code chunk below, do the following:
 
-1. write the function to calculate $E_{1/D}$, and
+1. Write the function to calculate $E_{1/D}$, and
 
-2. calculate $E_{1/D}$ for `site1`.
+2. Calculate $E_{1/D}$ for `site1`.
 
 ```{r}
 
@@ -274,11 +274,11 @@ In the R code chunk below, do the following:
 
 In the R code chunk below, please do the following:
 
-1. write the function to calculate $E_{var}$,
+1. Write the function to calculate $E_{var}$,
 
-2. calculate $E_{var}$ for `site1`, and
+2. Calculate $E_{var}$ for `site1`, and
 
-3. compare $E_{1/D}$ and $E_{var}$.
+3. Compare $E_{1/D}$ and $E_{var}$.
 
 ```{r}
 
@@ -290,7 +290,7 @@ In the R code chunk below, please do the following:
 ```
 
 ***Question 5***: Compare estimates of evenness for `site1` of BCI using $E_{1/D}$ and $E_{var}$.
-Do they agree? If so, why? If not, why not? What can you infer from the results.
+Do they agree? If so, why? If not, why? What can you infer from the results.
 
 > ***Answer 5***:
 
@@ -305,9 +305,9 @@ We will write our own diversity functions and compare them against the functions
 
 In the R code chunk below, please do the following:
 
-1. provide the code for calculating H' (Shannon's diversity),
+1. Provide the code for calculating H' (Shannon's diversity),
 
-2. compare this estimate with the output of `vegan`'s diversity function using method = "shannon".
+2. Compare this estimate with the output of `vegan`'s diversity function using method = "shannon".
 
 ```{r}
 
@@ -325,11 +325,11 @@ In the R code chunk below, please do the following:
 
 In the R code chunk below, please do the following:
 
-1. provide the code for calculating D (Simpson's diversity),
+1. Provide the code for calculating D (Simpson's diversity),
 
-2. calculate both the inverse (1/D) and 1 - D,
+2. Calculate both the inverse (1/D) and 1 - D,
 
-2. compare this estimate with the output of `vegan's` diversity function using method = "simp".
+2. Compare this estimate with the output of `vegan's` diversity function using method = "simp".
 
 ```{r}
 
@@ -348,7 +348,7 @@ In the R code chunk below, please do the following:
 ```
 
 ***Question 6***: Compare estimates of evenness for `site1` of BCI using $E_{H'}$ and $E_{var}$.
-Do they agree? If so, why? If not, why not? What can you infer from the results.
+Do they agree? If so, why? If not, why? What can you infer from the results.
 
 > ***Answer 6***:
 
@@ -368,11 +368,11 @@ Predicting the form of the RAC is the first test that any biodiversity theory mu
 
 In the R code chunk below, please do the following:
 
-1. use the `radfit()` function in the `vegan` package to fit the predictions of various species abundance models to the RAC of `site1` in BCI,
+1. Use the `radfit()` function in the `vegan` package to fit the predictions of various species abundance models to the RAC of `site1` in BCI,
 
-2. display the results of the `radfit()` function, and 
+2. Display the results of the `radfit()` function, and 
 
-3. plot the results of the `radfit()` function using the code provided in the handout.
+3. Plot the results of the `radfit()` function using the code provided in the handout.
 
 ```{r}
 
