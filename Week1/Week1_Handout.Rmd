@@ -52,10 +52,6 @@ Let's start by creating a one-dimensional vector using a new function `rnorm`.
 j <- c(rnorm(100, mean = 50, sd = 25)) 
 ```
 
-**Q1:** What does the `rnorm` function do? 
-What are the arguments specifying? 
-Remember to use `help()` or type `?rnorm`.
-
 Create a new vector named `z` also with 100 elements, but with a different mean and standard deviation
 
 ```{r}
@@ -97,8 +93,6 @@ This is an easy operation in R that uses the `t` function:
 n <- t(m)
 ```
 
-**Q2:** What are the dimensions of the matrix you just transposed?
-
 ### B. Indexing a Matrix
 
 Frequently, you will need to **index** or retrieve a certain portion of a matrix. 
@@ -125,7 +119,6 @@ It's easy when you understand how to reference data within a matrix:
 n <- m[, c(1:2, 5)]
 ```
 
-**Q3:** Describe what we just did in the last indexing operation.
 
 ## 3) BASIC DATA VISUALIZATION AND STATISTICAL ANALYSIS
 ### A. Load Aquatic Mesocosm Dataset
@@ -191,7 +184,6 @@ Now let's conduct a simple **Pearson's correlation** analysis with the `cor()` f
 cor1 <- cor(meso.num)
 ```
 
-**Q4:** Describe some of the general features based on the visualization and correlation analysis above.
 
 ### C. Loading Contributed Packages
 The base package in R won't always meet all of our needs. 
@@ -204,19 +196,15 @@ The _psych_ package has many features, but we're going to use it specifically fo
 This function generates **p-values** for each pairwise correlation. 
 (For whatever reason, the `cor` function in the `base` package of R does not generate p-values.)
 
-You can load an R package and its dependencies using the `require()` function: 
+You can load an R package and its dependencies using the `require()` function. 
+If a package is not found, i.e., not installed, you will need to install it first and then load dependencies.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
+#install.packages("psych", repos="http://cran.rstudio.com/") 
 require("psych")
 ```
 
-If the package is not found, you will need to install it first and then load dependencies:
-
-```{r, eval = FALSE}
-# install.packages("psych")
-require("psych")
-```
-
+Note that if a package is alread installed, you can bypass the install line by placing a '#' at the beginning of it.
 Now, let's look at the correlations among variables and assess whether they are signficant:
 
 ```{r, results = 'hide'}
@@ -229,17 +217,12 @@ _Notes on corr.test_:
 a) for rank-based correlations (i.e., non-parametric), use method = "kendall" or "spearman". Give it a try!
 
 b) the adjust = "BH" statement supplies the Benjamini & Hochberg-corrected p-values in the upper right diagonal of the square matrix; the uncorrected p-values are below the diagonal. 
-This process corrects for **false discovery rate**, which arises whe making multiple comparisons. 
-
-**Q5:** Describe what you learned from corr.test. 
-Specifically, are the results sensitive to whether you use parametric (i.e., Pearson's) or non-parametric methods?
-When should one use non-parametric methods instead of parametric methods?
-With the Pearson's method, is there evidence for false discovery rate due to multiple comparisons? Why is false discovery rate important?
+This process corrects for **false discovery rate**, which arises whe making multiple comparisons.
 
 Now, let's load another package that will let us visualize the direction and strength of the correlations:
 
 ```{r, message=FALSE, fig.align='center', warning=FALSE, results='hide'}
-#install.packages("corrplot") 
+install.packages("corrplot", repos="http://cran.rstudio.com/") 
 require("corrplot")
 corrplot(cor1, method = "ellipse")
 dev.off()
@@ -259,8 +242,6 @@ Let's examine the output of the regression model:
 ```{r, results ='hide'}
 summary(fitreg)
 ```
-
-**Q6:** Interpret the results from the regression model.
 
 Now, let's look at a plot of the data used in the regression analysis:
 
@@ -296,12 +277,11 @@ Now let's create and plot the **95% confidence intervals** using the same proced
 
 ```{r reglayer4, echo = -1}
 <<reglayer3>>
+# the line above calls the previous figure object
 conf95 <- predict(fitreg, newdata = data.frame(TN = newTN),
                   interval = c("confidence"), level = 0.95, type = "response")
 matlines(newTN, conf95[, c("lwr", "upr")], type="l", lty = 2, lwd = 1, col = "black")
 ```
-
-**Q7:** Explain what you were just using the `predict()` function for.
 
 We should also look at the residuals (i.e., observed values - predicted values) to see if our data meet the assumptions of linear regression. 
 Specifically, we want to make sure that the residuals are normally distributed and that they are homoscedastic (i.e., equal variance). 
@@ -375,9 +355,6 @@ This will tell us whether or not there are differences (alpha = 0.05) among pair
 ```{r, results='hide'}
 TukeyHSD(fitanova)
 ```
-
-**Q8:** How do you interpret the ANOVA results relative to the regression results?
-Do you have any concerns about this analysis?
 
 Just like the regression analysis above, it's good to look at the residuals:
 
