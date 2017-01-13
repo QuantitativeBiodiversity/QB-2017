@@ -23,26 +23,27 @@ We will install the latest version of R (v 3.1.2; "Pumpkin Helmet"") using the f
     The most recent versions of R no longer come packaged with an X11 graphics device.
     Instead, it relies on the program XQuartz for generating plots, etc.
     If you do not already have XQuarts installed, you will need to do this.
-    You can download XQuartz v2.7.7 from the following site:http://xquartz.macosforge.org/landing/
+    You can download XQuartz v2.7.7 from the following site: http://xquartz.macosforge.org/landing/
     
 ## Git
 
 We will be using Git as the version control software to manage our text and code.
-If you do not have a current Git installation, please do the following:
-
-***should we specify what a "current version" means? most up-to-date/***
+If you already use Git, please ensure you are using the most up-to-date version.
+If you do not have Git yet installed, please do the following:
 
 1. Open a web browser and naviate to git-scm.com/download/
 2. Select the appropriate operating system.
 3. The download should start automatically.
 4. Open the installer and follow the onscreen directions.
 
-  **On Mac**: You will need to make sure you have Xcode Command Line Tools installed.  
+  **On Mac**: You will need to make sure you have Xcode Command Line Tools installed.
+  To test this type `which g++` at the command line.
+  If you get `/usr/bin/g++` as a reply, then you are ready to move on.
+  
   **On Windows**: This process will install Git Bash (msysGit). 
   During installation, you will be asked to adjust your **PATH environment**.
   To provide you with the most flexibility, we recommend that you select the option to "Use Git from the Windows Command Prompt".
   In addition, we recommend that during installation you select "Use OpenSSH" for your secure shell client with GitBash.
-
   
   During installation, you will be asked how to configure the line-ending conversions
   **On Mac**: We recommend "Checkout as-is, commit Unix-style line endings"
