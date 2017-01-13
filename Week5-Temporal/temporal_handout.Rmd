@@ -18,20 +18,13 @@ In this exercise, we will explore aspects of temporal diversity. We will review 
 ```{r, results = 'hide'}
 rm(list=ls()) 
 getwd() 
-#setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week5-Temporal/") 
-setwd("~/GitHub/QB-2017/Week5-Temporal/") 
-
+setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week5-Temporal/") 
 ```
 
 ### Install Packages
 
 ```{r, results = 'hide', warning=FALSE, message=FALSE}
-install.packages("MullerPlot")
-library(MullerPlot)
-install.packages("tidyr", repos="http://cran.rstudio.com/") 
-require("tidyr")
-install.packages("dplyr", repos="http://cran.rstudio.com/") 
-require("dplyr")
+
 ```
 
 ## 2) LOADING DATA
@@ -39,16 +32,39 @@ require("dplyr")
 We will start by using the long-term monitoring dataset of rodents from the Chihuahuan Desert ecosystem near Portal, Arizona.
 
 ```{r}
-portal <- read.table("data/combined.csv", sep = ",", header = TRUE)
+portal <- read.table("data/Portal_rodents_19772002.csv", sep = ",", header = TRUE)
 ```
 
 ## 3) VISUALIZING TURNOVER
 
-First, we will create the site-by-time matrix using the packages `tidye` and `dplyr`
+First, we will write a function to clean the data and generate a time-by-species matrix. 
 
 ```{r}
+portal.dates <- portal[,2:4]
+portal.dates.unique <- unique(portal.dates)
+
+# To-do. Initialize an empty dataframe with columns for day, month, year, and each species
+
+f <- function(x) {
+ new.data <- portal[ which( portal$mo == x[1] & portal$dy == x[2] & portal$yr == x[3]) , ]
+ species <- array(new.data$species)
+ remove <- c("<NA>")
+ species <- species[! species %in% remove]
+ species.df <- as.data.frame(table(species))
+ # append species abundances to empty dataframe, making sure to match species identity to column
+ #print(as.data.frame(table(species)))
+}
+
+test <- apply(portal.dates.unique, 1, f)
+```
+
+Here's another, perhaps easier though less obvious way to create the site-by-time matrix
+```{r}
+require(tidyr)
+require(dplyr)
+
 # combine dates into one column
-portal <- unite(portal, col = date, c(year, month, day), sep = "-")
+portal <- unite(portal, col = date, c(yr, mo, dy), sep = "-")
 
 # Create the site-by-time matrix
 time.by.species <- group_by(portal, date) %>% count(species) %>% spread(key = species, value = n, fill = 0)
@@ -63,22 +79,7 @@ ncol(time.by.species)
 
 # remove column of NAs and empty rows
 time.by.species <- time.by.species[,-48]
-time.by.species.clean <- time.by.species[-which(rowSums(time.by.species) == 0),]
+time.by.species <- time.by.species[-which(rowSums(time.by.species) == 0),]
 
 time.by.species
-```
-
-Turn abundances in each row into frequencies 
-
-```{r}
-prop.table(time.by.species, 1)
-sweep(time.by.species, 1, rowSums(time.by.species),`/`)
-```
-
-Let's look at a Muller plot!
-
-```{r}
-Muller_df <- get_Muller_df(example_edges, example_pop_df)
-Muller_plot(Muller_df)
-
 ```
