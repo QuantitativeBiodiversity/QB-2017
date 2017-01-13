@@ -73,6 +73,7 @@ We will also set two parameters: push.default and credential.helper
     git config --global user.email johndoe@example.com
     git config --global push.default simple
     git config --global credential.helper store
+    git config --global core.editor "nano"
     ```
     
 3. The last thing you need to do is configure how Git handles line endings.
@@ -119,7 +120,7 @@ Replace "username" with your GitHub username and "repo" with the name of the rep
 
     ```sh
     cd ~/GitHub
-    git clone https://github.com/sername/repo
+    git clone https://github.com/username/repo
     cd ./Repo
     git status
     ```
