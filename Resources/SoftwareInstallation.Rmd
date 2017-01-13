@@ -11,7 +11,7 @@ This guide describes the software and how to install it.
 ## R
 
 We will use R to manipulate, visualize, and statistically analyze data.
-We will install the latest version of R (v 3.1.2; "Pumpkin Helmet"") using the following insructions:
+We will install the latest version of R (v 3.3.2; "Sincere Pumpkin Patch") using the following insructions:
 
 1. Open a web browser and naviate to the IU CRAN mirror: http://ftp.ussg.iu.edu/CRAN/
 2. Please select your operating system (Mac, Windows, Linux)
@@ -23,14 +23,12 @@ We will install the latest version of R (v 3.1.2; "Pumpkin Helmet"") using the f
     The most recent versions of R no longer come packaged with an X11 graphics device.
     Instead, it relies on the program XQuartz for generating plots, etc.
     If you do not already have XQuarts installed, you will need to do this.
-    You can download XQuartz v2.7.7 from the following site:http://xquartz.macosforge.org/landing/
+    You can download XQuartz v2.7.11 from the following site:https://www.xquartz.org/
     
 ## Git
 
 We will be using Git as the version control software to manage our text and code.
-If you do not have a current Git installation, please do the following:
-
-***should we specify what a "current version" means? most up-to-date/***
+If you do not have a current Git installation (v2.10.2 or later), please do the following:
 
 1. Open a web browser and naviate to git-scm.com/download/
 2. Select the appropriate operating system.
@@ -52,7 +50,7 @@ If you do not have a current Git installation, please do the following:
 
 We will be using RStudio as the development environment to conduct exercises in R. 
 We will also use RStudio to edit and create markdown files. 
-If you do not have a current RStudio version installed on your computer (v 0.98 +), please do the following:
+If you do not have a current RStudio version installed on your computer (v 1.0.1 +), please do the following:
 
 1. Open a web browser and naviate to http://www.rstudio.com/products/rstudio/download/
 2. Select and download the appropriate installer for your operating system (Windows, Mac, Linux)
