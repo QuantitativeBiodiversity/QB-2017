@@ -20,7 +20,7 @@ From there, we will discuss ways to integrate richness and evenness, which will 
 ```{r, results = 'hide'}
 rm(list=ls()) 
 getwd() 
-setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week2-Alpha") 
+setwd("~/GitHub/QB-2017/Week2-Alpha") 
 ```
 
 ### B. Install Packages
@@ -501,4 +501,3 @@ Shortened name for the Zipf–Mandelbrot model.
 This model adds one parameter ($\beta$) to the Zipf model. 
 Ecologically, $\beta$ can be thought of as a parameter that controls the evenness of the predicted RAC. For example, a positive $\beta$ increases the evenness among highly abundant species while a negative value decreases evenness. 
 The expected abundance of a species (*a*) at rank *r* is $a_r = N \cdot c \cdot (r + \beta)^{\gamma}$.
-
