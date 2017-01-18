@@ -11,7 +11,7 @@ geometry: margin=2.54cm
 ## OVERVIEW
 
 In this exercise, we will explore aspects of local or site-specific diversity, also known as alpha ($\alpha$) diversity. 
-We will quantify the two primary components of $\alpha$-diversity (**richness** and **evenness**) using the site-by-species matrix.
+We will quantify the two primary components of $\alpha$-diversity (**richness** and **evenness**) using the site-by-species matrix, our primary ecological data structure.
 From there, we will discuss ways to integrate richness and evenness, which will include univariate metrics of diversity and an investigation of the **species-abundance distribution (SAD)**.
 
 ## 1) SETUP
@@ -68,7 +68,7 @@ It is important to note that, in most site-by-species matrices, not every specie
 Consequently, we cannot simply count the columns of the site-by-species matrix to obtain the value of observed richness.
 
 Let's write a function that calculates observed species richness of a site.
-Functions are central to the use of most any computing software and, in short, are simply pieces of code that operate on one or more variables or objects (e.g., scalars, lists, matrices, etc.).
+Functions are central to the use of R and other computing software and, in short, are pieces of code that operate on one or more variables or objects (e.g., scalars, lists, matrices, etc.) and then return an answer.
 In fact, you've already used several native R functions, e.g., `dim(BCI)`.
 
 ```{r}
@@ -79,7 +79,6 @@ S.obs <- function(x = ""){
 
 We can then call the function by typing `S.obs()` and placing the name of our vector in the parentheses. 
 There is also a function in the `vegan` package called `specnumber()` that calculates observed richness.
-
 
 ### B. Coverage: How Well Did You Sample Your Site?
 
@@ -105,6 +104,7 @@ Consequently, while observed richness can be easily calculated, true richness mu
 To address the case of estimating richness, we are going to introduce a dataset derived from 16S rRNA gene sequences for bacteria, which were collected from the Kellogg Biological Station Long-Term Ecological Site (http://lter.kbs.msu.edu/).
 
 Because it is sometimes hard to apply the species concept to bacteria, sequences are often binned into **operational taxonomic units (OTU)** based on the percent of their gene sequence similarity.
+In this case, 16S rRNA sequences that were within 97% similarity of each other are said to belong to the same OTU; a common convention.
 Therefore, we will technically be dealing with a site-by-OTU matrix for some of the following exercises. 
 
 In the following R chunk, we load the bacterial dataset, transpose it, and identify a sample that happens to be the first column of data ("TL_1") in the site-by-species matrix, which we will use for subsequent analysis. 
@@ -118,11 +118,11 @@ soilbac1 <- soilbac.t[1,]
 There are number of statistical techniques developed to estimate richness based on the coverage of species in a sample (e.g., Hughes et al. 2001  -- http://aem.asm.org/content/67/10/4399).
 We can think of these estimators as ways to **extrapolate** richness based on information contained in our sample. 
 Here, we will highlight two commonly used richness estimators developed by Anne Chao. 
-Both estimators fall into the category of being non-parametric, which means that they are not based on any assumptions that the data come from a particular underlying distribution (e.g. Normal distribution).
+Both estimators fall into the category of being non-parametric, which means that they are not based on assumptions that the data (and/or the statistical error) come from a particular underlying distribution (e.g. Gaussian).
 
 **Chao1** is an ***abundance-based estimator*** and is useful for examining richness of a single site.
 Chao1 is calculated using observed richness (`S.obs`), the observed number of **singletons** (species with an observed abundance of 1), and the observed number of **doubletons** (species with observed abundance of 2).
-Because it requires singleton and doubleton data to calculate, Chao1 cannot be used on site-by-species matrix where abundances have been relativized, i.e., where the abundance of each species is divided by the row sum.
+Because it requires singleton and doubleton data to calculate, Chao1 cannot be used on a site-by-species matrix where abundances have been relativized, i.e., where the abundance of each species is divided by the row sum.
 
 Let's write a function for Chao1:
 
@@ -136,7 +136,7 @@ It's important to note that it's not always necessary to write new functions fro
 
 **Chao2** is an ***incidence-based estimator*** that uses presence-absence data for examining richness across multiple sites.
 Chao2 is calculated using observed richness (`S.obs`).
-However, in Chao2, **singletons** and **doubletons** refer to species observed once and twice, respectively, *among sites or samples*.
+However, in Chao2, **singletons** and **doubletons** refer to species observed once and twice, respectively, among sites or samples.
 
 Let's write a function for Chao2.
 In this function, the first argument is site, supplied either as row number or row title (e.g., 1 or "T1_1") and the second argument is the name of the site-by-species matrix (e.g., soilbac):
@@ -145,9 +145,9 @@ In this function, the first argument is site, supplied either as row number or r
 S.chao2 <- function(site = "", SbyS = ""){
   SbyS = as.data.frame(SbyS)
   x = SbyS[site, ] 
-  SbyS.pa <- (SbyS > 0) * 1
-  Q1 = sum(colSums(SbyS.pa) == 1)
-  Q2 = sum(colSums(SbyS.pa) == 2)
+  SbyS.pa <- (SbyS > 0) * 1 # convert the SbyS to presence/absence
+  Q1 = sum(colSums(SbyS.pa) == 1) # species observed once
+  Q2 = sum(colSums(SbyS.pa) == 2) # species observed twice
   S.chao2 = S.obs(x) + (Q1^2)/(2 * Q2)
   return(S.chao2)
   }
@@ -156,6 +156,33 @@ S.chao2 <- function(site = "", SbyS = ""){
 Notice that this function is a bit more complicated than previous functions we have written, so we will take time to deconstruct it. We can see that the function `S.chao2` takes two arguments: the site of interest and the site-by-species matrix. The function first converts the site-by-species matrix into a data frame. From there we select the site of interest and count the number of singletons and doubletons among all sites. The code to calculate Chao2 (`S.obs(x) + (Q1^2)/(2 * Q2)`) should look very familiar. In fact, it is nearly identical to the S.chao1 operator, the only difference being that we are dealing with singletons and doubletons across all sites rather than within a single site. 
 
 In Chapter 5, pages 56 and 57, of "Biological Diversity: frontier in measurement and assessment" you will see that Chao1 and Chao2 are mathematically very similar, and mainly differ in whether we are considering the abundance of species at one site (Chao1) or the presence of species across multiple sites (Chao2).
+
+*ACE* is another commonly used estimator is **ACE**, which stands for abundance-based coverage estimator. 
+While Chao1 makes inferences based on the number of singletons and doubletons, ACE implements a threshold to look at the abundance of other *rare* species. 
+By convention, ACE defines rare species as taxa that have 10 or fewer individuals.
+Consequently, whether one uses the ACE estimator depends on whether one's samples tend to have many species of few individuals.
+If so, the ACE estimator may ignore the majority of sampled species.
+Now we will write a function for the ACE estimator:
+
+```{r}
+S.ace <- function(x = "", thresh = 10){ 
+  x <- x[x>0]                           # excludes zero-abundance taxa
+  S.abund <- length(which(x > thresh))  # richness of abundant taxa
+  S.rare  <- length(which(x <= thresh)) # richness of rare taxa
+  singlt  <- length(which(x == 1))      # number of singleton taxa
+  N.rare  <- sum(x[which(x <= thresh)]) # abundance of rare individuals
+  C.ace   <- 1 - (singlt / N.rare)      # coverage (prop non-singlt rare inds)
+  i       <- c(1:thresh)                # threshold abundance range
+  count   <- function(i, y){            # counter to go through i range
+    length(y[y == i])
+  }
+  a.1     <- sapply(i, count, x)        # number of individuals in richness i richness classes
+  f.1     <- (i * (i - 1)) * a.1        # k(k-1)kf sensu Gotelli
+  G.ace   <- (S.rare/C.ace)*(sum(f.1)/(N.rare*(N.rare-1)))
+  S.ace   <- S.abund + (S.rare/C.ace) + (singlt/C.ace) * max(G.ace,0) 
+  return(S.ace)
+}
+```
 
 ### D. Rarefaction
 
@@ -182,6 +209,10 @@ rarecurve(x = soilbac.t, step = 20, col = "blue", cex = 0.6, las=1)
 abline(0, 1, col = 'red')             
 text(1500, 1500, "1:1", pos = 2, col = 'red')
 ```
+
+Having now explored the estimation of richness by writing R code, we note that `estimateR` is a function in the `vegan` package that will return observed richness, along with Chao1, ACE, and their associated confidence intervals for a given dataset. 
+You can look more into the code in R packages using commands like this: vegan:::estimateR.default.
+
 
 ##4) SPECIES EVENNESS
 There is more to $\alpha$-diversity than just the number of species in a sample.
@@ -369,6 +400,31 @@ diversity(site1, "inv")
 diversity(site1, "simp")
 ```
 
+### C. Fisher's $\boldsymbol\alpha$
+R.A. Fisher (1943) derived one of the first and most successful models for the RAC, i.e., the log-series distribution.
+This model has only a single fitted parameter, i.e., $\alpha$.
+Because $\alpha$ is a fitted parameter and is estimated from data using an involved numerical approach, it is less straightforward to estimate and we will not attempt to code a function for it, here.
+However, Fisher's $\alpha$ has often been used as a diversity metric. 
+According to the authors of the vegan package, Fisher's $\alpha$ is asymptotically similar to inverse Simpson's (1/*D*).
+That is, as the number of species in the RAC and their abundances become large, Fisher's $\alpha$ and 1/*D* become similar.
+Let's do this comparison using the RAC from `site 1` of the BCI site-by-species matrix.
+
+```{r}
+rac <- as.vector(site1[site1 > 0])
+invD <- diversity(rac, "inv")
+invD
+Fisher <- fisher.alpha(rac)
+Fisher
+```
+
+As we can see, the two measurements are somewhat similar. 
+They would converge if our community was much greater in total abundance and richness. 
+However, discussion of Fisher's $\alpha$ introduces a new concept, that is, of estimating diversity instead of just calculating a diversity metric. 
+The difference being that an estimate of diversity implicitly or explicitly accounts for sampling error, that is, the fact that when sampling most ecological communities, we are not observing every single individual.
+
+
+
+
 ##6) MOVING BEYOND UNIVARIATE METRICS OF $\alpha$-DIVERSIY 
 
 The diversity metrics that we just learned about attempt to integrate richness and evenness into a single, univariate metric.
@@ -445,101 +501,4 @@ Shortened name for the Zipf–Mandelbrot model.
 This model adds one parameter ($\beta$) to the Zipf model. 
 Ecologically, $\beta$ can be thought of as a parameter that controls the evenness of the predicted RAC. For example, a positive $\beta$ increases the evenness among highly abundant species while a negative value decreases evenness. 
 The expected abundance of a species (*a*) at rank *r* is $a_r = N \cdot c \cdot (r + \beta)^{\gamma}$.
-
-## APPENDIX
-
-### ACE estimator
-Another commonly used estimator is **ACE**, which stands for abundance-based coverage estimator. 
-While Chao1 makes inferences based on the number of singletons and doubletons, ACE implements a threshold to look at the abundance of other *rare* species. 
-By convention, ACE defines rare species as taxa that have 10 or fewer individuals.
-Consequently, whether one uses the ACE estimator depends on whether one's samples tend to have many species of few individuals.
-If so, the ACE estimator may ignore the majority of sampled species.
-Now we will write a function for the ACE estimator:
-
-```{r}
-S.ace <- function(x = "", thresh = 10){ 
-  x <- x[x>0]                           # excludes zero-abundance taxa
-  S.abund <- length(which(x > thresh))  # richness of abundant taxa
-  S.rare  <- length(which(x <= thresh)) # richness of rare taxa
-  singlt  <- length(which(x == 1))      # number of singleton taxa
-  N.rare  <- sum(x[which(x <= thresh)]) # abundance of rare individuals
-  C.ace   <- 1 - (singlt / N.rare)      # coverage (prop non-singlt rare inds)
-  i       <- c(1:thresh)                # threshold abundance range
-  count   <- function(i, y){            # counter to go through i range
-    length(y[y == i])
-  }
-  a.1     <- sapply(i, count, x)        # number of individuals in richness i richness classes
-  f.1     <- (i * (i - 1)) * a.1        # k(k-1)kf sensu Gotelli
-  G.ace   <- (S.rare/C.ace)*(sum(f.1)/(N.rare*(N.rare-1)))
-  S.ace   <- S.abund + (S.rare/C.ace) + (singlt/C.ace) * max(G.ace,0) 
-  return(S.ace)
-}
-```
-
-_Notes_
-+ `estimateR` is a function in the `vegan` package 
-+ It will spit out observed richness, along with Chao1, ACE, and their associated confidence intervals. 
-+ You can look more into the code in R packages using commands like this: vegan:::estimateR.default
-+ Try it out!
-
-
-### More on EVAR
-$E_{var}$ uses the arctangent, which varies between -$\pi$/2 and $\pi$/2 and without being periodic like waves of the sine and cosine functions. Multiplying the arctangent by 2/pi forces the result to take values between 0 and 1. 
-Finally, subtracting this from one allows low evenness to be associated with values near 0 and high evenness to be associated with values near 1. 
-We can confirm this with a more explicit R chunk:
-
-```{r, eval=FALSE}
-# site1.ab <- site1[site1 > 0]
-# P <- log(log(site1.ab))   # log-transform the abundances of the RAC and assign them to a vector P
-# AvgAb <- mean(P)          # find the average of the log abundances
-# X <- 0                    # assign zero to variable X
-# Evar <- 0                 # declare a scalar variable Evar
-# 
-# for (x in P) { 
-#   X = X + (x - AvgAb)^2 / (S - 1)
-# }
-# 
-# Evar = 1 - (2/pi)*atan(X) # these operations make the value of Evar range between 0 and 1
-# Evar                      # print Evar for Site1
-```
-
-### Fisher's $\boldsymbol\alpha$
-R.A. Fisher (1943) derived one of the first and most successful models for how abundance varies among species, i.e., the log-series distribution.
-This model has only a single fitted parameter, i.e., $\alpha$, 
-Because $\alpha$ is a fitted parameter, it is less straightforward to estimate and we will not attempt to code a function for it, here.
-Fisher's $\alpha$ has often been used as a diversity metric and is the root of $\alpha$-diversity and, according to the authors of the vegan package, it is asymptotically similar to inverse Simpson's.
-Let's do this comparison using the RAC from `site 1` of the BCI site-by-species matrix.
-
-```{r}
-invD <- diversity(rac, "inv")
-invD
-Fisher <- fisher.alpha(rac)
-Fisher
-```
-
-As we can see, the two measurements are somewhat similar. 
-They would converge if our community was much greater in total abundance and richness. 
-However, discussion of Fisher's $\alpha$ introduces a new concept, that is, of estimating diversity instead of just calculating a diversity metric. 
-The difference being that an estimate of diversity implicitly or explicitly accounts for sampling error, that is, the fact that when sampling most ecological communities, we are not observing every single individual.
-
-We can use the information from the `rarefy` function to create a barplot that compares each site.
-Remember, we can calculate 95% confidence intervals using $95\% CI = \bar{x} \pm SEM \times 1.96$.
-
-```{r, warning=FALSE}
-opar <- par(no.readonly = TRUE)
-par(mar=c(5.1, 6.1, 4.1, 2.1))
-S.plot <- barplot(S.rarefy[1, ], xlab = "Treatment", ylab = NULL, 
-                  ylim =c(0, round(max(soilbac.S), digits = 0)), 
-                  pch = 15, las = 1, cex = 1, cex.lab = 1.4, cex.axis = 1.25)
-arrows(x0 = S.plot, y0 = S.rarefy[1, ], y1 = S.rarefy[1, ] - (S.rarefy[2, ] * 1.96), 
-       angle = 90, length=0.1, lwd = 1)
-arrows(x0 = S.plot, y0 = S.rarefy[1, ], y1 = S.rarefy[1, ] + (S.rarefy[2, ] * 1.96), 
-       angle = 90, length=0.1, lwd = 1)
-title(ylab = "Richness (S)", line = 4, cex.lab = 1.4)
-par(opar)
-```
-
-Notice that we did a few things differently here.
-Why did we have to plot the y-axis label manually?
-What did the `par(mar=c())` function do?
 

@@ -84,7 +84,7 @@ Remember, we can calculate 95% confidence intervals using $95\% CI = \bar{x} \pm
 
 ```{r, warning=FALSE}
 opar <- par(no.readonly = TRUE)
-par(mar=c(5.1, 6.1, 4.1, 2.1))
+par(mar=c(5.1, 6.1, 4.1, 2.1)) # set graph margins
 S.plot <- barplot(S.rarefy[1, ], xlab = "Treatment", ylab = NULL, 
                   ylim =c(0, round(max(soilbac.S), digits = 0)), 
                   pch = 15, las = 1, cex = 1, cex.lab = 1.4, cex.axis = 1.25)
@@ -95,7 +95,3 @@ arrows(x0 = S.plot, y0 = S.rarefy[1, ], y1 = S.rarefy[1, ] + (S.rarefy[2, ] * 1.
 title(ylab = "Richness (S)", line = 4, cex.lab = 1.4)
 par(opar)
 ```
-
-Notice that we did a few things differently here.
-Why did we have to plot the y-axis label manually?
-What did the `par(mar=c())` function do?
