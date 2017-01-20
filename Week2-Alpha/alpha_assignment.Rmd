@@ -44,7 +44,7 @@ In the R code chunk below, please provide the code to:
 ## 2) LOADING DATA
 
 In the R code chunk below, do the following:
-1) Load your dataset, and 
+1) Load the BCI dataset, and 
 2) Display the structure of the dataset (if the structure is long, use `max.level=0` to show just basic information).
 
 ```{r}
