@@ -26,16 +26,23 @@ After completing this exercise you will know how to:
 rm(list = ls())
 getwd()
 setwd("~/GitHub/QB-2017/Week3-Beta/")
-#/QuantitativeBiodiversity
 ```
 
 ### B. Load Packages 
 
-We will be using the `vegan` package again; let's load it now. 
+We will be using several packages this week. 
+Let's load them now. 
+The `require()` function in `R` returns `TRUE` if the package was successfully loaded or `FALSE` if the package failed to load. 
+This `for` loop loads each package and installs the package when `require()` returns `FALSE`.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
-#install.packages("vegan") 
-require("vegan")
+package.list <- c('vegan', 'ade4', 'viridis', 'gplots', 'BiodiversityR', 'indicspecies')
+for (package in package.list) {
+  if (!require(package, character.only=T, quietly=T)) {
+    install.packages(package)
+    library(package, character.only=T)
+  }
+}
 ```
 
 ## 2) LOADING DATA
@@ -49,8 +56,6 @@ The data set has previously been used to demonstrate that fish communities can b
 Let's load the `ade` package, which contains the `doubs` data set. 
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
-#install.packages("ade4") 
-require("ade4")
 data(doubs)
 ```
 
@@ -74,18 +79,6 @@ Last, recall that you can use `help()` to learn more about a dataset contained i
 str(doubs, max.level = 1)
 head(doubs$env)
 ```
-
-***Question 1***:  Describe some of the attributes of the `doubs` dataset. 
-
-a.  How many objects are in `doubs`?
-b.  What types of data structures are contained in `doubs`?
-c.  What are the units of nitrate ("nit") in the stream water?
-d.  How many fish species are there in the `doubs` data set?
-
-> ***Answer 1a***:  
-> ***Answer 1b***:  
-> ***Answer 1c***:  
-> ***Answer 1d***:  
 
 ### D. Visualizing the Doubs River Dataset
 There is a wealth of information in the `doubs` dataset that can be used to address various issues related to $\beta$-diversity.
@@ -128,15 +121,6 @@ legend("topright", inset=c(-0.25, 0), pch = 22, pt.cex = 2, bty = 'n',
 par <- opar
 ```
 
-***Question 2***: Answer the following questions based on the spatial patterns of richness (i.e., $\alpha$-diversity) and Brown Trout (*Salmo trutta*) abundance in the Doubs River. 
-
-a.  How does fish richness vary along the sampled reach of the Doubs River?
-b.  How does Brown Trout (*Salmo trutta*) abundance vary along the sampled reach of the Doubs River?
-c.  What do these patterns say about the limitations of using richness when examining patterns of biodiversity?
-
-> ***Answer 2a***:  
-> ***Answer 2b***:  
-> ***Answer 2c***:  
 
 ## 3) QUANTIFYING BETA-DIVERSITY
 
@@ -164,18 +148,6 @@ Whittaker also used his metric to measure turnover between two sites (often call
 Subtracting 1 scales $\beta_{w}$ to produce values ranging from 0 (minimum $\beta$-diversity) to 1 (maximum $\beta$-diversity). Thus, this metric becomes $\beta_{W} = \frac{\gamma}{\bar{\alpha}}-1$, where $\gamma$ is now the combined richness of the two sites being compared.
 
 We can modify our function to also calculate pairwise $\beta_{W}$ for turnover as follows:
-
-```{r, include=FALSE, eval=FALSE}
-beta.w <- function(site1 = "", site2 = ""){
-  site1 = subset(site1, select = site1 > 0)               # Removes absences
-  site2 = subset(site2, select = site2 > 0)               # Removes absences
-  gamma = union(colnames(site1), colnames(site2))         # Gamma species pool
-  s     = length(gamma)                                   # Gamma richness
-  a.bar = mean(c(specnumber(site1), specnumber(site2)))   # Mean sample richness
-  b.w   = round(s/a.bar - 1, 3)
-  return(b.w)
-}
-```
 
 ```{r}
 beta.w <- function(site.by.species = "", sitenum1 = "", sitenum2 = "", pairwise = FALSE){
@@ -212,16 +184,6 @@ beta.w <- function(site.by.species = "", sitenum1 = "", sitenum2 = "", pairwise 
 ```
 
 We now have a robust function called `beta.w()` that can handle two ways of calculating beta diversity. In essence, this is what is going on behind the scenes with many of the functions from `vegan` that we will encounter. 
-
-***Question 3***: Using the `beta.w()` function above, answer the following questions:
-
-a.  Describe how local richness and turnover contribute to regional fish diversity in the Doubs.
-b.  What is the $\beta$-diversity for fish assemblages sampled from site 1 and site 2 of the `doubs` data set?
-c.  Based on the formula for $\beta_{w}$, what does this value represent?
-
-> ***Answer 3a***:  
-> ***Answer 3b***:  
-> ***Answer 3c***:  
 
 #### See APPENDIX for more information on calculating $\beta$-diversity and on partitioning $\gamma$-diversity into its $\alpha$ and $\beta$ components.
 
@@ -260,7 +222,7 @@ When you are working with presence-absence data, you can use the following metri
 
 In the above table, *a* = the number of species shared between assemblages, *b* = the number of unique species in the first assemblage, and *c* = the number of unique species in the second assemblage.
 
-#### See APPENDIX for additional information on incidence-based similarity metrics 
+#### See APPENDIX for additional information on incidence-based similarity metrics and analyses.
 
 ### C.  Abundance-Based Measures of Similarity and Dissimilarity
 When you are working with abundance data, you can use the following metrics for generating a similarity or dissimilarity matrix. 
@@ -287,14 +249,6 @@ In the above table $y_{1j}$ is the abundance of each species ($1:p$) in site 1 a
 As with incidence-based measures, there are many other options for calculating similarity or dissimilarity between communities, including Mean Character Difference, Canberra, Coefficient of Divergence, and Gower. 
 
 #### See APPENDIX for a cautionary note on other measures of distance 
-
-***Question 4***: Answer the following questions about measures of (dis)similarity:
-
-a.  What are the key differences between incidence- and abundance-based metrics?
-b.  When might you use one instead of the other?
-
-> ***Answer 4a***:  
-> ***Answer 4b***:  
 
 ### D.  Constructing the Resemblance Matrix
 
@@ -333,10 +287,6 @@ However, you can generate a square resemblance matrix with the following command
 ```{r}
 fish.db <- vegdist(fish, method = "bray", upper = TRUE, diag = TRUE)
 ```
-
-***Question 5***: Does the resemblance matrix (`fish.db`) represent similarity or dissimilarity? What information in the resemblance matrix led you to arrive at your answer?
-
-> ***Answer 5***: 
 
 ## 4) VISUALIZING BETA-DIVERSITY
 
@@ -393,15 +343,13 @@ This tool generates a cluster diagram that allows one to examine the abundance o
 
 ```{r, message = FALSE, warning = FALSE, fig.align='center'}
 # If we just need one function from a package, we do not have to load the whole package
+# into memory. This is often a simple way to optimize your code. 
 # Instead, just type the package name followed by two colons before the function name
 gplots::heatmap.2(as.matrix(fish), distfun = function(x) vegdist(x, method = "bray"),
           hclustfun = function(x) hclust(x, method = "ward.D2"), 
           col = viridis, trace = "none", density.info = "none")
 ```
 
-***Question 6***: Based on cluster analyses and the introductory plots that we generated after loading the data, develop a hypothesis about the distribution of fish assemblages in the Doubs River? 
-
-> ***Answer 6***: 
 
 ### C.  Ordination
 The primary aim of ordination is to represent multiple objects in a reduced number of orthogonal (i.e., independent) axes.
@@ -486,7 +434,8 @@ These coordinates reflect the strength and direction that each species has on th
 
 ```{r pcoalayer2, message = FALSE, warning = FALSE, echo=-c(1:16), fig.width=6, fig.height=4, fig.align='center'}
 <<pcoalayer1>>
-#install.packages("BiodiversityR") 
+# This first line <<pcoalayer1>> is calling the plot from the previous R chunk
+
 require("BiodiversityR")
 
 # First we calculate the relative abundances of each species at each site
@@ -514,16 +463,6 @@ imp.spp  <- spe.corr[abs(spe.corr[, 1]) >= corrcut | abs(spe.corr[, 2]) >= corrc
 # Permutation Test for Species Abundances Across Axes
 fit <- envfit(fish.pcoa, fishREL, perm = 999)
 ```
-
-***Question 7***: Address the following questions about the ordination results of the `doubs` data set:
-
-a.  Generate a hypothesis about the grouping of sites in the Doubs River based on fish community composition.
-b.  Generate a hypothesis about which fish species are potential indicators of river quality.
-c.  Do the different approaches described in the ordination section agree or disagree? Explain. 
-
-> ***Answer 7a***:  
-> ***Answer 7b***:   
-> ***Answer 7c***:
 
 ## 5) HYPOTHESIS TESTING
 
@@ -577,10 +516,6 @@ summary(phi)
 
 To learn more about species-site group associations, see Dufrêne and Legendre (1997) and De Cáceres and Legendre (2009), and references within them.
 
-***Question 8***: Based on the PERMANOVA, IndVal, and phi coefficient analyses, what did you learn about the relationship between habitat quality and the fish species composition? 
-
-> ***Answer 8***: 
-
 ### B.  Multivariate Procedures for Continuous Designs
 
 ### i.  Mantel Test
@@ -601,10 +536,6 @@ env.dist <- vegdist(scale(doubs$env[-8,]),method = "euclid")
 #Mantel Test
 mantel(fish.dist,env.dist)
 ```
-
-***Question 9***: What do the results from our Mantel test suggest about fish diversity and stream environmental conditions? How might this relate to your hypothesis about stream quality influencing fish communities?
-
-> ***Answer 9***:  
 
 ### ii.  Constrained Ordination
 Another way we can test hypotheses with continuous data is to use **constrained ordination**, which is sometimes referred to as canonical ordination.
@@ -701,10 +632,6 @@ axis(side = 4, lwd.ticks=2, cex.axis=1.2, las = 1, col = "red", lwd = 2.2,
      at = pretty(range(vectors[, 2])) * 2, labels = pretty(range(vectors[, 2])))
 ```
 
-
-***Question 10***: Based on the constrained ordination, what are the environmental variables (or groups of correlated variables) that seem to be contributing to variation in fish community structure?
-
-> ***Answer 10***: 
 
 ### iii. Variation Partitioning
 We have shown that spatial variation in fish community structure in the Doubs River can be explained by environmental variables. 
@@ -815,6 +742,13 @@ Also, it is important to note that these metrics calculate similarity, but can (
 In `vegan`, dissimilarities (*D*) are usually returned from functions instead of similarities (*S*).
 The conversion between similarity and dissimilarity is calculated as `D = 1 - S`.
 
+### Incidence-based & null model approaches to beta-diversity
+
+There is a long and entertaining history of the use of species distribution patterns for interpretting community assembly mechanisms. These have been recently summarized by Sanderson and Pimm (2015). In 1975, Jared Diamond proposed that patterns of mutual exclusion in overlapping species distributions (i.e., "checkerboard patterns") suggested an important role for competition in community assembly, and led him to postulate what later became known as "Assembly Rules". This suggestion was immediately followed by criticism by Connor and Simberloff (1979), who suggested that Diamond's patterns could have been observed merely by chance alone. This exchange initiated a heated debate in the early 1980s on the importance of null models for interpreting ecological patterns (e.g., see Strong et al. 1984). While debate over the interpretation of checkerboard distributions lives on (Connor et al. 2013), the importance of this debate is primarily its role in introducing the **use of null models in ecology**. To learn more about null models in ecology, see Harvey et al. (1984), Connor and Simberloff (1986), Gotelli and Graves (1996), and many papers since by Nicholas J. Gotelli (e.g., 2000, 2001). 
+
+One approach to using incidence patterns has been called the Elements of Metacommunity Structure (Leibold and Mikkelson (2002) and expanded by Presley et al. (2010)). Using patterns of species incidence, this approach attempts to characterize the distributions of species in a group of sites as being random distributions (i.e., not distinguishable from the null model), checkerboard, Gleasonian (i.e., species respond individually to underlying gradients), Clementsian (i.e., discrete communities exist along gradients), evenly spaced, or nested subsets (i.e. site assemblages consist of subsets of other, more diverse sites). With some caveats (e.g., see Werner and Gotelli 2013), this simple, decision-tree analysis of patterns can be informative with additional context. The `metacom` package performs these analyses. In addition, the `betapart` package partitions beta diversity into its turnover and nestedness components to determine whether patterns of beta diversity are due to replacement (i.e., turnover) or changes in species richness (i.e., sites are nested subsets of other sites) (Baselga et al. 2012).
+
+
 ### A Cautionary Note on Other Measures of Distance:
 There are other distance measures that you are likely to encounter because they are widely used.
 It is important to note that some of these should *not* be used for abundance-based data in biodiversity analyses. 
@@ -849,7 +783,7 @@ Second, we can compare the eigenvalues associated with the first few axes to the
 
 We will evaluate these two criteria with the following plots:
 
-```{r, fig.width=6, fig.height=4, fig.align='center'}
+```{r, fig.width=5, fig.height=4, fig.align='center'}
 # Define Plot Parameters
 par(mar = c(5, 5, 1, 2) + 0.1)
 
@@ -963,3 +897,70 @@ sum(c(pure.env, env.space, pure.space, resid.var))
 # however, varpart() applies a correction the partial fractions
 
 ```
+
+
+
+
+## References
+Anderson, M. J. 2001. A new method for non-parametric multivariate analysis of variance. Austral Ecology 26:32-46.
+
+Anderson, M. J., T. O. Crist, J. M. Chase, M. Vellend, B. D. Inouye, A. L. Freestone, N. J. Sanders et al. 2011. Navigating the multiple meanings of $\beta$ diversity: a roadmap for the practicing ecologist. Ecology Letters 14:19-28.
+
+Baselga A, Orme CDL. 2012. betapart: an R package for the study of beta diversity. Methods Ecol. Evol. 3: 808-812
+
+Blanchet, F. G., P. Legendre, and D. Borcard. 2008. Forward selection of spatial explanatory variables. Ecology 89:2623-2632.
+
+Borcard, D., F. Gillet, and P. Legendre. 2011, Numerical Ecology with R, Springer.
+
+Borcard, D., and P. Legendre. 2002. All-scale spatial analysis of ecological data by means of principal coordinates of neighbour matrices. Ecological Modelling 153:51-68.
+
+Borcard, D., P. Legendre, C. Avois-Jacquet, and H. Tuomisto. 2004. Dissecting the spatial structure of ecological data at multiple scales. Ecology 85:1826-1832.
+
+Borcard, D., P. Legendre, and P. Drapeau. 1992. Partialling out the spatial component of ecological variation. Ecology 73:1045-1055.
+
+Dale, M. R. T., and M. J. Fortin. 2014, Spatial Analysis: A Guide for Ecologists. Cambridge, Cambridge University Press.
+
+De Cáceres, M., and P. Legendre. 2009. Associations between species and groups of sites: indices and statistical inference. Ecology 90:3566-3574.
+
+Dray, S., P. Legendre, and P. R. Peres-Neto. 2006. Spatial modelling: a comprehensive framework for principal coordinate analysis of neighbour matrices (PCNM). Ecological Modelling 196:483-493.
+
+Dray, S., R. Pélissier, P. Couteron, M. J. Fortin, P. Legendre, P. R. Peres-Neto, E. Bellier et al. 2012. Community ecology in the age of multivariate multiscale spatial analysis. Ecological Monographs 82:257-275.
+
+Dufrêne, M., and P. Legendre. 1997. Species assemblages and indicator species: the need for a flexible asymmetrical approach. Ecological Monographs 67:345-366.
+
+Fortin, M.-J., P. Drapeau, and P. Legendre. 1989. Spatial autocorrelation and sampling design in plant ecology. Vegetatio 83:209-222.
+
+Gotelli, N. J. 2000. Null model analysis of species co-occurrence patterns. Ecology 81:2606-2621.
+
+Gotelli, N. J. 2001. Frontiers in null model analysis. Global Ecology and Biogeography 10:337-343.
+
+Harvey, P. H., R. K. Colwell, J. W. Silvertown, and R. M. May. 1983. Null models in ecology. Annual Review of Ecology and Systematics 14:189-211.
+
+Legendre, P. 1993. Spatial autocorrelation: trouble or new paradigm? Ecology 74:1659-1673.
+
+Legendre, P., and M. J. Anderson. 1999. Distance-based redundancy analysis: testing multispecies responses in multifactorial ecological experiments. Ecological Monographs 69:1-24.
+
+Legendre, P., D. Borcard, and P. R. Peres-Neto. 2005. Analyzing beta diversity: partitioning the spatial variation of community composition data. Ecological Monographs 75:435-450.
+
+Legendre, P., and E. D. Gallagher. 2001. Ecologically meaningful transformations for ordination of species data. Oecologia 129:271-280.
+
+Legendre, P., and L. Legendre. 2012, Numerical Ecology. Oxford, Elsevier B.V.
+
+Leibold, M. A., and G. M. Mikkelson. 2002. Coherence, species turnover, and boundary clumping: elements of meta-community structure. Oikos 97:237-250.
+
+Peres-Neto, P. R., P. Legendre, S. Dray, and D. Borcard. 2006. Variation partitioning of species data matrices: estimation and comparison of fractions. Ecology 87:2614-2625.
+
+Presley, S. J., C. L. Higgins, and M. R. Willig. 2010. A comprehensive framework for the evaluation of metacommunity structure. Oikos 119:908-917.
+
+Sanderson, J. G., and S. L. Pimm. 2015, Patterns in nature: the analysis of species co-occurrences. Chicago, The University of Chicago Press.
+
+Tuomisto, H. 2010. A diversity of beta diversities: Straightening up a concept gone awry. Part 1. Defining beta diversity as a function of alpha and gamma diversity. Ecography 33:2-22.
+—. 2010. A diversity of beta diversities: straightening up a concept gone awry. Part 2. Quantifying beta diversity and related phenomena. Ecography 33:23-35.
+
+Ulrich, W., and N. J. Gotelli. 2013. Pattern detection in null model analysis. Oikos 122:2-18.
+
+Wagner, H. H., and M.-J. Fortin. 2005. Spatial analysis of landscapes: concepts and statistics. Ecology 86:1975-1987.
+
+Whittaker, R. H. 1960. Vegetation of the Siskiyou Mountains, Oregon and California. Ecological Monographs 30:279-338.
+—. 1972. Evolution and measurement of species diversity. Taxon 21:213-251.
+
