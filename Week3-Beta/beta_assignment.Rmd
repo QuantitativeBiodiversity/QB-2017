@@ -118,7 +118,7 @@ c.  Using your understanding of the equation $\beta_{w} = \gamma/\alpha$, how wo
 ### The Resemblance Matrix
 In order to quantify $\beta$-diversity for more than two samples, we need to introduce our second primary ecological data structure: the **Resemblance Matrix**. 
 
-***Question 4***: How incidence- and abundance-based metrics differ in their treatment of rare species?
+***Question 4***: How do incidence- and abundance-based metrics differ in their treatment of rare species?
 
 > ***Answer 4***:  
 
