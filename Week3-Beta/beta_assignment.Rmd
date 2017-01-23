@@ -1,5 +1,5 @@
 ---
-title: "Among Site (Beta) Diversity"
+title: "Assignment: Among Site (Beta) Diversity"
 author: "Student Name; Z620: Quantitative Biodiversity, Indiana University"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: pdf_document
@@ -42,6 +42,7 @@ In the R code chunk below, provide the code to:
 3. set your working directory to your "*/Week3-Beta*" folder, and
 4. load the `vegan` R package (be sure to install if needed).  
 #####Nathan has added new way of loading packages; should be reflected here???
+##### > I would suggest probably not, seems fine just to have them load packages as they need them - NW
 
 ```{r}
 
@@ -141,11 +142,13 @@ In the R code chunk below, do the following:
 
 ```
 
-***Question 5***: Does the resemblance matrix (`fish.db`) represent similarity or dissimilarity? What information in the resemblance matrix led you to arrive at your answer?
+***Question 5***: Using the distance matrices from above, answer the following questions:
 
-> ***Answer 5***: 
+a. Does the resemblance matrix (`fish.db`) represent similarity or dissimilarity? What information in the resemblance matrix led you to arrive at your answer? 
+b. Compare the resemblance matrices (`fish.db` or `fish.ds`) you just created. How does the choice of the Sørensen or Bray-Curtis distance influence your interpretation of site (dis)similarity?
 
-####I guess I was thinking that we were leading up to something with comparing fish.db and fish.ds, but seems to have gotten dropped??
+> ***Answer 5a***:  
+> ***Answer 5b***:
 
 ## 4) VISUALIZING BETA-DIVERSITY
 
@@ -348,8 +351,4 @@ In the code chunk below,
 > ***Answer 11***: 
 
 ## SYNTHESIS
-1. Using what you have learned from the visualizations and statistical analyses above, make an overall conclusion about spatial patterns and key predictors of fish $\beta$-diversity in the Doubs River.  
-
-#### I think the synthesis question above can probably be deleted
-
-2. Load the dataset you are using for your project. Perform an ordination to visualize your dataset.  Using this ordination, develop some hypotheses relevant to $\beta$-diversity and identify the appropriate tools you would use to test them.
+Load the dataset you are using for your project. Perform an ordination to visualize your dataset.  Using this ordination, develop some hypotheses relevant to $\beta$-diversity and identify the appropriate tools you would use to test them.
