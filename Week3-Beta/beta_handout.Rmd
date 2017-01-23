@@ -144,7 +144,7 @@ beta.w <- function(site.by.species = ""){
 }
 ```
 
-Whittaker also used his metric to measure turnover between two sites (often called Whittaker's species turnover). 
+Whittaker also used his metric to measure *turnover between two sites* (often called Whittaker's species turnover). 
 Subtracting 1 scales $\beta_{w}$ to produce values ranging from 0 (minimum $\beta$-diversity) to 1 (maximum $\beta$-diversity). Thus, this metric becomes $\beta_{W} = \frac{\gamma}{\bar{\alpha}}-1$, where $\gamma$ is now the combined richness of the two sites being compared.
 
 We can modify our function to also calculate pairwise $\beta_{W}$ for turnover as follows:
@@ -183,7 +183,7 @@ beta.w <- function(site.by.species = "", sitenum1 = "", sitenum2 = "", pairwise 
 }
 ```
 
-We now have a robust function called `beta.w()` that can handle two ways of calculating beta diversity. In essence, this is what is going on behind the scenes with many of the functions from `vegan` that we will encounter. 
+We now have a function called `beta.w()` that can handle two ways of calculating beta diversity. In essence, this is what is going on behind the scenes with many of the functions from `vegan` that we will encounter. 
 
 #### See APPENDIX for more information on calculating $\beta$-diversity and on partitioning $\gamma$-diversity into its $\alpha$ and $\beta$ components.
 
@@ -390,7 +390,7 @@ explainvar3 <- round(fish.pcoa$eig[3] / sum(fish.pcoa$eig), 3) * 100
 sum.eig <- sum(explainvar1, explainvar2, explainvar3)
 ```
 
-#### See APPENDIX for other ways to asses how well PCoA explains variation in your data 
+#### See APPENDIX for other ways to assess how well PCoA explains variation in your data 
 
 ###iii. Creating a PCoA Ordination Plot 
 Having evaluated the PCoA output, now we will create an ordination plot.
@@ -477,21 +477,19 @@ Earlier work done in the Doubs River suggested that the river has four distinct 
 Let's test the hypothesis that fish community composition varies with river quality.
 
 ```{r, results='hide'}
-# Create "Factors"" vector
+# Create "Factors" vector
 quality <- c(rep("HQ", 13), rep("MQ", 5), rep("LQ", 6), rep("MQ", 5))
 
 # Run PERMANOVA with adonis function
 adonis(fish ~ quality, method = "bray", permutations = 999)
 ```
 
-### ii. Species-Site Group Associations
+### ii. Species--Site Group Associations
 Often we wish to know how individual species relate to groups of sites.
 For example, the presence of certain invertebrate taxa often indicates stream water quality. 
 To determine whether any fish species in our dataset can be used as indicators of habitat quality, we can calculate an Indicator Value (IndVal) for each species in each habitat group, and evaluate its significance using a permutation test.
 Significant IndVal scores close to 1 suggest that the species is a strong indicator of that site group.
 ```{r, results="hide", message=FALSE}
-#install.packages("indicspecies") 
-require(indicspecies)
 indval <- multipatt(fish, cluster = quality, func = "IndVal.g", control = how(nperm=999)) 
 summary(indval)
 ```
@@ -507,7 +505,7 @@ phi <- multipatt(fish.rel, cluster = quality, func = "r.g", control = how(nperm=
 summary(phi)
 ```
 
-To learn more about species-site group associations, see Dufrêne and Legendre (1997) and De Cáceres and Legendre (2009), and references within them.
+These functions are part of the `indicspecies` package. To learn more about species-site group associations, see Dufrêne and Legendre (1997) and De Cáceres and Legendre (2009), and references within them.
 
 ### B.  Multivariate Procedures for Continuous Designs
 
@@ -954,5 +952,5 @@ Wagner, H. H., and M.-J. Fortin. 2005. Spatial analysis of landscapes: concepts 
 
 Whittaker, R. H. 1960. Vegetation of the Siskiyou Mountains, Oregon and California. Ecological Monographs 30:279-338.
 
-Whittaker, R. H. 1972. 1972. Evolution and measurement of species diversity. Taxon 21:213-251.
+Whittaker, R. H. 1972. Evolution and measurement of species diversity. Taxon 21:213-251.
 
