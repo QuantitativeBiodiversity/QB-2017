@@ -53,7 +53,7 @@ In this exercise, we introduce a new dataset containing information on stream fi
 The data set (`doubs`) includes fish abundances, environmental variables, and spatial coordinates for 30 sites. 
 The data set has previously been used to demonstrate that fish communities can be good indicators of ecological zones in rivers and streams. 
 
-Let's load the `ade` package, which contains the `doubs` data set. 
+Let's load `doubs` data set, which is in the`ade` package.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
 data(doubs)
@@ -65,15 +65,15 @@ Here we introduce another object class in R: a **list**.
 In R, a list is an object that contains a collection of other objects of similar or different types.
 To access objects within a list, place a dollar sign (`$`) between the name of the list and the object you want to call (e.g., `list$object`).
 
-### C. Exploring the Doubs River Dataset
+### C. Doubs River Dataset and the Site-by-Environment Matrix
 We can use the `str()` function to describe the attributes of `doubs`, which is a list.
 Because this dataset is somewhat complex, we can pass the "max.level = 1" argument to minimize the `str()` output. 
-Use the the dollar sign (`$`) after the list name (`doubs`) to access objects within the list (e.g., `env`). 
-In this example, we introduce a new data structure that is similar in ways to the site-by-species matrix.
+Use the dollar sign (`$`) after the list name (`doubs`) to access objects within the list (e.g., `env`). 
+Now, we introduce a new data structure that is similar in ways to the site-by-species matrix.
 For each site where we have species information (i.e., presence-absence or abundance), we also have environmental data.
 We will call this the **site-by-environment** matrix, and we will use it later to explain patterns of $\beta$-diversity.
 To access the site-by-environment matrix in this case, type `doubs$env` in the R console.
-Last, recall that you can use `help()` to learn more about a dataset contained in a package. 
+Last, recall that you can use `help()` to learn more about a dataset contained in a package.
 
 ```{r, results='hide'}
 str(doubs, max.level = 1)
@@ -175,7 +175,7 @@ beta.w <- function(site.by.species = "", sitenum1 = "", sitenum2 = "", pairwise 
   # OTHERWISE pairwise defaults to FALSE, so do this, like before:
   else{                                                   
       SbyS.pa <- decostand(site.by.species, method = "pa") # convert to presence-absence
-      S <- ncol(SbyS.pa[,which(colSums(SbyS.pa) > 0)])     # how many species are in the region
+      S <- ncol(SbyS.pa[,which(colSums(SbyS.pa) > 0)])     # number of species in region
       a.bar <- mean(specnumber(SbyS.pa))                   # average richness at each site
       b.w <- round(S/a.bar, 3)
       return(b.w)
@@ -297,17 +297,10 @@ Here we are going to use the `levelplot()` function in the `lattice` package of 
 This function will allow us to make a basic heatmap of our resemblance matrix.
 First, there are a few things we need to do:  
 
-1.  Define a color palette. R includes many predefined color palettes; however, we are going to use another color palette. The package viridis includes four color palettes, each of which are perceptually uniform and both colorblind- and black-and-white-friendly.
+1.  Define a color palette. R includes many predefined color palettes; however, we are going to use another color palette. The package `viridis` includes four color palettes, each of which are perceptually uniform and both colorblind- and black-and-white-friendly.
 
 2.  Ensure that our resemblance matrix is plotted correctly. 
 In particular, we need specify the order in which we want our sites to be plotted in the heatmap.
-
-```{r, results = 'hide', message = FALSE, warning = FALSE} 
-# Get a Color Palette
-# install.packages("viridis") 
-require("viridis")
-```
-
 
 ```{r, fig.align='center'}
 # Define Order of Sites
@@ -341,15 +334,17 @@ plot(fish.ward, main = "Doubs River Fish: Ward's Clustering",
 Another clustering tool that aids in visualization for exploratory purposes is `heatmap.2()`, which is a function in the `gplots` package.
 This tool generates a cluster diagram that allows one to examine the abundance of different fish species in different sites.
 
+If we just need one function from a package, we do not have to load the whole package
+into memory. 
+Instead, just type the package name followed by two colons before the function name.
+This is often a simple way to optimize your code.
+See the following:
+
 ```{r, message = FALSE, warning = FALSE, fig.align='center'}
-# If we just need one function from a package, we do not have to load the whole package
-# into memory. This is often a simple way to optimize your code. 
-# Instead, just type the package name followed by two colons before the function name
 gplots::heatmap.2(as.matrix(fish), distfun = function(x) vegdist(x, method = "bray"),
           hclustfun = function(x) hclust(x, method = "ward.D2"), 
           col = viridis, trace = "none", density.info = "none")
 ```
-
 
 ### C.  Ordination
 The primary aim of ordination is to represent multiple objects in a reduced number of orthogonal (i.e., independent) axes.
@@ -435,8 +430,6 @@ These coordinates reflect the strength and direction that each species has on th
 ```{r pcoalayer2, message = FALSE, warning = FALSE, echo=-c(1:16), fig.width=6, fig.height=4, fig.align='center'}
 <<pcoalayer1>>
 # This first line <<pcoalayer1>> is calling the plot from the previous R chunk
-
-require("BiodiversityR")
 
 # First we calculate the relative abundances of each species at each site
 fishREL <- fish
@@ -563,14 +556,14 @@ ordiplot(doubs.dbrda)
 ```
 
 It looks like many of our environmental variables are highly correlated with one another (try `psych::corr.test(env.chem)` to check for pairwise correlations) and could lead to model overfitting. 
-Let's use model selection to let R add/remove explanatory variables for us until it finds the model with the lowest AIC value (indicating a good model that uses fewer parameters).
+Let's use model selection to let R add and remove explanatory variables for us until it finds the model with the lowest AIC value (indicating a good model that uses fewer parameters). 
 
 ```{r, results="hide", message = FALSE, fig.show="hide"}
 # First, we will model only the intercept
 doubs.dbrda.mod0 <- dbrda(fish.db ~ 1, as.data.frame(env.chem))
 
 # Note there are no vectors here (we didn't constrain anything) 
-# so the axes suggest this is a simple MDS (i.e., PCoA)
+# Therefore, the axes suggest this is a simple MDS (i.e., PCoA)
 ordiplot(doubs.dbrda.mod0) 
 
 # Next, we will model the full model, with all explanatory variables
@@ -638,7 +631,7 @@ We have shown that spatial variation in fish community structure in the Doubs Ri
 However, the environmental variables also vary across space. 
 A major question in the study of $\beta$-diversity is whether variation in community structure is more strongly driven by changes in underlying environmental variables (after controlling for spatial variation in those variables), by changes in spatial position alone (after controlling for environmental variation), or by spatially structured environmental variation.
 A common approach to answering these types of questions is to use variation partitioning, which determines the amount of variation in a response variable that can be explained by two or more explanatory matrices, jointly and independently. 
-For more detailed explanation of the application of variation partition in ecology, see Borcard et al. (1992), Legendre et al. (2005), and Peres-Neto et al. (2006).
+For a more detailed explanation of the application of variation partition in ecology, see Borcard et al. (1992), Legendre et al. (2005), and Peres-Neto et al. (2006).
 
 Here, we will perform variation partitioning using two constrained ordinations (by space and by environment) and two partial constrained ordinations (by space controlling for environment and by environment controlling for space).
 
@@ -694,6 +687,7 @@ space.mod <- model.matrix(~ PCNM2 + PCNM3 + PCNM5 + PCNM1 +
 Now we wish to determine the independent and joint explanatory power of the environmental and spatial datasets using variation partitioning.
 To do so, we will perform **partial constrained ordination**, which requires a second explanatory matrix.
 We will control for the effects of one explanatory matrix on the other using `Condition()` in the model formula. 
+
 ```{r, results = "hide", message=FALSE}
 # First conduct constrained ordinations
 doubs.total.env <- dbrda(fish.db ~ env.mod)
@@ -710,7 +704,7 @@ permutest(doubs.total.env, permutations = 999)
 permutest(doubs.total.space, permutations = 999)
 ```
 
-Now, we need to calculate the fractions of variation explained by space alone, environment alone, both space and environment, and neither space nor environment. Here, we will use the `varpart()` function from `vegan`. A more detailed explanation of how the constrained and partial constrained ordinations are being used to calculate each component of explained variation can be found in the APPENDIX.
+Now, we need to calculate the fractions of variation explained by space alone, environment alone, both space and environment, and neither space nor environment. Here, we will use the `varpart()` function from `vegan`. A more detailed explanation of how the constrained and partial constrained ordinations are being used to calculate each component of explained variation can be found in the APPENDIX. 
 
 ```{r, results="hide", fig.align='center', fig.height=4, fig.width=4}
 # Using the built-in varpart() function
@@ -744,9 +738,9 @@ The conversion between similarity and dissimilarity is calculated as `D = 1 - S`
 
 ### Incidence-based & null model approaches to beta-diversity
 
-There is a long and entertaining history of the use of species distribution patterns for interpretting community assembly mechanisms. These have been recently summarized by Sanderson and Pimm (2015). In 1975, Jared Diamond proposed that patterns of mutual exclusion in overlapping species distributions (i.e., "checkerboard patterns") suggested an important role for competition in community assembly, and led him to postulate what later became known as "Assembly Rules". This suggestion was immediately followed by criticism by Connor and Simberloff (1979), who suggested that Diamond's patterns could have been observed merely by chance alone. This exchange initiated a heated debate in the early 1980s on the importance of null models for interpreting ecological patterns (e.g., see Strong et al. 1984). While debate over the interpretation of checkerboard distributions lives on (Connor et al. 2013), the importance of this debate is primarily its role in introducing the **use of null models in ecology**. To learn more about null models in ecology, see Harvey et al. (1984), Connor and Simberloff (1986), Gotelli and Graves (1996), and many papers since by Nicholas J. Gotelli (e.g., 2000, 2001). 
+There is a long and entertaining history of the use of species distribution patterns for interpretting community assembly mechanisms. These have been recently summarized by Sanderson and Pimm (2015). In 1975, Jared Diamond proposed that patterns of mutual exclusion in overlapping species distributions (i.e., "checkerboard patterns") suggested an important role for competition in community assembly, and led him to postulate what later became known as "Assembly Rules". This suggestion was immediately followed by criticism by Connor and Simberloff (1979), who suggested that Diamond's patterns could have been observed merely by chance alone. This exchange initiated a heated debate in the early 1980s on the importance of null models for interpreting ecological patterns (e.g., see Strong et al. 1984). While debate over the interpretation of checkerboard distributions lives on (e.g., Connor et al. 2013), the importance of this debate is primarily its role in introducing the **use of null models in ecology**. To learn more about null models in ecology, see Harvey et al. (1984), Connor and Simberloff (1986), Gotelli and Graves (1996), and many papers since by Nicholas J. Gotelli (e.g., 2000, 2001). 
 
-One approach to using incidence patterns has been called the Elements of Metacommunity Structure (Leibold and Mikkelson (2002) and expanded by Presley et al. (2010)). Using patterns of species incidence, this approach attempts to characterize the distributions of species in a group of sites as being random distributions (i.e., not distinguishable from the null model), checkerboard, Gleasonian (i.e., species respond individually to underlying gradients), Clementsian (i.e., discrete communities exist along gradients), evenly spaced, or nested subsets (i.e. site assemblages consist of subsets of other, more diverse sites). With some caveats (e.g., see Werner and Gotelli 2013), this simple, decision-tree analysis of patterns can be informative with additional context. The `metacom` package performs these analyses. In addition, the `betapart` package partitions beta diversity into its turnover and nestedness components to determine whether patterns of beta diversity are due to replacement (i.e., turnover) or changes in species richness (i.e., sites are nested subsets of other sites) (Baselga et al. 2012).
+One approach to using incidence patterns has been called the Elements of Metacommunity Structure ((Leibold and Mikkelson 2002) and expanded by Presley et al. (2010)). Using patterns of species incidence, this approach attempts to characterize the distributions of species in a group of sites as being random distributions (i.e., not distinguishable from the null model), checkerboard, Gleasonian (i.e., species respond individually to underlying gradients), Clementsian (i.e., discrete communities exist along gradients), evenly spaced, or nested subsets (i.e. site assemblages consist of subsets of other, more diverse sites). With some caveats (e.g., see Werner and Gotelli 2013), this simple, decision-tree analysis of patterns can be informative with additional context. The `metacom` package performs these analyses. In addition, the `betapart` package partitions beta diversity into its turnover and nestedness components to determine whether patterns of beta diversity are due to replacement (i.e., turnover) or changes in species richness (i.e., sites are nested subsets of other sites) (Baselga et al. 2012).
 
 
 ### A Cautionary Note on Other Measures of Distance:
@@ -898,10 +892,7 @@ sum(c(pure.env, env.space, pure.space, resid.var))
 
 ```
 
-
-
-
-## References
+## REFERENCES
 Anderson, M. J. 2001. A new method for non-parametric multivariate analysis of variance. Austral Ecology 26:32-46.
 
 Anderson, M. J., T. O. Crist, J. M. Chase, M. Vellend, B. D. Inouye, A. L. Freestone, N. J. Sanders et al. 2011. Navigating the multiple meanings of $\beta$ diversity: a roadmap for the practicing ecologist. Ecology Letters 14:19-28.
@@ -962,5 +953,6 @@ Ulrich, W., and N. J. Gotelli. 2013. Pattern detection in null model analysis. O
 Wagner, H. H., and M.-J. Fortin. 2005. Spatial analysis of landscapes: concepts and statistics. Ecology 86:1975-1987.
 
 Whittaker, R. H. 1960. Vegetation of the Siskiyou Mountains, Oregon and California. Ecological Monographs 30:279-338.
-—. 1972. Evolution and measurement of species diversity. Taxon 21:213-251.
+
+Whittaker, R. H. 1972. 1972. Evolution and measurement of species diversity. Taxon 21:213-251.
 
