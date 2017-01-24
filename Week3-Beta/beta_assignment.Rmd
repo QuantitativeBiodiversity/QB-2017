@@ -41,8 +41,6 @@ In the R code chunk below, provide the code to:
 2. print your current working directory,
 3. set your working directory to your "*/Week3-Beta*" folder, and
 4. load the `vegan` R package (be sure to install if needed).  
-#####Nathan has added new way of loading packages; should be reflected here???
-##### > I would suggest probably not, seems fine just to have them load packages as they need them - NW
 
 ```{r}
 
@@ -111,7 +109,7 @@ In the R code chunk below, do the following:
 
 a.  Describe how local richness ($\alpha$) and turnover ($\beta$) contribute to regional ($\gamma$) fish diversity in the Doubs.
 b.  Is the fish assemblage at site 1 more similar to the one at site 2 or site 10?
-c.  Using your understanding of the equation $\beta_{w} = \gamma/\alpha$, how would your interpretation of $\beta$ change if we instead defined beta addititvely (i.e., $\beta = \gamma - \alpha$)?
+c.  Using your understanding of the equation $\beta_{w} = \gamma/\alpha$, how would your interpretation of $\beta$ change if we instead defined beta additively (i.e., $\beta = \gamma - \alpha$)?
 
 > ***Answer 3a***:  
 > ***Answer 3b***:  
@@ -192,7 +190,7 @@ In the R code chunk below, do the following:
 
 ```
 
-***Question 6***: Based on cluster analyses and the introdutory plots that we generated after loading the data, develop an ecological hypothesis for fish diversity the `doubs` data set? 
+***Question 6***: Based on cluster analyses and the introductory plots that we generated after loading the data, develop an ecological hypothesis for fish diversity the `doubs` data set? 
 
 > ***Answer 6***: 
 
@@ -270,7 +268,7 @@ In the code chunk below, test the hypothesis that fish community composition var
 > ***Answer 8***: 
 
 
-### B.  Mutivariate Procedures for Continuous Designs
+### B.  Multivariate Procedures for Continuous Designs
 
 ### i.  Mantel Test
 In the R code chunk below, do the following:   
@@ -293,13 +291,13 @@ In the R code chunk below, do the following:
 ### ii.  Constrained Ordination
 In the R code chunk below, do the following:  
 
-1. create an environmental matrix of the the water chemistry data included in the `doubs` dataset using forward and reverse selection of variables,
+1. create an environmental matrix of the water chemistry data included in the `doubs` dataset using forward and reverse selection of variables,
 2. conduct a redundancy analysis on the fish assemblages of the Doubs River,
 3. use a permutation test to determine the significance of the constrained analysis,
 4. use a permutation test to determine the correlation of each environmental factor on the constrained axes,
 5. calculate the explained variation on the first and second constrained axes,
 6. plot the constrained ordination results including labeled points for each site, and
-7. add vectors that demonstrate the influence of each environmental factor the the constrained ordination.   
+7. add vectors that demonstrate the influence of each environmental factor the constrained ordination.   
 
 ```{r}
 
