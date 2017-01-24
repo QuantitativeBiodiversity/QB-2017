@@ -1,7 +1,7 @@
 ---
 title: "Handout: Among Site (Beta) Diversity"
 author: "Z620: Quantitative Biodiversity, Indiana University"
-date: "January 27, 2016"
+date: "January 27, 2017"
 header-includes:
    - \usepackage{array}
 output: pdf_document
@@ -736,7 +736,7 @@ The conversion between similarity and dissimilarity is calculated as `D = 1 - S`
 
 ### Incidence-based & null model approaches to beta-diversity
 
-There is a long and entertaining history of the use of species distribution patterns for interpretting community assembly mechanisms. These have been recently summarized by Sanderson and Pimm (2015). In 1975, Jared Diamond proposed that patterns of mutual exclusion in overlapping species distributions (i.e., "checkerboard patterns") suggested an important role for competition in community assembly, and led him to postulate what later became known as "Assembly Rules". This suggestion was immediately followed by criticism by Connor and Simberloff (1979), who suggested that Diamond's patterns could have been observed merely by chance alone. This exchange initiated a heated debate in the early 1980s on the importance of null models for interpreting ecological patterns (e.g., see Strong et al. 1984). While debate over the interpretation of checkerboard distributions lives on (e.g., Connor et al. 2013), the importance of this debate is primarily its role in introducing the **use of null models in ecology**. To learn more about null models in ecology, see Harvey et al. (1984), Connor and Simberloff (1986), Gotelli and Graves (1996), and many papers since by Nicholas J. Gotelli (e.g., 2000, 2001). 
+There is a long and entertaining history of the use of species distribution patterns for interpreting community assembly mechanisms. These have been recently summarized by Sanderson and Pimm (2015). In 1975, Jared Diamond proposed that patterns of mutual exclusion in overlapping species distributions (i.e., "checkerboard patterns") suggested an important role for competition in community assembly, and led him to postulate what later became known as "Assembly Rules". This suggestion was immediately followed by criticism by Connor and Simberloff (1979), who suggested that Diamond's patterns could have been observed merely by chance alone. This exchange initiated a heated debate in the early 1980s on the importance of null models for interpreting ecological patterns (e.g., see Strong et al. 1984). While debate over the interpretation of checkerboard distributions lives on (e.g., Connor et al. 2013), the importance of this debate is primarily its role in introducing the **use of null models in ecology**. To learn more about null models in ecology, see Harvey et al. (1984), Connor and Simberloff (1986), Gotelli and Graves (1996), and many papers since by Nicholas J. Gotelli (e.g., 2000, 2001). 
 
 One approach to using incidence patterns has been called the Elements of Metacommunity Structure ((Leibold and Mikkelson 2002) and expanded by Presley et al. (2010)). Using patterns of species incidence, this approach attempts to characterize the distributions of species in a group of sites as being random distributions (i.e., not distinguishable from the null model), checkerboard, Gleasonian (i.e., species respond individually to underlying gradients), Clementsian (i.e., discrete communities exist along gradients), evenly spaced, or nested subsets (i.e. site assemblages consist of subsets of other, more diverse sites). With some caveats (e.g., see Werner and Gotelli 2013), this simple, decision-tree analysis of patterns can be informative with additional context. The `metacom` package performs these analyses. In addition, the `betapart` package partitions beta diversity into its turnover and nestedness components to determine whether patterns of beta diversity are due to replacement (i.e., turnover) or changes in species richness (i.e., sites are nested subsets of other sites) (Baselga et al. 2012).
 
@@ -901,7 +901,7 @@ Blanchet, F. G., P. Legendre, and D. Borcard. 2008. Forward selection of spatial
 
 Borcard, D., F. Gillet, and P. Legendre. 2011, Numerical Ecology with R, Springer.
 
-Borcard, D., and P. Legendre. 2002. All-scale spatial analysis of ecological data by means of principal coordinates of neighbour matrices. Ecological Modelling 153:51-68.
+Borcard, D., and P. Legendre. 2002. All-scale spatial analysis of ecological data by means of principal coordinates of neighbour matrices. Ecological Modeling 153:51-68.
 
 Borcard, D., P. Legendre, C. Avois-Jacquet, and H. Tuomisto. 2004. Dissecting the spatial structure of ecological data at multiple scales. Ecology 85:1826-1832.
 
@@ -911,7 +911,7 @@ Dale, M. R. T., and M. J. Fortin. 2014, Spatial Analysis: A Guide for Ecologists
 
 De Cáceres, M., and P. Legendre. 2009. Associations between species and groups of sites: indices and statistical inference. Ecology 90:3566-3574.
 
-Dray, S., P. Legendre, and P. R. Peres-Neto. 2006. Spatial modelling: a comprehensive framework for principal coordinate analysis of neighbour matrices (PCNM). Ecological Modelling 196:483-493.
+Dray, S., P. Legendre, and P. R. Peres-Neto. 2006. Spatial modeling: a comprehensive framework for principal coordinate analysis of neighbor matrices (PCNM). Ecological Modeling 196:483-493.
 
 Dray, S., R. Pélissier, P. Couteron, M. J. Fortin, P. Legendre, P. R. Peres-Neto, E. Bellier et al. 2012. Community ecology in the age of multivariate multiscale spatial analysis. Ecological Monographs 82:257-275.
 
