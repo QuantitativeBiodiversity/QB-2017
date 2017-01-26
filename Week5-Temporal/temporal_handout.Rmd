@@ -20,13 +20,13 @@ We will review ecological concepts such as community turnover/ temporal beta div
 ```{r, results = 'hide'}
 rm(list=ls()) 
 getwd() 
-setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week5-Temporal/") 
+#setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week5-Temporal/") 
 ```
 
 ### Install Packages
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
-package.list <- c('vegan', 'ade4', 'viridis', 'gplots', 'BiodiversityR', 'indicspecies')
+package.list <- c('vegan', 'tidyr', 'dplyr', 'codyn', 'ggplot', 'cowplot')
 for (package in package.list) {
   if (!require(package, character.only=T, quietly=T)) {
     install.packages(package)
@@ -40,11 +40,30 @@ for (package in package.list) {
 We will start by using the long-term monitoring dataset of rodents from the Chihuahuan Desert ecosystem near Portal, Arizona.
 
 ```{r}
-portal <- read.table("data/Portal_rodents_19772002.csv", sep = ",", header = TRUE)
+portal <- read.table("data/combined.csv", sep = ",", header = TRUE)
 ```
 
 ## 3) MANAGING AND MANIPULATING DATA
--- using tidyr, dplyr or whatever to subset data for time-by-site-spp matrix
+```{r}
+# combine dates into one column
+portal <- unite(portal, col = date, c(year, month, day), sep = "-", remove = FALSE)
+
+# combine species into one column
+portal <- unite(portal, col = taxon, c(genus, species), sep = "_", remove = FALSE)
+
+# Create the time-by-species matrix
+time.by.species <- group_by(portal, date) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
+time.by.species <- as.data.frame(time.by.species)
+head(time.by.species)
+
+# make column 1 the row names
+rownames(time.by.species) <- time.by.species[,1]
+time.by.species <- time.by.species[,-c(1,2)]
+head(time.by.species)
+
+dim(time.by.species)
+
+```
 
 ## 4) BASIC TIME SERIES ANALYSIS
 -- single population
@@ -64,52 +83,108 @@ http://www.statoek.wiso.uni-goettingen.de/veranstaltungen/zeitreihen/sommer03/ts
 
 ## 6) TEMPORAL BETA DIVERSITY
 
-First, we will write a function to clean the data and generate a time-by-species matrix. 
-
 ```{r}
-portal.dates <- portal[,2:4]
-portal.dates.unique <- unique(portal.dates)
+portal.richness.year <- group_by(portal, year) %>% count(taxon) %>% summarise(n())
+rich.plot <- ggplot(portal.richness.year, aes(x = year, y = `n()`, facet(`n()`))) +
+  geom_line(size = 1) + 
+  xlim(1977, 2002) + 
+  xlab("Year") + 
+  ylab("Richness")
 
-# To-do. Initialize an empty dataframe with columns for day, month, year, and each species
+plot(rich.plot)
 
-f <- function(x) {
- new.data <- portal[ which( portal$mo == x[1] & portal$dy == x[2] & portal$yr == x[3]) , ]
- species <- array(new.data$species)
- remove <- c("<NA>")
- species <- species[! species %in% remove]
- species.df <- as.data.frame(table(species))
- # append species abundances to empty dataframe, making sure to match species identity to column
- #print(as.data.frame(table(species)))
-}
+portal.species.abunds <- group_by(portal, year) %>% count(taxon)
+portal.turnover <- turnover(df = portal.species.abunds, 
+                            time.var = "year", 
+                            species.var = "taxon", 
+                            abundance.var = "n",
+                            metric = "total")
 
-test <- apply(portal.dates.unique, 1, f)
+portal.appearance <- turnover(df = portal.species.abunds, 
+                            time.var = "year", 
+                            species.var = "taxon", 
+                            abundance.var = "n",
+                            metric = "appearance")
+
+portal.disappearance <- turnover(df = portal.species.abunds, 
+                            time.var = "year", 
+                            species.var = "taxon", 
+                            abundance.var = "n",
+                            metric = "disappearance")
+portal.turnover$metric<-"total"
+names(portal.turnover)[1]="turnover"
+  
+portal.appearance$metric<-"appearance"
+names(portal.appearance)[1]="turnover"
+  
+portal.disappearance$metric<-"disappearance"
+names(portal.disappearance)[1]="turnover"
+  
+portal.allturnover<-rbind(portal.turnover, portal.appearance, portal.disappearance)
+names(portal.allturnover)[2] <- "year"
+
+turn.plot <- ggplot(portal.allturnover, aes(x = year, y = turnover, color = metric)) +
+  geom_line(size = 1, show.legend = F) + 
+  xlim(1977, 2002) + 
+  xlab("Year") + 
+  ylab("Turnover")
+plot(turn.plot)
+
+
+
+portal.rankshift <- rank_shift(df = portal.species.abunds, 
+                               time.var = "year",
+                               species.var = "taxon",
+                               abundance.var = "n")
+portal.rankshift$year <- as.numeric(substr(portal.rankshift$year_pair, 6, 9))
+
+rankshift.plot <- ggplot(portal.rankshift, aes(x = year, y = MRS)) + 
+  geom_line(size = 1) + 
+  xlim(1977, 2002) + 
+  xlab("Year") + 
+  ylab("Mean Rank Shift")
+
+
+
+# Check out help(rate_change_interval) and note that this function calculates the 
+# Euclidean distance between each site. Remember, this is not an ideal distance.
+# Let's use an appropriate transformation on the abundances first.
+
+# let's cound the total abundances in each year (i.e., rowsum)
+total.abunds <- portal.species.abunds %>% group_by(year) %>% count(wt = n)
+
+# Now, let's join these total counts with the counts for each species
+portal.hellinger.transf <- inner_join(portal.species.abunds, total.abunds, by = "year") %>% 
+  mutate(hellinger.transf = sqrt(n / nn))
+
+# Now, we have a third column, the square root of the relative abundances, the hellinger transformation
+# calculating the euclidean distance on Hellinger-transformed data is appropriate.
+portal.change.int <- rate_change_interval(portal.hellinger.transf,
+                     time.var = "year",
+                     species.var = "taxon",
+                     abundance.var = "hellinger.transf")
+
+rate.plot <- ggplot(portal.change.int, aes(interval, distance)) + 
+  geom_point() + 
+  stat_smooth(method = "loess", se = F, size = 1) + 
+  ylab("Hellinger Distance") + 
+  xlab("Time Interval (Years)")
+rate.plot
+
+turnover.grid.plot <- plot_grid(rich.plot, 
+          turn.plot, 
+          rankshift.plot,
+          rate.plot,
+          labels = c("A", "B", "C", "D"), 
+          nrow = 4, align = "v")
+
+ggsave("fig-turnover-grid.png", turnover.grid.plot,
+       width = 6, height = 10, units = "in")
+graphics.off()
+grid::grid.raster(png::readPNG("fig-turnover-grid.png"))
+
 ```
 
-Here's another, perhaps easier though less obvious way to create the site-by-time matrix
-```{r}
-require(tidyr)
-require(dplyr)
-
-# combine dates into one column
-portal <- unite(portal, col = date, c(yr, mo, dy), sep = "-")
-
-# Create the site-by-time matrix
-time.by.species <- group_by(portal, date) %>% count(species) %>% spread(key = species, value = n, fill = 0)
-time.by.species <- as.data.frame(time.by.species)
-head(time.by.species)
-
-# make column 1 the row names
-rownames(time.by.species) <- time.by.species[,1]
-time.by.species <- time.by.species[,-c(1,2)]
-head(time.by.species)
-ncol(time.by.species)
-
-# remove column of NAs and empty rows
-time.by.species <- time.by.species[,-48]
-time.by.species <- time.by.species[-which(rowSums(time.by.species) == 0),]
-
-time.by.species
-```
 
 ## 7) SYNCHRONY, or covarying species; perhaps stability, compensatory dynamics, or variance ratio?
 http://onlinelibrary.wiley.com/doi/10.1111/2041-210X.12188/epdf
