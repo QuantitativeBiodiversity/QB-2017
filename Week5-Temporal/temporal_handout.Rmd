@@ -10,7 +10,9 @@ geometry: margin=2.54cm
 
 ## OVERVIEW
 
-In this exercise, we will explore aspects of temporal diversity. We will review ecological concepts such as community turnover/ temporal beta diversity and stability as well as statistical concepts such as autocorrelation. In addition, we will review statistical tools such as repeated measures ANOVA, autocorrelation-corrected regressionas well as the visualization tool of the Muller plot. 
+In this exercise, we will explore aspects of temporal diversity. We will first introduce you to the time-by-site-species matrix and how to manage this type of ecological data structure. We will then...
+
+We will review ecological concepts such as community turnover/ temporal beta diversity and stability as well as statistical concepts such as autocorrelation. In addition, we will review statistical tools such as repeated measures ANOVA, autocorrelation-corrected regressionas well as the visualization tool of the Muller plot. 
 
 ## 1) SETUP
 ### Retrieve and Set Your Working Directory
@@ -23,8 +25,14 @@ setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week5-Temporal/")
 
 ### Install Packages
 
-```{r, results = 'hide', warning=FALSE, message=FALSE}
-
+```{r, results = 'hide', message = FALSE, warning = FALSE} 
+package.list <- c('vegan', 'ade4', 'viridis', 'gplots', 'BiodiversityR', 'indicspecies')
+for (package in package.list) {
+  if (!require(package, character.only=T, quietly=T)) {
+    install.packages(package)
+    library(package, character.only=T)
+  }
+}
 ```
 
 ## 2) LOADING DATA
@@ -35,7 +43,26 @@ We will start by using the long-term monitoring dataset of rodents from the Chih
 portal <- read.table("data/Portal_rodents_19772002.csv", sep = ",", header = TRUE)
 ```
 
-## 3) VISUALIZING TURNOVER
+## 3) MANAGING AND MANIPULATING DATA
+-- using tidyr, dplyr or whatever to subset data for time-by-site-spp matrix
+
+## 4) BASIC TIME SERIES ANALYSIS
+-- single population
+-- identifying and correcting autocorrelation
+-- perhaps something from the following:
+http://www.statmethods.net/advstats/timeseries.html
+https://a-little-book-of-r-for-time-series.readthedocs.io/en/latest/
+https://cran.r-project.org/web/views/TimeSeries.html
+https://www.analyticsvidhya.com/blog/2015/12/complete-tutorial-time-series-modeling/
+http://www.stat.pitt.edu/stoffer/tsa4/R_toot.htm
+http://www.statoek.wiso.uni-goettingen.de/veranstaltungen/zeitreihen/sommer03/ts_r_intro.pdf
+
+## 5) REPEATED MEASURES ANOVA
+-- code from Megan
+-- for univariate repsonse variable
+-- perhaps revisit a diversity metric from week 2
+
+## 6) TEMPORAL BETA DIVERSITY
 
 First, we will write a function to clean the data and generate a time-by-species matrix. 
 
@@ -83,3 +110,9 @@ time.by.species <- time.by.species[-which(rowSums(time.by.species) == 0),]
 
 time.by.species
 ```
+
+## 7) SYNCHRONY, or covarying species; perhaps stability, compensatory dynamics, or variance ratio?
+http://onlinelibrary.wiley.com/doi/10.1111/2041-210X.12188/epdf
+https://cran.r-project.org/web/packages/vrtest/vrtest.pdf
+
+## 8) Using environmental drivers to explain temporal biodiversity data (univariate, multivariate, both?)
