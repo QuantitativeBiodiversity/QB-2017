@@ -18,9 +18,9 @@ We will review ecological concepts such as community turnover/ temporal beta div
 ### Retrieve and Set Your Working Directory
 
 ```{r, results = 'hide'}
-rm(list=ls()) 
-getwd() 
-#setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week5-Temporal/") 
+rm(list = ls())
+getwd()
+setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week5-Temporal/")
 ```
 
 ### Install Packages
@@ -38,17 +38,47 @@ for (package in package.list) {
 ## 2) LOADING DATA
 
 We will start by using the long-term monitoring dataset of rodents from the Chihuahuan Desert ecosystem near Portal, Arizona.
+The so-called "Portal Project" <http://portal.weecology.org/> was initiatied in the late 1970s by Jim Brown and colleagues to look at species interactions, specifically competition between rodents and ants for plant seeds.
+Initial experiments focused on removing rodents with fencing and trapping, which led to an initial increase in the ant population size as well as changes in plant species composition.
+These promising findings inspired Brown and colleagues to construct an improved experiment design that continues today. 
+The Portal Project monitors 24 replicated experimental plots, each 0.25 ha in area (50 X 50 m).
+In total, 4.8 kilometers of fencing is used in the Portal experiments!
+
+Let's take a look at the data:
 
 ```{r}
 portal <- read.table("data/combined.csv", sep = ",", header = TRUE)
 ```
 
-## 3) MANAGING AND MANIPULATING DATA
-```{r}
-# combine dates into one column
-portal <- unite(portal, col = date, c(year, month, day), sep = "-", remove = FALSE)
+There are a few things to point out about the data. 
+First, the version of the data that we are working with spans from 1977 - 2002. 
+During this period, individual rodents were captured from plots ("plot_id"), identified to species ("species_id"), which led to the creation of a "record_id" with an associated date (day, month, and year).
+In addition, the sex, size ("hindfoot_length" and "weight") and taxonomic identity ("genus" and "species") of each animal was recorded. 
+All of this was done in five experimentally replicated treatments. 
 
-# combine species into one column
+1) Controls - fencing around plots does not exclude rodents 
+2) Long-term Krat - long-term exclusion of Kangaroo rats (*Dipodomys merriami*)
+3) Short-term Krat - short-term exclusion of Kangaroo rats (*Dipodomys merriami*)
+4) Rodent Exclosure - exclusions of all rodents
+5) Spectab exclosure - exclusion of Banner-tailed kangaroo rat (*Dipodomys spectabilis*) 
+
+## 3) MANAGING AND MANIPULATING DATA
+
+The Portal Project is a great example of a long-term biodiversity project. 
+In order for such a project to be successful, the scientiss need to not only generate a lot of data, but make sure it is well organized. 
+One thing you may notice when looking at `portal` is that it has a lot of observations, almost 35,000.
+These data are entered in the *long format*, which means that, as described above, each row represents a unique observation. 
+The long format is a convenient way to enter data that reduces entry errors.
+However, you might need to manipulate the data for certain analyses. 
+For example, many R packages and functions will want you to organize your data in *wide format* where different sampling time points would be represented in columns. 
+In the following section, we will briefly demonstate how to manipulate the `portal` data set to carry out different types of analyses using function from the `dplyr` package, which was designed for transforming and summarizing tabulard data. 
+
+```{r}
+# Here, we're combining dates into one column
+portal <- unite(portal, col = date, c(month, day, year), sep = "/", remove = FALSE)
+portal$date <- as.Date(portal$date, "%m/%d/%Y")
+
+# Now let's combine taxonomic data into one column
 portal <- unite(portal, col = taxon, c(genus, species), sep = "_", remove = FALSE)
 
 # Create the time-by-species matrix
@@ -66,6 +96,19 @@ dim(time.by.species)
 ```
 
 ## 4) BASIC TIME SERIES ANALYSIS
+```{r}
+# Let's choose a control plot
+port.cont <- filter(portal, plot_id == 2)
+
+# Now let's sum the mass of all rodents collected on a given date
+summary <- port.cont %>%
+  group_by(date) %>%
+  summarize(rod.mass = sum(weight), na.rm = TRUE)
+
+# Let's take a look at the plot of rodent mass over time in the plot
+plot(rod.mass ~ date, summary, xaxt = "n", type = "l")
+```
+
 -- single population
 -- identifying and correcting autocorrelation
 -- perhaps something from the following:
