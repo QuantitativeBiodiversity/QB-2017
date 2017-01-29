@@ -18,15 +18,15 @@ We will review ecological concepts such as community turnover/ temporal beta div
 ### Retrieve and Set Your Working Directory
 
 ```{r, results = 'hide'}
-rm(list = ls())
-getwd()
-setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week5-Temporal/")
+rm(list=ls()) 
+getwd() 
+setwd("~/GitHub/QB-2017/Week5-Temporal/") 
 ```
 
 ### Install Packages
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
-package.list <- c('vegan', 'tidyr', 'dplyr', 'codyn', 'ggplot', 'cowplot')
+package.list <- c('vegan', 'tidyr', 'dplyr', 'codyn', 'ggplot2', 'cowplot', 'MullerPlot', 'RColorBrewer', 'reshape2', 'lubridate')
 for (package in package.list) {
   if (!require(package, character.only=T, quietly=T)) {
     install.packages(package)
@@ -47,7 +47,7 @@ In total, 4.8 kilometers of fencing is used in the Portal experiments!
 Let's take a look at the data:
 
 ```{r}
-portal <- read.table("data/combined.csv", sep = ",", header = TRUE)
+portal <- read.table("~/GitHub/QB-2017/Week5-Temporal/data/combined.csv", sep = ",", header = TRUE)
 ```
 
 There are a few things to point out about the data. 
@@ -94,6 +94,44 @@ head(time.by.species)
 dim(time.by.species)
 
 ```
+
+
+## 4) VISUALIZING TIME SERIES DATA 
+
+```{r}
+remove <- c("2000-4-31", "2000-9-31")
+time.by.species <- time.by.species[!rownames(time.by.species) %in% remove, ]
+
+time.by.species.T <- t(time.by.species)
+species <- rownames(time.by.species.T)
+parents <- rep(NA, each=length(species))
+
+n <- length(species)
+qual_col_pals <- brewer.pal.info[brewer.pal.info$category == 'qual',]
+col_vector <- unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+col <- sample(col_vector, n)
+
+attributes.portal <- cbind(species, parents, col) 
+class(time.by.species.T) <- "numeric" 
+long.form <- melt(time.by.species.T)
+dates <- as.vector(long.form$Var2)
+oldest <- as.Date("1977-7-16")
+
+long.form$Var4 <- as.Date(as.character(long.form$Var2)) - oldest
+
+keeps <- c("Var1", "Var4", 'value')
+long.form <- long.form[keeps]
+
+m.plot <- Muller.plot(attributes = attributes.portal, population.data = long.form,
+                      data.method = "list", time.interval.method = "linear")
+
+plot(0,0,axes = F)
+par(mar=c(0, 0, 0, 0))
+legend("right", legend = m.plot$name,col = as.character(m.plot$color),pch = 19)
+
+
+```
+
 
 ## 4) BASIC TIME SERIES ANALYSIS
 ```{r}
