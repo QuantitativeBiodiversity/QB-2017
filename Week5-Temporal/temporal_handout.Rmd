@@ -10,9 +10,14 @@ geometry: margin=2.54cm
 
 ## OVERVIEW
 
-In this exercise, we will explore aspects of temporal diversity. We will first introduce you to the time-by-site-species matrix and how to manage this type of ecological data structure. We will then...
+In this exercise, we will explore aspects of temporal diversity. Biological systems are inherently variable thorugh time.
+While some of this variation is stochastic, ecological systems can change though time because owing to abiotic drivers (e.g., rising temperature, increasing CO~2~, drought) or biological processes (e.g., invasive species, disease). 
+Biodiversity scientists may also be interested in dynamics that occur on contemporary times scales, or phenomenon that have occured over geologic time scales. 
+In this module, we will introduce you to a new ecological data structure, the time-by-site-species matrix.
+You will learn how to manage and manipulate this data structure so that you examine properties of time series data sets such as autocorrelaiton. 
+We will then move on to stasticial approaches that will allow you to appropriately test hypotheses invovling repeated measurements through time. 
+Finally, we will review ecological concepts such as community turnover and temporal beta diversity. 
 
-We will review ecological concepts such as community turnover/ temporal beta diversity and stability as well as statistical concepts such as autocorrelation. In addition, we will review statistical tools such as repeated measures ANOVA, autocorrelation-corrected regressionas well as the visualization tool of the Muller plot. 
 
 ## 1) SETUP
 ### Retrieve and Set Your Working Directory
@@ -24,6 +29,11 @@ setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week5-Temporal/")
 ```
 
 ### Install Packages
+
+We will be using several packages in this week's module. 
+Let's load them now. 
+The `require()` function in `R` returns `TRUE` if the package was successfully loaded or `FALSE` if the package failed to load. 
+This `for` loop loads each package and installs the package when `require()` returns `FALSE`.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
 package.list <- c('vegan', 'tidyr', 'dplyr', 'codyn', 'ggplot2', 'cowplot', 'MullerPlot', 'RColorBrewer', 'reshape2', 'lubridate')
@@ -37,12 +47,12 @@ for (package in package.list) {
 
 ## 2) LOADING DATA
 
-We will start by using the long-term monitoring dataset of rodents from the Chihuahuan Desert ecosystem near Portal, Arizona.
+To learn about topics of temporal biodiversity, we will be using the long-term monitoring dataset of rodents from the Chihuahuan Desert ecosystem near Portal, Arizona.
 The so-called "Portal Project" <http://portal.weecology.org/> was initiatied in the late 1970s by Jim Brown and colleagues to look at species interactions, specifically competition between rodents and ants for plant seeds.
-Initial experiments focused on removing rodents with fencing and trapping, which led to an initial increase in the ant population size as well as changes in plant species composition.
-These promising findings inspired Brown and colleagues to construct an improved experiment design that continues today. 
+Early experiments focused on removing rodents with fencing and trapping, which led to an increase in the ant population size as well as changes in plant species composition.
+These findings inspired Brown and colleagues to construct an improved experimental design that continues today. 
 The Portal Project monitors 24 replicated experimental plots, each 0.25 ha in area (50 X 50 m).
-In total, 4.8 kilometers of fencing is used in the Portal experiments!
+In total, 4.8 kilometers of fencing is used in the Portal experiment!
 
 Let's take a look at the data:
 
@@ -50,8 +60,7 @@ Let's take a look at the data:
 portal <- read.table("data/combined.csv", sep = ",", header = TRUE)
 ```
 
-There are a few things to point out about the data. 
-First, the version of the data that we are working with spans from 1977 - 2002. 
+The version of the data that we are working with spans from 1977 - 2002. 
 During this period, individual rodents were captured from plots ("plot_id"), identified to species ("species_id"), which led to the creation of a "record_id" with an associated date (day, month, and year).
 In addition, the sex, size ("hindfoot_length" and "weight") and taxonomic identity ("genus" and "species") of each animal was recorded. 
 All of this was done in five experimentally replicated treatments. 
@@ -65,13 +74,14 @@ All of this was done in five experimentally replicated treatments.
 ## 3) MANAGING AND MANIPULATING DATA
 
 The Portal Project is a great example of a long-term biodiversity project. 
-In order for such a project to be successful, the scientiss need to not only generate a lot of data, but make sure it is well organized. 
+The success of the Portal Project is based not only on the generation of a lot of data, but also the organization and proper management of the data. 
 One thing you may notice when looking at `portal` is that it has a lot of observations, almost 35,000.
-These data are entered in the *long format*, which means that, as described above, each row represents a unique observation. 
+These data are entered in *long format*, which means that, as described above, each row represents a unique observation. 
 The long format is a convenient way to enter data that reduces entry errors.
 However, you might need to manipulate the data for certain analyses. 
 For example, many R packages and functions will want you to organize your data in *wide format* where different sampling time points would be represented in columns. 
-In the following section, we will briefly demonstate how to manipulate the `portal` data set to carry out different types of analyses using function from the `dplyr` package, which was designed for transforming and summarizing tabulard data. 
+In the following sections, we will demonstate how to manipulate the `portal` data set to carry out different types of analyses using function from the `dplyr` and `tidyr` packages, which were designed for transforming and summarizing tabular data.
+The functions contained in these two packages (and others) are generally thought to be preferred ways for manipulating data in R compared to other control-flow statements that are commonly used in programming (e.g., for loops)
 
 ```{r}
 # Here, we're combining dates into one column
