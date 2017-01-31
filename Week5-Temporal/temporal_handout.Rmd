@@ -20,7 +20,7 @@ We will review ecological concepts such as community turnover/ temporal beta div
 ```{r, results = 'hide'}
 rm(list=ls()) 
 getwd() 
-setwd("~/GitHub/QB-2017/Week5-Temporal/") 
+setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week5-Temporal/") 
 ```
 
 ### Install Packages
@@ -47,7 +47,7 @@ In total, 4.8 kilometers of fencing is used in the Portal experiments!
 Let's take a look at the data:
 
 ```{r}
-portal <- read.table("~/GitHub/QB-2017/Week5-Temporal/data/combined.csv", sep = ",", header = TRUE)
+portal <- read.table("data/combined.csv", sep = ",", header = TRUE)
 ```
 
 There are a few things to point out about the data. 
@@ -56,11 +56,11 @@ During this period, individual rodents were captured from plots ("plot_id"), ide
 In addition, the sex, size ("hindfoot_length" and "weight") and taxonomic identity ("genus" and "species") of each animal was recorded. 
 All of this was done in five experimentally replicated treatments. 
 
-1) Controls - fencing around plots does not exclude rodents 
-2) Long-term Krat - long-term exclusion of Kangaroo rats (*Dipodomys merriami*)
-3) Short-term Krat - short-term exclusion of Kangaroo rats (*Dipodomys merriami*)
-4) Rodent Exclosure - exclusions of all rodents
-5) Spectab exclosure - exclusion of Banner-tailed kangaroo rat (*Dipodomys spectabilis*) 
+1) Controls - fencing around plots does not exclude rodents (plot_id: 2, 4, 8, 11, 12, 14, 17, 22)
+2) Long-term Krat - long-term exclusion of Kangaroo rats (*Dipodomys merriami*) (plot_id: 3, 15, 19, 21)
+3) Short-term Krat - short-term exclusion of Kangaroo rats (*Dipodomys merriami*) (plot_id: 6, 13, 18, 20)
+4) Rodent Exclosure - exclusions of all rodents (plot_id: 5, 7, 10, 16, 23, 24)
+5) Spectab exclosure - exclusion of Banner-tailed kangaroo rat (*Dipodomys spectabilis*) (plot_id: 1, 9) 
 
 ## 3) MANAGING AND MANIPULATING DATA
 
@@ -75,24 +75,72 @@ In the following section, we will briefly demonstate how to manipulate the `port
 
 ```{r}
 # Here, we're combining dates into one column
-portal <- unite(portal, col = date, c(month, day, year), sep = "/", remove = FALSE)
-portal$date <- as.Date(portal$date, "%m/%d/%Y")
+portal <- unite(portal, col = date, c(year, month, day), sep = "-", remove = FALSE)
 
 # Now let's combine taxonomic data into one column
 portal <- unite(portal, col = taxon, c(genus, species), sep = "_", remove = FALSE)
 
 # Create the time-by-species matrix
-time.by.species <- group_by(portal, date) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
+time.by.species <- group_by(portal, year, plot_id) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
 time.by.species <- as.data.frame(time.by.species)
 head(time.by.species)
 
 # make column 1 the row names
 rownames(time.by.species) <- time.by.species[,1]
-time.by.species <- time.by.species[,-c(1,2)]
+time.by.species <- time.by.species[,-1]
 head(time.by.species)
 
-dim(time.by.species)
+# Some trials with calcuating abundance and richness
+# time.by.species <- group_by(portal, year, plot_id) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
+# filter(time.by.species, plot_id==2)
+# abundance<-rowSums(filter(time.by.species, plot_id==2)[,-c(1,2)])
+# richness<-rowSums(filter(time.by.species, plot_id==2)[,-c(1,2)]>0)
+# biomass <- group_by(portal, year, plot_id) %>% summarize(rod.mass = sum(weight), na.rm = TRUE)
+# p2<-filter(biomass, plot_id > 2)
+# plot(rod.mass ~ year, p2, xaxt = "n", type = "l")
+# 
+# port <- filter(portal, plot_id == 19)
+# site2biomass <- group_by(portal, plot_id, year) %>%
+#   summarise(
+#     sum(na.omit(weight))
+#   )
+# plot(site2biomass, type = "l")
+# plot(site2biomass[,1], site2biomass[,3])
 
+
+# Richness plots by treatment
+temp <- group_by(portal, plot_type, plot_id, year) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
+div <- vegan::diversity(temp[,-c(1:3)], metric = "richness")
+temp$div <- div
+tempdiv <- group_by(temp, plot_type, year) %>%
+  summarise(
+    mean = mean(div), 
+    sd = sd(div))
+
+plots <- ggplot(tempdiv, aes(x = year, y = mean, color = plot_type)) +
+  geom_line(size = 1, show.legend = T) + 
+  geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd), width = .1) +
+  xlim(1977, 2002) + 
+  xlab("Year") + 
+  ylab("Div")
+plot(plots)
+
+# Abundance plots by treatment
+temp <- group_by(portal, plot_type, plot_id, year) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
+div <- rowSums(temp[,-c(1:3)])
+temp$div <- div
+tempdiv <- group_by(temp, plot_type, year) %>%
+  summarise(
+    mean = mean(div), 
+    sd = sd(div)/sqrt(n()))
+
+plots <- ggplot(tempdiv, aes(x = year, y = mean, color = plot_type)) +
+  geom_line(size = 1, show.legend = T) + 
+  geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd), width = .1) +
+  xlim(1977, 2002) + 
+  xlab("Year") + 
+  ylab("Div")
+plot(plots)
 ```
 
 
@@ -108,6 +156,14 @@ parents <- rep(NA, each=length(species))
 
 n <- length(species)
 qual_col_pals <- brewer.pal.info[brewer.pal.info$category == 'qual',]
+
+
+```
+
+
+
+```{r}
+#Will's stuff
 col_vector <- unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
 col <- sample(col_vector, n)
 
@@ -225,7 +281,7 @@ rankshift.plot <- ggplot(portal.rankshift, aes(x = year, y = MRS)) +
   xlab("Year") + 
   ylab("Mean Rank Shift")
 
-
+plot(rankshift.plot)
 
 # Check out help(rate_change_interval) and note that this function calculates the 
 # Euclidean distance between each site. Remember, this is not an ideal distance.
@@ -272,3 +328,22 @@ http://onlinelibrary.wiley.com/doi/10.1111/2041-210X.12188/epdf
 https://cran.r-project.org/web/packages/vrtest/vrtest.pdf
 
 ## 8) Using environmental drivers to explain temporal biodiversity data (univariate, multivariate, both?)
+## loading and plotting precipitation data
+## perhaps take the sum rather than mean of precip below
+```{r}
+precip1 <- read.table(file = "./data/Portal_precipitation_19801989.csv", header = T, sep = ",")
+precip2 <- read.table(file = "./data/Portal_precipitation_19892002.csv", header = T, sep = ",")
+
+precip.month <- unite(precip1, col = date, c(Year, Month), sep = ".", remove = F)
+precip.month$date <- as.Date(precip.month$date, "%Y-%m")
+precip.month$date <- as.numeric(precip.month$date)
+
+precip2 <- read.table(file = "./data/Portal_precipitation_19892002.csv", header = T, sep = ",")
+precip2 <- unite(precip2, col = date, c(Year, Month, Day, Hour), sep = "-", remove = F)
+parse_date_time(precip2$date, "%y-%m-%d-%H%M")
+
+monthly.precip <- group_by(precip2, Year, Month) %>%
+  summarise(mean = mean(Precipitation))
+monthly.precip$date <- unite(monthly.precip, col = date, c(Year, Month), sep = ".")
+plot(monthly.precip$date, monthly.precip$mean)
+```
