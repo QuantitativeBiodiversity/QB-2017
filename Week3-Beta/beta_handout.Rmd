@@ -38,9 +38,9 @@ This `for` loop loads each package and installs the package when `require()` ret
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
 package.list <- c('vegan', 'ade4', 'viridis', 'gplots', 'BiodiversityR', 'indicspecies')
 for (package in package.list) {
-  if (!require(package, character.only=T, quietly=T)) {
+  if (!require(package, character.only=TRUE, quietly=TRUE)) {
     install.packages(package)
-    library(package, character.only=T)
+    library(package, character.only=TRUE)
   }
 }
 ```
