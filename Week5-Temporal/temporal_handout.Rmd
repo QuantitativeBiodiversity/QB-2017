@@ -10,9 +10,14 @@ geometry: margin=2.54cm
 
 ## OVERVIEW
 
-In this exercise, we will explore aspects of temporal diversity. We will first introduce you to the time-by-site-species matrix and how to manage this type of ecological data structure. We will then...
+In this exercise, we will explore aspects of temporal diversity. Biological systems are inherently variable thorugh time.
+While some of this variation is stochastic, ecological systems can change though time because owing to abiotic drivers (e.g., rising temperature, increasing CO~2~, drought) or biological processes (e.g., invasive species, disease). 
+Biodiversity scientists may also be interested in dynamics that occur on contemporary times scales, or phenomenon that have occured over geologic time scales. 
+In this module, we will introduce you to a new ecological data structure, the time-by-site-species matrix.
+You will learn how to manage and manipulate this data structure so that you examine properties of time series data sets such as autocorrelaiton. 
+We will then move on to stasticial approaches that will allow you to appropriately test hypotheses invovling repeated measurements through time. 
+Finally, we will review ecological concepts such as community turnover and temporal beta diversity. 
 
-We will review ecological concepts such as community turnover/ temporal beta diversity and stability as well as statistical concepts such as autocorrelation. In addition, we will review statistical tools such as repeated measures ANOVA, autocorrelation-corrected regressionas well as the visualization tool of the Muller plot. 
 
 ## 1) SETUP
 ### Retrieve and Set Your Working Directory
@@ -20,10 +25,15 @@ We will review ecological concepts such as community turnover/ temporal beta div
 ```{r, results = 'hide'}
 rm(list=ls()) 
 getwd() 
-setwd("~/GitHub/QB-2017/Week5-Temporal/") 
+setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week5-Temporal/") 
 ```
 
 ### Install Packages
+
+We will be using several packages in this week's module. 
+Let's load them now. 
+The `require()` function in `R` returns `TRUE` if the package was successfully loaded or `FALSE` if the package failed to load. 
+This `for` loop loads each package and installs the package when `require()` returns `FALSE`.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
 package.list <- c('vegan', 'tidyr', 'dplyr', 'codyn', 'ggplot2', 'cowplot', 'MullerPlot', 'RColorBrewer', 'reshape2', 'lubridate')
@@ -37,62 +47,110 @@ for (package in package.list) {
 
 ## 2) LOADING DATA
 
-We will start by using the long-term monitoring dataset of rodents from the Chihuahuan Desert ecosystem near Portal, Arizona.
+To learn about topics of temporal biodiversity, we will be using the long-term monitoring dataset of rodents from the Chihuahuan Desert ecosystem near Portal, Arizona.
 The so-called "Portal Project" <http://portal.weecology.org/> was initiatied in the late 1970s by Jim Brown and colleagues to look at species interactions, specifically competition between rodents and ants for plant seeds.
-Initial experiments focused on removing rodents with fencing and trapping, which led to an initial increase in the ant population size as well as changes in plant species composition.
-These promising findings inspired Brown and colleagues to construct an improved experiment design that continues today. 
+Early experiments focused on removing rodents with fencing and trapping, which led to an increase in the ant population size as well as changes in plant species composition.
+These findings inspired Brown and colleagues to construct an improved experimental design that continues today. 
 The Portal Project monitors 24 replicated experimental plots, each 0.25 ha in area (50 X 50 m).
-In total, 4.8 kilometers of fencing is used in the Portal experiments!
+In total, 4.8 kilometers of fencing is used in the Portal experiment!
 
 Let's take a look at the data:
 
 ```{r}
-portal <- read.table("~/GitHub/QB-2017/Week5-Temporal/data/combined.csv", sep = ",", header = TRUE)
+portal <- read.table("data/combined.csv", sep = ",", header = TRUE)
 ```
 
-There are a few things to point out about the data. 
-First, the version of the data that we are working with spans from 1977 - 2002. 
+The version of the data that we are working with spans from 1977 - 2002. 
 During this period, individual rodents were captured from plots ("plot_id"), identified to species ("species_id"), which led to the creation of a "record_id" with an associated date (day, month, and year).
 In addition, the sex, size ("hindfoot_length" and "weight") and taxonomic identity ("genus" and "species") of each animal was recorded. 
 All of this was done in five experimentally replicated treatments. 
 
-1) Controls - fencing around plots does not exclude rodents 
-2) Long-term Krat - long-term exclusion of Kangaroo rats (*Dipodomys merriami*)
-3) Short-term Krat - short-term exclusion of Kangaroo rats (*Dipodomys merriami*)
-4) Rodent Exclosure - exclusions of all rodents
-5) Spectab exclosure - exclusion of Banner-tailed kangaroo rat (*Dipodomys spectabilis*) 
+1) Controls - fencing around plots does not exclude rodents (plot_id: 2, 4, 8, 11, 12, 14, 17, 22)
+2) Long-term Krat - long-term exclusion of Kangaroo rats (*Dipodomys merriami*) (plot_id: 3, 15, 19, 21)
+3) Short-term Krat - short-term exclusion of Kangaroo rats (*Dipodomys merriami*) (plot_id: 6, 13, 18, 20)
+4) Rodent Exclosure - exclusions of all rodents (plot_id: 5, 7, 10, 16, 23, 24)
+5) Spectab exclosure - exclusion of Banner-tailed kangaroo rat (*Dipodomys spectabilis*) (plot_id: 1, 9) 
 
 ## 3) MANAGING AND MANIPULATING DATA
 
 The Portal Project is a great example of a long-term biodiversity project. 
-In order for such a project to be successful, the scientiss need to not only generate a lot of data, but make sure it is well organized. 
+The success of the Portal Project is based not only on the generation of a lot of data, but also the organization and proper management of the data. 
 One thing you may notice when looking at `portal` is that it has a lot of observations, almost 35,000.
-These data are entered in the *long format*, which means that, as described above, each row represents a unique observation. 
+These data are entered in *long format*, which means that, as described above, each row represents a unique observation. 
 The long format is a convenient way to enter data that reduces entry errors.
 However, you might need to manipulate the data for certain analyses. 
 For example, many R packages and functions will want you to organize your data in *wide format* where different sampling time points would be represented in columns. 
-In the following section, we will briefly demonstate how to manipulate the `portal` data set to carry out different types of analyses using function from the `dplyr` package, which was designed for transforming and summarizing tabulard data. 
+In the following sections, we will demonstate how to manipulate the `portal` data set to carry out different types of analyses using function from the `dplyr` and `tidyr` packages, which were designed for transforming and summarizing tabular data.
+The functions contained in these two packages (and others) are generally thought to be preferred ways for manipulating data in R compared to other control-flow statements that are commonly used in programming (e.g., for loops)
 
 ```{r}
 # Here, we're combining dates into one column
-portal <- unite(portal, col = date, c(month, day, year), sep = "/", remove = FALSE)
-portal$date <- as.Date(portal$date, "%m/%d/%Y")
+portal <- unite(portal, col = date, c(year, month, day), sep = "-", remove = FALSE)
 
 # Now let's combine taxonomic data into one column
 portal <- unite(portal, col = taxon, c(genus, species), sep = "_", remove = FALSE)
 
 # Create the time-by-species matrix
-time.by.species <- group_by(portal, date) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
+time.by.species <- group_by(portal, year, plot_id) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
 time.by.species <- as.data.frame(time.by.species)
 head(time.by.species)
 
 # make column 1 the row names
 rownames(time.by.species) <- time.by.species[,1]
-time.by.species <- time.by.species[,-c(1,2)]
+time.by.species <- time.by.species[,-1]
 head(time.by.species)
 
-dim(time.by.species)
+# Some trials with calcuating abundance and richness
+# time.by.species <- group_by(portal, year, plot_id) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
+# filter(time.by.species, plot_id==2)
+# abundance<-rowSums(filter(time.by.species, plot_id==2)[,-c(1,2)])
+# richness<-rowSums(filter(time.by.species, plot_id==2)[,-c(1,2)]>0)
+# biomass <- group_by(portal, year, plot_id) %>% summarize(rod.mass = sum(weight), na.rm = TRUE)
+# p2<-filter(biomass, plot_id > 2)
+# plot(rod.mass ~ year, p2, xaxt = "n", type = "l")
+# 
+# port <- filter(portal, plot_id == 19)
+# site2biomass <- group_by(portal, plot_id, year) %>%
+#   summarise(
+#     sum(na.omit(weight))
+#   )
+# plot(site2biomass, type = "l")
+# plot(site2biomass[,1], site2biomass[,3])
 
+
+# Richness plots by treatment
+temp <- group_by(portal, plot_type, plot_id, year) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
+div <- vegan::diversity(temp[,-c(1:3)], metric = "richness")
+temp$div <- div
+tempdiv <- group_by(temp, plot_type, year) %>%
+  summarise(
+    mean = mean(div), 
+    sd = sd(div))
+
+plots <- ggplot(tempdiv, aes(x = year, y = mean, color = plot_type)) +
+  geom_line(size = 1, show.legend = T) + 
+  geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd), width = .1) +
+  xlim(1977, 2002) + 
+  xlab("Year") + 
+  ylab("Div")
+plot(plots)
+
+# Abundance plots by treatment
+temp <- group_by(portal, plot_type, plot_id, year) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
+div <- rowSums(temp[,-c(1:3)])
+temp$div <- div
+tempdiv <- group_by(temp, plot_type, year) %>%
+  summarise(
+    mean = mean(div), 
+    sd = sd(div)/sqrt(n()))
+
+plots <- ggplot(tempdiv, aes(x = year, y = mean, color = plot_type)) +
+  geom_line(size = 1, show.legend = T) + 
+  geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd), width = .1) +
+  xlim(1977, 2002) + 
+  xlab("Year") + 
+  ylab("Div")
+plot(plots)
 ```
 
 
@@ -108,6 +166,14 @@ parents <- rep(NA, each=length(species))
 
 n <- length(species)
 qual_col_pals <- brewer.pal.info[brewer.pal.info$category == 'qual',]
+
+
+```
+
+
+
+```{r}
+#Will's stuff
 col_vector <- unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
 col <- sample(col_vector, n)
 
@@ -225,7 +291,7 @@ rankshift.plot <- ggplot(portal.rankshift, aes(x = year, y = MRS)) +
   xlab("Year") + 
   ylab("Mean Rank Shift")
 
-
+plot(rankshift.plot)
 
 # Check out help(rate_change_interval) and note that this function calculates the 
 # Euclidean distance between each site. Remember, this is not an ideal distance.
@@ -272,3 +338,22 @@ http://onlinelibrary.wiley.com/doi/10.1111/2041-210X.12188/epdf
 https://cran.r-project.org/web/packages/vrtest/vrtest.pdf
 
 ## 8) Using environmental drivers to explain temporal biodiversity data (univariate, multivariate, both?)
+## loading and plotting precipitation data
+## perhaps take the sum rather than mean of precip below
+```{r}
+precip1 <- read.table(file = "./data/Portal_precipitation_19801989.csv", header = T, sep = ",")
+precip2 <- read.table(file = "./data/Portal_precipitation_19892002.csv", header = T, sep = ",")
+
+precip.month <- unite(precip1, col = date, c(Year, Month), sep = ".", remove = F)
+precip.month$date <- as.Date(precip.month$date, "%Y-%m")
+precip.month$date <- as.numeric(precip.month$date)
+
+precip2 <- read.table(file = "./data/Portal_precipitation_19892002.csv", header = T, sep = ",")
+precip2 <- unite(precip2, col = date, c(Year, Month, Day, Hour), sep = "-", remove = F)
+parse_date_time(precip2$date, "%y-%m-%d-%H%M")
+
+monthly.precip <- group_by(precip2, Year, Month) %>%
+  summarise(mean = mean(Precipitation))
+monthly.precip$date <- unite(monthly.precip, col = date, c(Year, Month), sep = ".")
+plot(monthly.precip$date, monthly.precip$mean)
+```
