@@ -10,14 +10,13 @@ geometry: margin=2.54cm
 
 ## OVERVIEW
 
-In this exercise, we will explore aspects of temporal diversity. Biological systems are inherently variable thorugh time.
-While some of this variation is stochastic, ecological systems can change though time because owing to abiotic drivers (e.g., rising temperature, increasing CO~2~, drought) or biological processes (e.g., invasive species, disease). 
-Biodiversity scientists may also be interested in dynamics that occur on contemporary times scales, or phenomenon that have occured over geologic time scales. 
-In this module, we will introduce you to a new ecological data structure, the time-by-site-species matrix.
-You will learn how to manage and manipulate this data structure so that you examine properties of time series data sets such as autocorrelaiton. 
-We will then move on to stasticial approaches that will allow you to appropriately test hypotheses invovling repeated measurements through time. 
+In this exercise, we will explore aspects of temporal diversity. 
+Biological systems are inherently variable thorugh time.
+While some of this variation is stochastic, ecological systems can change though time owing to abiotic drivers (e.g., rising temperature, increasing CO~2~, drought) or biological processes (e.g., invasive species, disease). 
+While some biodiversity scientists may be attracted processes that occur on contemporary scales (minutes, days, weeks, years), other scientists are interested in what drives patterns of biodiversity in the fossil record over geologic time scales. 
+In this module, we will first introduce you to a new ecological data structure, the time-by-site-species matrix.
+You will learn how to manage and manipulate this data structure, while also dealing with features such as non-stationarity and non-independence that are common in time series datasets. 
 Finally, we will review ecological concepts such as community turnover and temporal beta diversity. 
-
 
 ## 1) SETUP
 ### Retrieve and Set Your Working Directory
