@@ -49,7 +49,7 @@ for (package in package.list) {
 
 To learn about topics of temporal biodiversity, we will be using the long-term monitoring dataset of rodents from the Chihuahuan Desert ecosystem near Portal, Arizona.
 The so-called "Portal Project" <http://portal.weecology.org/> was initiatied in the late 1970s by Jim Brown and colleagues to look at species interactions, specifically competition between rodents and ants for plant seeds.
-Early experiments focused on removing rodents with fencing and trapping, which led to an increase in the ant population size as well as changes in plant species composition.
+Early experiments focused on the exclusion of rodents with fencing and trapping, which led to an increase in the ant population size as well as changes in plant species composition.
 These findings inspired Brown and colleagues to construct an improved experimental design that continues today. 
 The Portal Project monitors 24 replicated experimental plots, each 0.25 ha in area (50 X 50 m).
 In total, 4.8 kilometers of fencing is used in the Portal experiment!
@@ -63,7 +63,7 @@ portal <- read.table("data/combined.csv", sep = ",", header = TRUE)
 The version of the data that we are working with spans from 1977 - 2002. 
 During this period, individual rodents were captured from plots ("plot_id"), identified to species ("species_id"), which led to the creation of a "record_id" with an associated date (day, month, and year).
 In addition, the sex, size ("hindfoot_length" and "weight") and taxonomic identity ("genus" and "species") of each animal was recorded. 
-All of this was done in five experimentally replicated treatments. 
+All of this was done in five experimentally replicated treatments: 
 
 1) Controls - fencing around plots does not exclude rodents (plot_id: 2, 4, 8, 11, 12, 14, 17, 22)
 2) Long-term Krat - long-term exclusion of Kangaroo rats (*Dipodomys merriami*) (plot_id: 3, 15, 19, 21)
@@ -74,31 +74,87 @@ All of this was done in five experimentally replicated treatments.
 ## 3) MANAGING AND MANIPULATING DATA
 
 The Portal Project is a great example of a long-term biodiversity project. 
-The success of the Portal Project is based not only on the generation of a lot of data, but also the organization and proper management of the data. 
+The success of the Portal Project is based not only on the generation of a lot of quality data, but also the organization and proper management of the data. 
 One thing you may notice when looking at `portal` is that it has a lot of observations, almost 35,000.
 These data are entered in *long format*, which means that, as described above, each row represents a unique observation. 
 The long format is a convenient way to enter data that reduces entry errors.
 However, you might need to manipulate the data for certain analyses. 
-For example, many R packages and functions will want you to organize your data in *wide format* where different sampling time points would be represented in columns. 
+For example, many R packages and functions will want you to organize your data in *wide format* where, for example, different sampling time points would be represented in columns.
+
 In the following sections, we will demonstate how to manipulate the `portal` data set to carry out different types of analyses using function from the `dplyr` and `tidyr` packages, which were designed for transforming and summarizing tabular data.
 The functions contained in these two packages (and others) are generally thought to be preferred ways for manipulating data in R compared to other control-flow statements that are commonly used in programming (e.g., for loops)
 
+First, let's use the `unite()` function from the `tidyr` package to create new columns that contain information contained in other columns. 
+
 ```{r}
-# Here, we're combining dates into one column
+# Make a date column
 portal <- unite(portal, col = date, c(year, month, day), sep = "-", remove = FALSE)
 
-# Now let's combine taxonomic data into one column
+# Make a taxon column
 portal <- unite(portal, col = taxon, c(genus, species), sep = "_", remove = FALSE)
+```
 
-# Create the time-by-species matrix
+Now, we are going to use `dplyr` to let's create the time-by-species matrix. 
+We will use a new operator called pipes (%>%). 
+Pipes allow output from one function to be used as input for another function.
+When using pipes, you use the output from the function to left to feed into the next function to the right. 
+To build the time-by-species matrix, we we also be using a `dplyr` function called `group_by`, which splits the dataset up using a single or multiple variables.
+After this, `dplyr` allow one to apply functions to the split datset using functions like `summarize()`, which can return summary statistics (e.g., mean, min, max).
+You can also use the `spread()` function from `tidyr` on the split dataset to convert a parts of a long format dataset to a wide format dataset. 
+
+```{r}
+# Make time-by-species matrix; value counts individual in a taxon
+# fill statement assigns value of 0 if there are no values for combinations
 time.by.species <- group_by(portal, year, plot_id) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
-time.by.species <- as.data.frame(time.by.species)
-head(time.by.species)
 
-# make column 1 the row names
-rownames(time.by.species) <- time.by.species[,1]
-time.by.species <- time.by.species[,-1]
-head(time.by.species)
+# Convert tidyr object to a dataframe
+time.by.species <- as.data.frame(time.by.species)
+
+# NW: Not sure what below was intended to do, but year can't be rownames because they repeat
+# Use first column of dataframe as row names
+# rownames(time.by.species) <- time.by.species[,1]
+# time.by.species <- time.by.species[,-1]
+```
+
+## 4) BASIC TIME SERIES ANALYSIS
+
+```{r}
+# Use techniques above to include monthly data for our analyses
+time.by.spec.2 <- group_by(portal, year, month, plot_id) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
+time.by.spec.2 <- as.data.frame(time.by.spec.2)
+
+# Here we calculate the abundance of rodents collected in a month from a plot
+abund <- rowSums(filter(abund.try, month, plot_id == 5)[,-c(1,2)])
+
+# Now we use the time series function to identify data, start, and frequency
+ab.ts <- ts(abund, frequency = 12, start = c(1977,7))
+
+# Let's look at the plot
+plot.ts(ab.ts)
+
+# Before more on with any time series analysies, we need to test for stationarity
+acf(ab.ts) # autocorrelation function
+pacf(ab.ts) # partial autocorrelation function
+Box.test(ab.ts, lag=10, type = "Ljung-Box") # smal p-values indicate stationarity
+
+# Some smoothing techniques for visualizing trends 
+ab.ts.sm <- SMA(ab.ts, n = 2)
+plot.ts(ab.ts.sm)
+
+# Decomose time series into trend, seasonal, and residual
+ab.comp <- decompose(ab.ts)
+plot(ab.comp)
+
+# Options for removing seasonal trend from data
+ab.adj <- ab.ts - ab.comp$seasonal
+plot(ab.adj)
+
+# Fit ARIMA model and forecast
+arm <- arima((ab.ts), c(0,1,1), seasonal = list(order = c(0,1,1), period = 12))
+pred.arm <- predict(arm, n.ahead = 10*12)
+ts.plot(ab.ts, pred.arm$pred, lty = c(1,3))
+```
+
 
 # Some trials with calcuating abundance and richness
 # time.by.species <- group_by(portal, year, plot_id) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
