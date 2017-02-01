@@ -9,17 +9,14 @@ geometry: margin=2.54cm
 --- 
 
 ## OVERVIEW
-In this exercise, we will consider alpha ($\alpha$) and beta ($\beta$) diversity in a spatial context.
-We will introduce Geographical Information Systems (GIS) to map and spatially examine environmental and biodiversity data.
+In this exercise, we will introduce Geographical Information Systems (GIS) to map and spatially examine environmental and biodiversity data.
 This will allow us to explore core concepts like spatial autocorrelation, aggregation, and scale dependence.
 
 After completing this exercise you will be able to:  
-1.  Identify primary concepts and patterns of spatial diversity.  
-2.  Examine effects of geographic distance on environmental and ecological similarity.  
-3.  Characterize aggregation of abundance across space.  
-4.  Examine the extent to which patterns of diversity depend on spatial scale.    
-5.  Use geospatial data and packages to conduct GIS operations in R.  
-6.  Use control structures such as `loops` to control how R operates on variables.
+1.  Use geospatial data and packages to conduct GIS operations in R.
+2.  Identify primary concepts and patterns of spatial diversity.  
+3.  Examine effects of geographic distance on community similarity.  
+4.  Characterize distributions of abundance across space.  
 
 ## 1.) SETUP
 ### A. Retrieve and Set Your Working Directory
@@ -27,13 +24,13 @@ After completing this exercise you will be able to:
 ```{r, results = 'hide'}
 rm(list=ls())
 getwd()
-setwd("~/GitHub/QuantitativeBiodiversity/Assignments/GeographicalEcology")
+setwd("~/GitHub/QB-2017/Week4-Spatial") 
 ```
 
 ### B. Load Packages 
 
 We will use the `vegan` package for biodiversity estimators and related functions.
-We will also use a suite of packages developed in R for geographical information systems (GIS).
+We will also use a suite of packages developed in R for geographic information systems (GIS).
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
 require(vegan)
@@ -56,18 +53,16 @@ require("gplots")
 ```
 
 ### C. Load and Compile a Large Dataset
-
 We will analyze environmental and bacterial community data from a survey of shallow ponds found east of Bloomington, IN.
 These ponds are scattered throughout Brown County State Park, Yellowood State Forest, and Hoosier National Forest.
 In the 1940s, Maury Reeves of the Indiana Department of Natural Resources began constructing refuge ponds to increase wildlife habitat.
 In the summer of 2013, we visited approximately 50 of these ponds and recorded their geographic locations using a GPS unit; 'GPS' is the acronym for Global Positioning System.
 We sampled aspects of water chemistry, physical properties, and bacterial community composition.
+
 Let's load the environmental and site-by-species data for the refuge ponds.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
 Ponds <- read.table(file = "BrownCoData/20130801_PondDataMod.csv", head = TRUE, sep = ",")
-lats <- as.numeric(Ponds[, 3]) # latitudes (north and south)
-lons <- as.numeric(Ponds[, 4]) # longitudes (east and west)
 OTUs <- read.csv(file = "BrownCoData/SiteBySpecies.csv", head = TRUE, sep = ",")
 ```
 
@@ -76,8 +71,8 @@ You should see there are 16,384 operational taxonomic units (OTUs) distributed a
 These variables include elevation (m), geographical coordinates (lat-long), temperature (C), pond diameter(m), pond depth (m), redox potential (ORP), specific conductivity or SpC (S/cm), dissolved oxygen (mg/L), total dissolved solids (g/L), salinity (p.s.u.= ppm), color - measured at absorbance = 660; an estimate of carbon in the water sample, chlorophyll *a* (g/ml), dissolved organic carbon (mg/L), dissolved organic nitrogen (mg/L), and total phosphorus (g/L).
 
 In addition to this wealth of environmental data, let's add four diversity-related columns of data to `Ponds` data set.
-These will provide basic diversity-related variables to explore with respect to geograpy and environmental conditions.
-There will be a column for richness (S), total abundance (N), Shannon's Diversity (H), and Simpson's evenness (De).
+These will provide basic diversity-related variables to explore with respect to geography and environmental conditions.
+There will be a column for richness (S), total abundance (N), Simpson's Diversity (D), and Simpson's evenness (De).
 
 ```{r}
 # To get S, we sum the number of non-zero abundances for a site
@@ -88,63 +83,71 @@ OTUs <- as.data.frame(OTUs[-1]) # remove first column (site names)
 
 Ponds$N <- as.vector(rowSums(OTUs)) # numbers of reads
 Ponds$S <- S.obs(OTUs) # number of species OTUs
-Ponds$H <- as.vector(diversity(OTUs, index = "shannon"))
+Ponds$D <- as.vector(diversity(OTUs, index = "invsimpson"))
 
 # To get De at each site, we divide Simpson's Diversity by OTU site richness
-Ponds$D <- as.vector(diversity(OTUs, index = "invsimpson")/Ponds$S)
+Ponds$De <- as.vector(diversity(OTUs, index = "invsimpson")/Ponds$S)
 ```
-
-**Now we have a large compilation of geographical, environmental, and biodiversity data. Let's do some spatial diversity!**
 
 ## 2.) MAP SAMPLES AND DATA
 First, let's visualize the spatial distribution of our samples with a basic map in RStudio.
+Creating maps has numerous, if not obvious, benefits for scientific studies.
 Let's generate a map of the refuge ponds using the `GetMap` function in the package `RgoogleMaps`.
 This map will be centered on Brown County, Indiana (39.1 latitude, -86.3 longitude).
 
 ```{r}
+lats <- as.numeric(Ponds[, 3]) # latitudes (north and south)
+lons <- as.numeric(Ponds[, 4]) # longitudes (east and west)
+
 newmap <- GetMap(center = c(39.1,-86.3), zoom = 10, 
                  destfile = "PondsMap.png", maptype="terrain")
 PlotOnStaticMap(newmap, zoom = 10, cex = 2, col = 'blue') # Plot map in RStudio
 PlotOnStaticMap(newmap, lats, lons, cex = 1, pch = 20, col = 'red', add = TRUE)
 ```
 
-This map displays a lot of useful information that we otherwise, would not have been aware of. 
-For example, all points are on State or National Forest land. 
-Likewise, the sampled ponds appear to be aggregated in four or five small groups and distributed across a topographically complex area.
+This map displays useful information that we otherwise, would not have been aware of. 
+First, all points are located near Bloomington, IN and are located on State land.
+Second, the sampled ponds appear to be aggregated in four or five small groups and are distributed across a *topographically* complex area.
 
-Despite being a fast way to contextualize our sample ponds within the broader landscape, the Google map misses a lot of information that would otherwise help us to understand the environmental and geographical factors that may coincide with our observations on diversity.
-Likewise, because the Google map is only an image, it does not contain any extractable environmental or geographic data.
+Despite being a fast way to contextualize our sample ponds within the broader landscape and a neat way to connect R with the internet, the Google map misses a lot of information that would otherwise help us to understand the environmental and geographical factors that may coincide with our observations on diversity.
+Most importantly, because the Google map is only an image, it does not contain any extractable environmental or geographic data.
 
 For spatially explicit data on environmental and geographic features, i.e., geospatial data, we can turn to one of the many freely accessible online GIS databases and warehouses.
-Here, we will use the high quality geospatial data on Indiana water bodies and percent landcover.
+Here, we will use a high quality geospatial data on Indiana water bodies and percent landcover.
 We obtained these data 'layers' from the **IndianaMap** geographical layer gallery: http://maps.indiana.edu/layerGallery.html.
 
+You will also see that we'll be importing and using special data files called raster files and shapefiles. These are the two primary forms of geospatial files. Raster files are characterized by pixels, each of which contains recorded data (e.g., elevation, landcover). Shapefiles are characterized by points, lines, and polygons, and contain the shapes and locations of rivers, lakes, highways, boundaries, and any other geographical feature that is represented as a shape.
+
+Now, let's build a map by combining lat-long data from our ponds with land cover data and data on the locations and shapes of surrounding water bodies.
+
 ```{r}
-Land.Cover <- raster("LandCover/LandCover.tif")
+Land.Cover <- raster("LandCover/LandCover.tif") # import LandCover.tif as a raster file.
 plot(Land.Cover, xlab = 'Longitude', ylab = 'Latitude', 
   main = 'Map of geospatial data for % land cover,\nwater bodies, and sample sites')
 
-Water.Bodies <- readShapeSpatial("water/water.shp")
+Water.Bodies <- readShapeSpatial("water/water.shp") # import water bodies as a shapefile.
 plot(Water.Bodies, border='cyan', axes = TRUE, add = TRUE)
 
-Refuge.Ponds <- SpatialPoints(cbind(lons, lats))
+Refuge.Ponds <- SpatialPoints(cbind(lons, lats)) # convert lat-long data for ponds to georeferenced points. 
 plot(Refuge.Ponds, line='r', col='red', pch = 20, cex = 1.5, add = TRUE)
 ```
 
-Note, that the percent land cover, water bodies, and points for refuge ponds are in spatial agreement, i.e., there is no obvious mis-alignment.
-That is because we have previously modified each layer to have the same *datum*, *projection*, and nearly the same *extent*.
+Note, that the percent land cover, water bodies, and points for refuge ponds are in spatial agreement, i.e., there is no mis-alignment of data layers.
+That is because each layer was previously modified to have the same *datum* (model for Earth's shape) and *projection* (the way in which coordinates on a sphere are projected onto a 2-D surface).
+datums and projections are fundamental to making maps and geospatial analysis.
 
 **See the GLOSSARY at the end of this document for basic definitions of these and other GIS terms.**
 
 Working with geospatial data can be challenging because there is so much information involved with correctly identifying where on Earth something occurs and because there are many ways to represent points on a globe with a 2-dimensional surface, i.e., a map.
-But, whether it's data on temperature, elevation, soils, geology, human demographics, ecoregions, etc., diverse data can be found among the many GIS warehouses.
+In fact, there are several datum's and projections reflecting continued efforts to refine our ability to georeference locations on Earth and translate them to 2-D coordinates.
+But, whether it's data on temperature, elevation, soils, geology, human demographics, ecoregions, etc., diverse data can be found among the many online and free available GIS warehouses.
 Here are a few:
 1) USGS: http://viewer.nationalmap.gov/viewer/
 2) State organizations: http://www.indianamap.org/resources.php
 3) USDA: http://datagateway.nrcs.usda.gov/
 
 ## 3. PRIMARY CONCEPTS AND PATTERNS
-Having imported our primary community and environmental data from the refuge ponds, as well as having obtained a wealth of geospatial data from online sources, we are now ready to make a data intensive exploration into primary concepts and patterns of geographical ecology.
+Having explored R as a geographical environment and having imported our primary community and environmental data from the refuge ponds, we are now ready to explore primary concepts and patterns of spatial diversity.
 
 ## A. Spatial Autocorrelation
 **Tobler's first law of geography** states that "Everything is related to everything else, but near things are more related than distant things" (Tobler 1970).
@@ -463,6 +466,18 @@ However, for more than a decade it was believed that the SAR of bacteria and oth
 ## GLOSSARY
 Because you may not be familiar with geographical systems and spatial analyses, we provide a few key terms to help you quickly get up to speed.
 
+**latitude:**
+
+**longitude:**
+
+**lat-long:**
+
+**Universal transverse mercator (UTM)**:
+
+**NAD83:**
+
+**WGS84:**
+
 **datum:**
 
 **projection:**
@@ -470,6 +485,11 @@ Because you may not be familiar with geographical systems and spatial analyses, 
 **spatial:** Relating to one or more dimensions of space resulting in aspects of distance, area, and volume
 
 **geographical:** Relating to physical, environmental, and biological features that closely follow spatial patterns 
+
+**geospatial:** 
+
+**georeferenced:**
+
 
 **scale:** The resolution that characterizes an observation or study, and that results from a relationship between extent and grain
 
@@ -484,6 +504,8 @@ Because you may not be familiar with geographical systems and spatial analyses, 
 **raster file:** The other primary geographical file format. Raster files contain highly pixelated information on specific points or precise locations, e.g., elevation data.
 
 **land cover:** The physical material at the surface of the earth and includes grass, asphalt, trees, bare ground, water, etc. Landcover gives us some of the most precise accounting for what general environments occupy large expanses of geographic areas.
+
+**topography:** 
 
 
 ## REFERENCES
