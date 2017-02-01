@@ -102,14 +102,14 @@ We will use a new operator referred to as "pipes" (%>%).
 Pipes allow output from one function to be used as input for another function.
 When using pipes, you use the output from the function to left to feed it into the next function to the right. 
 
-
-To build the time-by-species matrix, we we also be using a `dplyr` function called `group_by`, which splits the dataset up using a single or multiple variables.
-After this, `dplyr` allow one to apply functions to the split datset using functions like `summarize()`, which can return summary statistics (e.g., mean, min, max).
-You can also use the `spread()` function from `tidyr` on the split dataset to convert a parts of a long format dataset to a wide format dataset. 
+To build the time-by-species matrix, we will also be using a `dplyr` function called `group_by`, which "splits" up the dataset using one or more variables.
+After this, one can apply functions to the split dataset like `summarize()`, which can return summary statistics (e.g., mean, min, max).
+You can also use the `spread()` function from `tidyr` on the split dataset to create a wide-format dataset from a long-format dataset. 
+Let's give it a try:
 
 ```{r}
-# Make time-by-species matrix; value counts individual in a taxon
-# fill statement assigns value of 0 if there are no values for combinations
+# `count` sums individuals in a taxon
+# fill argument assigns value of 0 if there are no values for a combination
 time.by.species <- group_by(portal, year, plot_id) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
 
 # Convert tidyr object to a dataframe
