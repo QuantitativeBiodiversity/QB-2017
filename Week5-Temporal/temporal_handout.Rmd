@@ -127,14 +127,26 @@ For example, we discussed autocorrelation that can arise in a spatial context,
 
 ```{r}
 # Use techniques above to include monthly data for our analyses
-time.by.spec.2 <- group_by(portal, year, month, plot_id) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
+time.by.spec.2 <- group_by(portal, year, month, plot_id) %>% count(taxon) #%>% spread(key = taxon, value = n, fill = 0)
 time.by.spec.2 <- as.data.frame(time.by.spec.2)
 
+mutate(time.by.spec.2, season= if(time.by.spec.2$month %in% c(4:10)) {"g"} else {"ng"}) 
+
+time.by.spec.2$season <- NA
+time.by.spec.2$season <- time.by.spec.2$month %in% c(4:10)
+site5.ts <- filter(time.by.spec.2, plot_id == 5) %>% group_by(year, season) %>% count(wt = n)
+
+if(time.by.spec.2$month %in% c(4:10)){
+  time.by.spec.2$season <- "g"}
+if(time.by.spec.2$month %in% c(1:3,11:12)){
+  time.by.spec.2$season <- "ng"}
+
 # Here we calculate the abundance of rodents collected in a month from a plot
-abund <- rowSums(filter(time.by.spec.2, month, plot_id == 5)[,-c(1:3)])
+abund <- rowSums(filter(time.by.spec.2, plot_id == 5)[,-c(1:3)])
 
 # Now we use the time series function to identify data, start, and frequency
 ab.ts <- ts(abund, frequency = 12, start = c(1977,7))
+ab.ts <- ts(site5.ts$nn, frequency = 2, start = c(1977,2))
 
 ###### Seems like the above function assumes regular samling intervals, but I think there are some months missing any observations, which explains why the plots that follow seem to only go up to about 1995 or so. 
 
@@ -160,7 +172,7 @@ plot(ab.adj)
 
 # Fit ARIMA model and forecast
 arm <- arima((ab.ts), c(0,1,1), seasonal = list(order = c(0,1,1), period = 12))
-pred.arm <- predict(arm, n.ahead = 10*12)
+pred.arm <- predict(arm, n.ahead = 10*2)
 ts.plot(ab.ts, pred.arm$pred, lty = c(1,3))
 ```
 
