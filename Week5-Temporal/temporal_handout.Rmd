@@ -123,6 +123,9 @@ time.by.species <- as.data.frame(time.by.species)
 
 ## 4) BASIC TIME SERIES ANALYSIS
 
+When addressing questions related to temporal biodiversity, one must beaware of important features and assumption related to time series. 
+For example, we discussed autocorrelation that can arise in a spatial context, 
+
 ```{r}
 # Use techniques above to include monthly data for our analyses
 time.by.spec.2 <- group_by(portal, year, month, plot_id) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
