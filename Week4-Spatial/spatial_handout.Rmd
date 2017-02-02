@@ -276,7 +276,7 @@ siteN
 
 As we can see, we recovered between 60,000 and 300,000 sequences per site. As a more convient and insightful way to show how abundance varies among plots, let's plot our data as an abundance distribution:
 
-```{r}
+```{r, fig.align='center'}
 par(mfrow=c(1, 1), pty="s")
 plot(density(siteN), col = 'magenta', xlab='Site abundance',
     ylab='Probability Density',  main = 'IN Ponds\nabundance distribution')
