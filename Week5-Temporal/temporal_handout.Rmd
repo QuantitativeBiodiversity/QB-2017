@@ -10,14 +10,13 @@ geometry: margin=2.54cm
 
 ## OVERVIEW
 
-In this exercise, we will explore aspects of temporal diversity. Biological systems are inherently variable thorugh time.
-While some of this variation is stochastic, ecological systems can change though time because owing to abiotic drivers (e.g., rising temperature, increasing CO~2~, drought) or biological processes (e.g., invasive species, disease). 
-Biodiversity scientists may also be interested in dynamics that occur on contemporary times scales, or phenomenon that have occured over geologic time scales. 
-In this module, we will introduce you to a new ecological data structure, the time-by-site-species matrix.
-You will learn how to manage and manipulate this data structure so that you examine properties of time series data sets such as autocorrelaiton. 
-We will then move on to stasticial approaches that will allow you to appropriately test hypotheses invovling repeated measurements through time. 
+In this exercise, we will explore aspects of temporal diversity. 
+Biological systems are inherently variable thorugh time.
+While some of this variation is stochastic, ecological systems can change though time owing to abiotic drivers (e.g., rising temperature, increasing CO~2~, drought) or biological processes (e.g., invasive species, disease). 
+While some biodiversity scientists may be attracted processes that occur on contemporary scales (minutes, days, weeks, years), other scientists are interested in what drives patterns of biodiversity in the fossil record over geologic time scales. 
+In this module, we will first introduce you to a new ecological data structure, the time-by-site-species matrix.
+You will learn how to manage and manipulate this data structure, while also dealing with features such as non-stationarity and non-independence that are common in time series datasets. 
 Finally, we will review ecological concepts such as community turnover and temporal beta diversity. 
-
 
 ## 1) SETUP
 ### Retrieve and Set Your Working Directory
@@ -36,7 +35,7 @@ The `require()` function in `R` returns `TRUE` if the package was successfully l
 This `for` loop loads each package and installs the package when `require()` returns `FALSE`.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
-package.list <- c('vegan', 'tidyr', 'dplyr', 'codyn', 'ggplot2', 'cowplot', 'MullerPlot', 'RColorBrewer', 'reshape2', 'lubridate')
+package.list <- c('vegan', 'tidyr', 'dplyr', 'codyn', 'ggplot2', 'cowplot', 'MullerPlot', 'RColorBrewer', 'reshape2', 'lubridate', 'TTR')
 for (package in package.list) {
   if (!require(package, character.only=T, quietly=T)) {
     install.packages(package)
@@ -48,9 +47,9 @@ for (package in package.list) {
 ## 2) LOADING DATA
 
 To learn about topics of temporal biodiversity, we will be using the long-term monitoring dataset of rodents from the Chihuahuan Desert ecosystem near Portal, Arizona.
-The so-called "Portal Project" <http://portal.weecology.org/> was initiatied in the late 1970s by Jim Brown and colleagues to look at species interactions, specifically competition between rodents and ants for plant seeds.
-Early experiments focused on removing rodents with fencing and trapping, which led to an increase in the ant population size as well as changes in plant species composition.
-These findings inspired Brown and colleagues to construct an improved experimental design that continues today. 
+Known as the "Portal Project" <http://portal.weecology.org/>, this biodiversity study was initiatied in the late 1970s by Jim Brown and colleagues to look at species interactions, specifically competition between rodents and ants for plant seeds.
+Early experiments focused on the exclusion of rodents with fencing and trapping, which led to an increase in the ant population size as well as changes in plant species composition.
+These findings inspired Brown and colleagues to construct an improved experiment that continues today. 
 The Portal Project monitors 24 replicated experimental plots, each 0.25 ha in area (50 X 50 m).
 In total, 4.8 kilometers of fencing is used in the Portal experiment!
 
@@ -63,42 +62,108 @@ portal <- read.table("data/combined.csv", sep = ",", header = TRUE)
 The version of the data that we are working with spans from 1977 - 2002. 
 During this period, individual rodents were captured from plots ("plot_id"), identified to species ("species_id"), which led to the creation of a "record_id" with an associated date (day, month, and year).
 In addition, the sex, size ("hindfoot_length" and "weight") and taxonomic identity ("genus" and "species") of each animal was recorded. 
-All of this was done in five experimentally replicated treatments. 
+All of this was done in five experimentally replicated treatments: 
 
-1) Controls - fencing around plots does not exclude rodents (plot_id: 2, 4, 8, 11, 12, 14, 17, 22)
-2) Long-term Krat - long-term exclusion of Kangaroo rats (*Dipodomys merriami*) (plot_id: 3, 15, 19, 21)
-3) Short-term Krat - short-term exclusion of Kangaroo rats (*Dipodomys merriami*) (plot_id: 6, 13, 18, 20)
-4) Rodent Exclosure - exclusions of all rodents (plot_id: 5, 7, 10, 16, 23, 24)
+1) Controls - fencing around plots does not exclude rodents (plot_id: 2, 4, 8, 11, 12, 14, 17, 22) 
+
+2) Long-term Krat - long-term exclusion of Kangaroo rats (*Dipodomys merriami*) (plot_id: 3, 15, 19, 21) 
+
+3) Short-term Krat - short-term exclusion of Kangaroo rats (*Dipodomys merriami*) (plot_id: 6, 13, 18, 20) 
+
+4) Rodent Exclosure - exclusions of all rodents (plot_id: 5, 7, 10, 16, 23, 24) 
+
 5) Spectab exclosure - exclusion of Banner-tailed kangaroo rat (*Dipodomys spectabilis*) (plot_id: 1, 9) 
 
 ## 3) MANAGING AND MANIPULATING DATA
 
 The Portal Project is a great example of a long-term biodiversity project. 
-The success of the Portal Project is based not only on the generation of a lot of data, but also the organization and proper management of the data. 
+The success of the Portal Project is based not only on the generation of a lot of quality data, but also the organization and proper management of these data. 
 One thing you may notice when looking at `portal` is that it has a lot of observations, almost 35,000.
 These data are entered in *long format*, which means that, as described above, each row represents a unique observation. 
 The long format is a convenient way to enter data that reduces entry errors.
-However, you might need to manipulate the data for certain analyses. 
-For example, many R packages and functions will want you to organize your data in *wide format* where different sampling time points would be represented in columns. 
-In the following sections, we will demonstate how to manipulate the `portal` data set to carry out different types of analyses using function from the `dplyr` and `tidyr` packages, which were designed for transforming and summarizing tabular data.
-The functions contained in these two packages (and others) are generally thought to be preferred ways for manipulating data in R compared to other control-flow statements that are commonly used in programming (e.g., for loops)
+However, you need to manipulate the data for visualization and statistical analysis. 
+For example, many R packages and functions will want you to organize your data in *wide format* where, for example, different sampling time points would be represented in columns.
+
+In the following sections, we will demonstate how to manipulate the `portal` data set to carry out different types of analyses using functions from the `dplyr` and `tidyr` packages, which were designed for transforming and summarizing tabular data.
+The functions contained in these two packages (and others) are preferred ways for manipulating data in R compared to other control-flow statements that are commonly used in programming (e.g., for loops)
+
+First, let's use the `unite()` function from the `tidyr` package to create new columns that contain information in other columns. 
 
 ```{r}
-# Here, we're combining dates into one column
+# Make a date column that contins year, month, and day
 portal <- unite(portal, col = date, c(year, month, day), sep = "-", remove = FALSE)
 
-# Now let's combine taxonomic data into one column
+# Make a taxon column that contains genus and species names
 portal <- unite(portal, col = taxon, c(genus, species), sep = "_", remove = FALSE)
+```
 
-# Create the time-by-species matrix
+Now, we are going to use `dplyr` to create a time-by-species matrix. 
+We will use a new operator referred to as "pipes" (%>%). 
+Pipes allow output from one function to be used as input for another function.
+When using pipes, you use the output from the function to left to feed into the next function to the right. 
+To build the time-by-species matrix, we we also be using a `dplyr` function called `group_by`, which splits the dataset up using a single or multiple variables.
+After this, `dplyr` allow one to apply functions to the split datset using functions like `summarise()`, which can return summary statistics (e.g., mean, min, max).
+You can also use the `spread()` function from `tidyr` on the split dataset to convert a parts of a long format dataset to a wide format dataset. 
+
+
+```{r}
+# `count` sums individuals in a taxon
+# fill argument assigns value of 0 if there are no values for a combination
 time.by.species <- group_by(portal, year, plot_id) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
-time.by.species <- as.data.frame(time.by.species)
-head(time.by.species)
 
-# make column 1 the row names
-rownames(time.by.species) <- time.by.species[,1]
-time.by.species <- time.by.species[,-1]
-head(time.by.species)
+# Convert tidyr object to a dataframe
+time.by.species <- as.data.frame(time.by.species)
+
+# NW: Not sure what below was intended to do, but year can't be rownames because they repeat <== right, we added plot_id to the group_by function, so we know have site-by-species info across years. 
+# Use first column of dataframe as row names
+# rownames(time.by.species) <- time.by.species[,1]
+# time.by.species <- time.by.species[,-1]
+```
+
+## 4) BASIC TIME SERIES ANALYSIS
+
+When addressing questions related to temporal biodiversity, one must beaware of important features and assumption related to time series. 
+For example, we discussed autocorrelation that can arise in a spatial context, 
+
+```{r}
+# Use techniques above to include monthly data for our analyses
+time.by.spec.2 <- group_by(portal, year, month, plot_id) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
+time.by.spec.2 <- as.data.frame(time.by.spec.2)
+
+# Here we calculate the abundance of rodents collected in a month from a plot
+abund <- rowSums(filter(time.by.spec.2, month, plot_id == 5)[,-c(1:3)])
+
+# Now we use the time series function to identify data, start, and frequency
+ab.ts <- ts(abund, frequency = 12, start = c(1977,7))
+
+###### Seems like the above function assumes regular samling intervals, but I think there are some months missing any observations, which explains why the plots that follow seem to only go up to about 1995 or so. 
+
+# Let's look at the plot
+plot.ts(ab.ts)
+
+# Before more on with any time series analysies, we need to test for stationarity
+acf(ab.ts) # autocorrelation function
+pacf(ab.ts) # partial autocorrelation function
+Box.test(ab.ts, lag=10, type = "Ljung-Box") # smal p-values indicate stationarity
+
+# Some smoothing techniques for visualizing trends 
+ab.ts.sm <- SMA(ab.ts, n = 2)
+plot.ts(ab.ts.sm)
+
+# Decomose time series into trend, seasonal, and residual
+ab.comp <- decompose(ab.ts)
+plot(ab.comp)
+
+# Options for removing seasonal trend from data
+ab.adj <- ab.ts - ab.comp$seasonal
+plot(ab.adj)
+
+# Fit ARIMA model and forecast
+arm <- arima((ab.ts), c(0,1,1), seasonal = list(order = c(0,1,1), period = 12))
+pred.arm <- predict(arm, n.ahead = 10*12)
+ts.plot(ab.ts, pred.arm$pred, lty = c(1,3))
+```
+
 
 # Some trials with calcuating abundance and richness
 # time.by.species <- group_by(portal, year, plot_id) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
@@ -151,12 +216,13 @@ plots <- ggplot(tempdiv, aes(x = year, y = mean, color = plot_type)) +
   xlab("Year") + 
   ylab("Div")
 plot(plots)
-```
+
 
 
 ## 4) VISUALIZING TIME SERIES DATA 
 
 ```{r}
+#Will's stuff
 remove <- c("2000-4-31", "2000-9-31")
 time.by.species <- time.by.species[!rownames(time.by.species) %in% remove, ]
 
@@ -167,13 +233,6 @@ parents <- rep(NA, each=length(species))
 n <- length(species)
 qual_col_pals <- brewer.pal.info[brewer.pal.info$category == 'qual',]
 
-
-```
-
-
-
-```{r}
-#Will's stuff
 col_vector <- unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
 col <- sample(col_vector, n)
 
@@ -230,34 +289,65 @@ http://www.statoek.wiso.uni-goettingen.de/veranstaltungen/zeitreihen/sommer03/ts
 
 ## 6) TEMPORAL BETA DIVERSITY
 
+The structure of an ecological community changes over time. 
+We can conceptualize temporal turnover in much the same way as spatial turnover: how species change in abundance or presence over time. 
+
+
+### A. Richness 
+A simple measure of community change over time is how many species it gains or loses over the observed duration. 
+
+First, we can calculate the richness in each plot, in each year. 
 ```{r}
-portal.richness.year <- group_by(portal, year) %>% count(taxon) %>% summarise(n())
-rich.plot <- ggplot(portal.richness.year, aes(x = year, y = `n()`, facet(`n()`))) +
-  geom_line(size = 1) + 
+portal.richness.year <- group_by(portal, year, plot_type) %>% 
+  count(taxon) %>% 
+  summarise(richness = n())
+```
+
+Now, let's plot this to visualize
+```{r}
+rich.plot <- ggplot(portal.richness.year, aes(x = year, y = richness, color = plot_type)) +
+  geom_line(size = 1, show.legend = T) + 
   xlim(1977, 2002) + 
   xlab("Year") + 
   ylab("Richness")
 
 plot(rich.plot)
+```
 
-portal.species.abunds <- group_by(portal, year) %>% count(taxon)
+It looks like the Control plots tend to have the highest richness, and had the highest peak richness.
+
+### B. Turnover
+A more meaningful metric takes into consideration the change in community composition of the species over time. 
+Turnover gives us an idea of how similar species composition is over time: low turnover means that the composition and its relative abundances remain relatively stable through time, while high turnover suggests a highly dynamic community structure. 
+Just like turnover in space, turnover can be driven by the introduction of new species or the loss of resident species. 
+```{r}
+# First, we will calculate the species abundances from each site over time
+portal.species.abunds <- group_by(portal, year, plot_type) %>% count(taxon)
+
+# This data.table now contains a new column `n` that represents the species counts
+
 portal.turnover <- turnover(df = portal.species.abunds, 
                             time.var = "year", 
                             species.var = "taxon", 
                             abundance.var = "n",
+                            replicate.var = "plot_type",
                             metric = "total")
 
 portal.appearance <- turnover(df = portal.species.abunds, 
                             time.var = "year", 
                             species.var = "taxon", 
                             abundance.var = "n",
+                            replicate.var = "plot_type",
                             metric = "appearance")
 
 portal.disappearance <- turnover(df = portal.species.abunds, 
                             time.var = "year", 
                             species.var = "taxon", 
                             abundance.var = "n",
+                            replicate.var = "plot_type",
                             metric = "disappearance")
+
+# Here, we'll create one data frame with all the values
 portal.turnover$metric<-"total"
 names(portal.turnover)[1]="turnover"
   
@@ -269,20 +359,45 @@ names(portal.disappearance)[1]="turnover"
   
 portal.allturnover<-rbind(portal.turnover, portal.appearance, portal.disappearance)
 names(portal.allturnover)[2] <- "year"
+```
 
+We now have a dataframe with the three different turnover metrics calculated three different ways within each treatment. 
+
+Let's visualize this.
+```{r}
 turn.plot <- ggplot(portal.allturnover, aes(x = year, y = turnover, color = metric)) +
-  geom_line(size = 1, show.legend = F) + 
+  geom_line(size = 1, show.legend = T) + 
+  facet_wrap(~plot_type) +
   xlim(1977, 2002) + 
   xlab("Year") + 
-  ylab("Turnover")
+  ylab("Turnover") + 
+  theme(legend.position = "bottom")
 plot(turn.plot)
+```
+
+Interestingly, the Krat exclosures seem to show increasingly variable species composition, while the control plots do not. 
 
 
-
-portal.rankshift <- rank_shift(df = portal.species.abunds, 
+### C. Rank Shift
+While turnover gives a measure of how dynamic a community is over time, it would also be interesting to learn how often dominance (i.e., the most abundant species) changes over time. 
+If turnover is due mostly to gains and losses of rare species, with little change to the dominant members, this is not uncommon. 
+However, if the community sees drastic rearrangements of community dominance (i.e., the most abundant species change ranks frequently) this could suggest something different is going on.
+Mean rank shifts measure the relative change in species rank abundances.
+$$
+MRS = \sum_{i=1}^{n}\left(\left| R_{i, t+1} - R_{i, t} \right|\right)/n
+$$
+For some reason, this code chunk no longer works and returns NaN for each entry.
+```{r, eval=F}
+portal.abunds.full <- spread(portal.species.abunds, key = taxon, value = n, fill = 0) %>% 
+  gather(key = taxon, value = n, -year, -plot_type)
+portal.abunds.full$taxon <- as.factor(portal.abunds.full$taxon)
+names(portal.abunds.full)[4] <- "abundance" 
+portal.rankshift <- mean_rank_shift(df = portal.abunds.full, 
                                time.var = "year",
                                species.var = "taxon",
-                               abundance.var = "n")
+                               abundance.var = "abundance",
+                               replicate.var = "plot_type")
+
 portal.rankshift$year <- as.numeric(substr(portal.rankshift$year_pair, 6, 9))
 
 rankshift.plot <- ggplot(portal.rankshift, aes(x = year, y = MRS)) + 
@@ -292,46 +407,80 @@ rankshift.plot <- ggplot(portal.rankshift, aes(x = year, y = MRS)) +
   ylab("Mean Rank Shift")
 
 plot(rankshift.plot)
+```
 
-# Check out help(rate_change_interval) and note that this function calculates the 
-# Euclidean distance between each site. Remember, this is not an ideal distance.
-# Let's use an appropriate transformation on the abundances first.
 
-# let's cound the total abundances in each year (i.e., rowsum)
-total.abunds <- portal.species.abunds %>% group_by(year) %>% count(wt = n)
+### D. Rate Change Interval
+The temporal lag in community similarity suggests a time duration at which communities become sufficiently dissimilar to one another. 
+For example, in highly dynamic systems with high species replacement and large mean rank shifts, temporal turnover may saturate after a relatively short time interval, say 5 years, after which pairwise dissimilarity values remain sufficiently different. 
+Alternatively, in more stable communities, comparably large pairwise dissimmilarities may take tens if not hundreds of years.
 
-# Now, let's join these total counts with the counts for each species
-portal.hellinger.transf <- inner_join(portal.species.abunds, total.abunds, by = "year") %>% 
-  mutate(hellinger.transf = sqrt(n / nn))
-
-# Now, we have a third column, the square root of the relative abundances, the hellinger transformation
-# calculating the euclidean distance on Hellinger-transformed data is appropriate.
-portal.change.int <- rate_change_interval(portal.hellinger.transf,
+```{r}
+portal.total.abunds <- portal.species.abunds %>% group_by(year, plot_type) %>% count(wt = n)
+portal.change.int1 <- rate_change_interval(portal.species.abunds,
                      time.var = "year",
                      species.var = "taxon",
-                     abundance.var = "hellinger.transf")
+                     abundance.var = "n", 
+                     replicate.var = "plot_type")
 
-rate.plot <- ggplot(portal.change.int, aes(interval, distance)) + 
+rate.plot1 <- ggplot(portal.change.int1, aes(interval, distance)) + 
   geom_point() + 
+  facet_wrap(~plot_type) +
+  stat_smooth(method = "loess", se = F, size = 1) + 
+  ylab("Euclidean Distance") + 
+  xlab("Time Interval (Years)")
+rate.plot1
+```
+Each plot looks quite different from one another. The control plot tends to keep increasing, while the Krat exclosures resemble one another and seem to saturate. The Spectab exclosure shows relatively little dissimilarity even across the whole 25-year experiment. The rodent exclosures appear to have gone through a long-term fluctuation and seem to more closely resemble each other after 25 years apart than after 10 years apart. 
+
+But what is on the y-axis? Let's use the `help()` function to find out. 
+```{r}
+help(rate_change_interval)
+```
+
+We see that this function calculates the Euclidean distance between two communities. 
+Remember from our discussion of beta-diversity, that Euclidean distances are not appropriate for calculating community dissimilarity because the distance between sites that share no species in common may be *shorter* than between sites that share species but in different abundances!
+So, we need to transform these data with an appropriate transformation before making strong inferences about what is going on in our dataset, especially noting the hump-shaped pattern of the rodent exclosure treatment. 
+Recall that one of the appropriate transformations is the Hellinger transformation, advocated by Legendre and Gallagher (2001).
+The Euclidean distance calculated on the Hellinger-transformed species abundances generates the Hellinger distance. 
+
+The Hellinger transformation is the square root of the relative abundances:
+$y'_{ij} = \sqrt{\frac{y_{ij}}{y_{i+}}}$
+```{r}
+
+# In order to calculate relative abundances, we need total abundances
+# First, let's count the total abundances
+total.abunds <- portal.species.abunds %>% 
+  group_by(year, plot_type) %>% 
+  count(wt = n)  # The wt sums the values of n within a year
+total.abunds # We now have a column nn that is the site total abund.
+
+# Now, let's join these total counts with the counts for each species
+portal.hellinger.transf <- inner_join(
+  portal.species.abunds, total.abunds, by = c("year", "plot_type")) %>% 
+  mutate(hellinger.transf = sqrt(n / nn))
+
+# The mutate function creates a new column "hellinger.transf" 
+# by taking the square root of species relative abundance
+portal.hellinger.transf
+
+# We can use this new column as our "abundance" vector
+portal.change.int2 <- rate_change_interval(portal.hellinger.transf,
+                     time.var = "year",
+                     species.var = "taxon",
+                     abundance.var = "hellinger.transf", 
+                     replicate.var = "plot_type")
+
+rate.plot2 <- ggplot(portal.change.int2, aes(interval, distance)) + 
+  geom_point() + 
+  facet_wrap(~plot_type) +
   stat_smooth(method = "loess", se = F, size = 1) + 
   ylab("Hellinger Distance") + 
   xlab("Time Interval (Years)")
-rate.plot
-
-turnover.grid.plot <- plot_grid(rich.plot, 
-          turn.plot, 
-          rankshift.plot,
-          rate.plot,
-          labels = c("A", "B", "C", "D"), 
-          nrow = 4, align = "v")
-
-ggsave("fig-turnover-grid.png", turnover.grid.plot,
-       width = 6, height = 10, units = "in")
-graphics.off()
-grid::grid.raster(png::readPNG("fig-turnover-grid.png"))
-
+rate.plot2
 ```
-
+These figures tell a much different story than the previous ones using just the Euclidean distances alone. 
+Thus, it remains important to understand the distance metrics you are using and how they are influenced by species abundances.
 
 ## 7) SYNCHRONY, or covarying species; perhaps stability, compensatory dynamics, or variance ratio?
 http://onlinelibrary.wiley.com/doi/10.1111/2041-210X.12188/epdf
