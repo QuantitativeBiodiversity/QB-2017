@@ -35,7 +35,7 @@ The `require()` function in `R` returns `TRUE` if the package was successfully l
 This `for` loop loads each package and installs the package when `require()` returns `FALSE`.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
-package.list <- c('vegan', 'tidyr', 'dplyr', 'codyn', 'ggplot2', 'cowplot', 'MullerPlot', 'RColorBrewer', 'reshape2', 'lubridate', 'TTR')
+package.list <- c('vegan', 'tidyr', 'dplyr', 'codyn', 'ggplot2', 'cowplot', 'MullerPlot', 'RColorBrewer', 'reshape2', 'lubridate', 'TTR', 'xtable', 'multcomp')
 for (package in package.list) {
   if (!require(package, character.only=T, quietly=T)) {
     install.packages(package)
@@ -121,7 +121,6 @@ time.by.species <- as.data.frame(time.by.species)
 ```
 
 ## 4) BASIC TIME SERIES ANALYSIS
-
 
 Because many questions in biodiversity science involve time, we are going to provide a brief overview of time series analysis.
 Time series analysis involves statistical tools for detecting and decomposing trends in temporal data.
@@ -222,6 +221,43 @@ Obviously, the reliability of forecast diminshes with time as it's not being upd
 ab.arm <- arima((ab.ts), c(0, 0, 1), seasonal = list(order = c(0, 1, 1), period = 2))
 pred.arm <- predict(arm, n.ahead = 10*2)
 ts.plot(ab.ts, pred.arm$pred, lty = c(1,3))
+```
+
+## 5) REPEATED MEASURES ANALYSIS OF VARIANCE (RM-ANOVA)
+When scientists go to the trouble of setting up an experiment, whether it be in a laboratory, a hospital, or in the field, they tend to take more than one measurement on their experimental unit. 
+Such studies are referred to as *longitudinal designs*.
+Historically, there has been confusion about how to deal with the fact that these meausrements are non-indepdent and thus violate some of the major assumptions of most parameteric statistics. 
+Repeated measures Analysis of Variance (ANOVA) provides on way of analyzing factorically designed longitudinal studies. 
+In the following sectionn, we will show you how to peform and interpret a RM-ANOVA using data from the Portal Project. 
+
+```{r}
+time.by.species.rm <- group_by(portal, year, plot_id, plot_type) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
+#richness <-rowSums(filter(time.by.species.rm, plot_type == "Control", plot_type == "Rodent Exclosure")# [,-c(1,2)]>0)
+rich <- rowSums(time.by.species.rm[,-c(1,3)])
+rich.rm1 <-filter(time.by.species.rm, plot_type == "Control", plot_type == "Rodent Exclosure") 
+rich.rm2 <-as.data.frame(rich.rm1)
+
+ar1.syn <- lme(log.abd ~ lim * day.fac, random = ~ 1 | cID, 
+            correlation=corAR1(form = ~ 1 | cID),
+            data=ts.abd)
+#summary(ar1.syn)
+#xtable(anova.lme(ar1.syn,type="sequential"), digits = 4)
+set.caption("RMANOVA for -Ph Synechococcus")
+pander(anova(ar1.syn))  
+
+see 1391
+
+
+# Convert tidyr object to a dataframe
+time.by.species.rm <- as.data.frame(time.by.species.rm)
+
+
+
+rm.dat <- filter(time.by.species.rm, plot_type == "Control", plot_type == "Rodent Exclosure")
+rm.mod <- lme(log.abd ~ lim * day.fac, random = ~ 1 | cID, 
+            correlation=corAR1(form = ~ 1 | cID),
+            data=ts.abd)
+
 ```
 
 
