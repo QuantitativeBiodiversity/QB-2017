@@ -141,7 +141,7 @@ Here are a few:
 ## 3. PRIMARY CONCEPTS AND PATTERNS
 Having explored R as a geographical environment and having imported our primary community and environmental data from the refuge ponds, we are now ready to explore primary concepts and patterns of spatial diversity.
 
-### A. Spatial Autocorrelation
+## Concept 1: Spatial Autocorrelation
 **Tobler's first law of geography** states that "Everything is related to everything else, but near things are more related than distant things" (Tobler 1970).
 
 This law is a formulation of the concept of spatial autocorrelation.
