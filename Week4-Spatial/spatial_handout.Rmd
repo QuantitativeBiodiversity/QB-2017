@@ -19,7 +19,7 @@ After completing this exercise you will be able to:
 3.  Examine effects of geographic distance on community similarity.  
 4.  Generate simulated spatial data.
 
-**A GLOSSARY is provided at the end of this document for basic definitions of GIS terms.**
+**A GLOSSARY is provided at the end of this document for basic definitions GIS terms.**
 
 ## 1.) SETUP
 ### A. Retrieve and Set Your Working Directory
@@ -27,7 +27,7 @@ After completing this exercise you will be able to:
 ```{r, results = 'hide'}
 rm(list=ls())
 getwd()
-setwd("~/GitHub/QB-2017/Week4-Spatial") 
+setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week4-Spatial") 
 ```
 
 ### B. Load Packages 
@@ -54,6 +54,7 @@ require(simba)
 require(gplots)
 #install.packages('rgeos') # Geostatistical package, used here for semivariograms
 require(rgeos)
+require(rgdal)
 ```
 
 ### C. Load a Site-by-Species matrix and Corresponding Environmental data
@@ -128,7 +129,7 @@ plot(Refuge.Ponds, line='r', col='red', pch = 20, cex = 1.5, add = TRUE)
 
 Note, that the percent tree cover, water bodies, and points for refuge ponds are in spatial agreement, i.e., there is no mis-alignment of data layers.
 This is because each layer was previously modified to have the same *datum* (model for Earth's shape) and *projection* (the way in which coordinates on a sphere are projected onto a 2-D surface).
-Datums and projections are fundamental to making maps and geospatial analysis.
+datums and projections are fundamental to making maps and geospatial analysis.
 
 Whether it's data on temperature, elevation, soils, geology, human demographics, ecoregions, etc., diverse data can be found among the many online and free available GIS warehouses.
 Here are a few:
@@ -141,7 +142,7 @@ Here are a few:
 ## 3. PRIMARY CONCEPTS AND PATTERNS
 Having explored R as a geographical environment and having imported our primary community and environmental data from the refuge ponds, we are now ready to explore primary concepts and patterns of spatial diversity.
 
-## Concept 1: Spatial Autocorrelation
+## A. Spatial Autocorrelation
 **Tobler's first law of geography** states that "Everything is related to everything else, but near things are more related than distant things" (Tobler 1970).
 
 This law is a formulation of the concept of spatial autocorrelation.
@@ -151,7 +152,7 @@ Checking for the influence of spatial autocorrelation can reveal whether differe
 
 **Semivariograms** reveal how spatial autocorrelation changes over scales (i.e., lags) of intersample distance.
 A higher semivariance means implies lower autocorrelation.
-Typically, we say that a variable ceases to be autocorrelated when the semivariagram asymptotes.
+Typically, we say that a variable ceases to be autocorrelated the semivariagram asymptotes.
 The *sill* and *range* are the primary features of semivariograms.
 The sill is simply the y-value at which semivariance levels off.
 The range is the x-value at which the semivariance levels off.
@@ -159,13 +160,13 @@ Distances to the right of the range are the spatial lags at which the variable o
 
 \centerline{\includegraphics[height=2.5in]{semivariogram1.jpeg}}
 
-```{r, results = 'hide', message = FALSE, warning = FALSE} 
+```{r, results = 'hide', message = FALSE, warning = FALSE, error = TRUE} 
 # Construct a new dataframe for coordinates
 xy <- data.frame(env = Ponds$TDS, pond.name = Ponds$Sample_ID, lats = Ponds$lat, lons = Ponds$long)
 coordinates(xy) <- ~lats+lons # Transform 'xy' into a spatial points dataframe
 
 # Identify the current projection (i.e., lat-long) and datum (NAD83). In our case, the projection and datum correspond to the settings of the GPS device used to gather data.
-proj4string(xy) <- CRS("+proj=longlat + datum=NAD83") # coordinate reference system (CRS)
+proj4string(xy) <- CRS("+proj=longlat +datum=NAD83") # coordinate reference system (CRS)
 
 # Then, transform the projection and data so we can get meaningful georeferenced distances. In this case, we will use the Universal Transverse Mercator projection and the WGS1984 datum.
 UTM <- spTransform(xy, CRS("+proj=utm + zone=51 ellps=WGS84")) # coordinate reference system (CRS)
@@ -178,7 +179,7 @@ xy$lons_utm <- UTM[,3] # longitude data according to UTM
 
 # Examine the semivariance with regards to one of our environmental variables
 env.vgm <- variogram(env~1, data=xy)
-plot(env.vgm, type = "b")
+plot(env.vgm)
 ```
 
 As we can see above, there is no particular spatial scale where our data cease to be autocorrelated.
@@ -190,7 +191,7 @@ Like other correlational statistics, the value of Moran's I varies between -1 (p
 
 Moran's I is generally considered to be a 'global' statistic, quantifying spatial autocorrelation across the entire 2-D landscape into a single number.
 
-```{r} 
+```{r, message = FALSE, warning=FALSE} 
 Moran(Tree.Cover)
 ```
 
@@ -211,10 +212,10 @@ This pattern addresses whether communities close to one another are more similar
 The distance-decay pattern can also be used to address whether near environments have greater similarity than far ones.
 We will use the `simba` package to generate distance decay relationships for bacterial communities of our refuge ponds and for some of the environmental variables we measured.
 
-```{r, results = 'hide', message = FALSE, warning = FALSE}
+```{r, results = 'hide', message = FALSE, warning = FALSE, error = TRUE}
 comm.dist <- 1 - vegdist(OTUs) # Bray-Curtis similarity between the plots
 
-lats <- as.numeric(xy$lats_utm) # latitude data
+lats <- as.numeric(xy$lats_utm) # lattitude data
 lons <- as.numeric(xy$lons_utm) # longitude data
 coord.dist <- dist(as.matrix(lats, lons)) # geographical distance between plots
 
@@ -239,20 +240,20 @@ plot(env, struc, xlab="Environmental Distance", ylab="1 - Bray-Curtis",
      main = "Environment", col='SteelBlue')
 
 OLS <- lm(struc ~ env)
-summary(OLS) # print regression results to the screen
+OLS # print regression results to the screen
 abline(OLS, col="red4")
 
 plot(dist, struc, xlab="Geographic Distance", ylab="1 - Bray-Curtis", 
      main="Community\nComposition", col='darkorchid4')
 
 OLS <- lm(struc ~ dist)
-summary(OLS) # print regression results to the screen
+OLS # print regression results to the screen
 abline(OLS, col="red4")
 ```
 
 We can also examine the slope of the regression lines, asking whether they are significantly different from one another.
 
-```{r}
+```{r, error=TRUE}
 diffslope(env, struc, dist, struc) # a function in simba that calculates the difference in slope or intercept of two regression lines
 ```
 
@@ -264,7 +265,7 @@ That is, individuals, conditions, and events often occur in patches, clusters, e
 
 ## Pattern 2: Spatial abundance distributions
 One of the primary patterns of spatial aggregation is the distribution of individuals within a landscape.
-We can refer to this pattern as the spatial abundance distribution and can examine it in regards to all individuals of a community, to all individuals of a particular species, or to any other subset of particular interest (e.g., rare species, common species).
+We can refer to this pattern as the spatial abundance distribution and can examine it in regards to all individuals of a community, to all individuals of a particular species, or any other subset of particular interest (e.g., rare species, common species).
 The spatial abundance distribution reveals the frequency at which we find individuals at particular abundances, e.g., the number of plots occupied by 1, 2, 3, etc. individuals.
 
 For example, perhaps we are interested in understanding how total abundance 16S rRNA genes differed among our ponds:
@@ -276,7 +277,7 @@ siteN
 
 As we can see, we recovered between 60,000 and 300,000 sequences per site. As a more convient and insightful way to show how abundance varies among plots, let's plot our data as an abundance distribution:
 
-```{r, fig.align='center'}
+```{r, fig.width=6, fig.height=4, fig.align='center'}
 par(mfrow=c(1, 1), pty="s")
 plot(density(siteN), col = 'magenta', xlab='Site abundance',
     ylab='Probability Density',  main = 'IN Ponds\nabundance distribution')
@@ -379,7 +380,7 @@ We are going to construct one of ecology's oldest and most intensively studied p
 The SAR reveals the rate at which we discover species with greater sampling area (i.e., extent).
 It may seem obvious that, if starting from a very small local scale and increasing our sample area, that we will inevitably encounter more species.
 Howevever, SARs often take a particular form.
-Arrhenius (1921) first described the general form of the *species-area relationship (SAR)* as a power-law: $S = cA^{z}$ where S is species richness and A is area.
+Arrhenius (1921) first described the general form of the *species-area relationship (SAR)* as a power-law: $S = cA^{z}$ where S is species richnness and A is area.
 Arrhenius's power-law predicts a rate of increase in scales of richness that is approximately linear across scales of space. That is, $log(S) = log(c) + zlog(A)$, where z is the scaling exponent.
 
 Power-laws like the SAR can be used to make predictions of diversity across scales, and also point to mechanisms and processes that operate in similar ways across scales.
@@ -388,7 +389,7 @@ Here, we'll use the following code to reinforce the concept of the SAR and to de
 Suppose we simulate the spatial distribution of a community with 100 species, letting each species have between 1 and 1,000 individuals.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-community <- c() # an initial empty community
+community <- c() # an initiall empty community
 species <- c()   # with zero species
 
 # initiate the plot, i.e., landscape
