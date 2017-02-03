@@ -35,7 +35,7 @@ The `require()` function in `R` returns `TRUE` if the package was successfully l
 This `for` loop loads each package and installs the package when `require()` returns `FALSE`.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
-package.list <- c('vegan', 'tidyr', 'dplyr', 'codyn', 'ggplot2', 'cowplot', 'MullerPlot', 'RColorBrewer', 'reshape2', 'lubridate', 'TTR')
+package.list <- c('vegan', 'tidyr', 'dplyr', 'codyn', 'ggplot2', 'cowplot', 'MullerPlot', 'RColorBrewer', 'reshape2', 'lubridate', 'TTR', 'xtable', 'multcomp')
 for (package in package.list) {
   if (!require(package, character.only=T, quietly=T)) {
     install.packages(package)
@@ -122,46 +122,142 @@ time.by.species <- as.data.frame(time.by.species)
 
 ## 4) BASIC TIME SERIES ANALYSIS
 
-When addressing questions related to temporal biodiversity, one must beaware of important features and assumption related to time series. 
-For example, we discussed autocorrelation that can arise in a spatial context, 
+Because many questions in biodiversity science involve time, we are going to provide a brief overview of time series analysis.
+Time series analysis involves statistical tools for detecting and decomposing trends in temporal data.
+There are a number of important features and assumptions that one must consider when analyzing time series data. 
+For example, one common assumption that must be met when peforming time series analysis is that your data must be **stationary**. 
+In brief, this means that the mean, variance, and covariance of your data should not be a function of time.
+If the assumption of stationarity is not met, you need to take corrective measures, which could invovle transforming or differencing (t - 1) the data. 
+In the following sections, we provide a primer of time series analysis using the abundance of rodents in a single site of the Portal Project.
+The Chihuahuan Desert sits in a rain shadow created by the Sierra Madre mountains.
+As a result, the Portal site is dry with rain falling primarily in June through October.
+We will try to detect a signal of this seasonality in our dataset, while detectign long-term trends and forecasting rodent densities into the future.
+Let's get started by manipulating our data using some of the tools that we introduced above from the `dplyr` and `tidyr` packages.
 
 ```{r}
-# Use techniques above to include monthly data for our analyses
-time.by.spec.2 <- group_by(portal, year, month, plot_id) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
-time.by.spec.2 <- as.data.frame(time.by.spec.2)
+# Create a time-by-species matrix that includes year, month, and plot_id
+time.by.spec.2 <- group_by(portal, year, month, plot_id) %>% count(taxon) 
 
-# Here we calculate the abundance of rodents collected in a month from a plot
-abund <- rowSums(filter(time.by.spec.2, month, plot_id == 5)[,-c(1:3)])
+# Create a seasonality variable using month number
+time.by.spec.2$season <- NA
+time.by.spec.2$season <- time.by.spec.2$month %in% c(6:10)
 
-# Now we use the time series function to identify data, start, and frequency
-ab.ts <- ts(abund, frequency = 12, start = c(1977,7))
+# Rainy seasons are June - October
+time.by.spec.2$season <- ifelse(time.by.spec.2$season == TRUE, "rain", "norain")
 
-###### Seems like the above function assumes regular samling intervals, but I think there are some months missing any observations, which explains why the plots that follow seem to only go up to about 1995 or so. 
+# Group the data by year and season
+group_by(time.by.spec.2, year, season)
 
-# Let's look at the plot
-plot.ts(ab.ts)
+# Pict a plot and then calculate rodent abundance for each season with a year 
+abund <- filter(time.by.spec.2, plot_id == 5) %>% group_by(year, season) %>% count(wt = n)
 
-# Before more on with any time series analysies, we need to test for stationarity
+# Correct abundances to express on a per hectare basis
+abund$nn <- abund$nn * 4
+```
+
+Now, we are going to use a set of time series functions in the R base package. 
+The first thing we will do is create a time series data set, which identifies the start time and seasonality of our sampling.
+
+```{r}
+# Define the time series and frequency (i.e., number of observations per year)
+ab.ts <- ts(abund$nn, frequency = 2, start = c(1977, 2))
+
+# Let's look at a plot of the data
+plot.ts(ab.ts, ylab = "Rodent Abundance (#/hectrare)", xlab = "Time (year)", las = 1)
+```
+
+Now, peform some analyses to see whether our data meet the assumption of stationarity. 
+The first thing we will do is use the *autocorrelation function (ACF)*, which effectively looks at the strength of correlation with itself over lagged time intervals.
+Similarly, we will use the *partial autocorrelation function (PACF)*, which controls for values of shorter lag times. 
+In both cases, if a time series is stationary, the correlation of lagged time points will quickly decay. 
+Last, we will use a *Ljung-Box* test, which effectively tests for randomness in a string of observations. 
+
+```{r}
 acf(ab.ts) # autocorrelation function
 pacf(ab.ts) # partial autocorrelation function
-Box.test(ab.ts, lag=10, type = "Ljung-Box") # smal p-values indicate stationarity
+Box.test(ab.ts, lag = 10, type = "Ljung-Box") # small p-values ~ stationary
+```
 
-# Some smoothing techniques for visualizing trends 
-ab.ts.sm <- SMA(ab.ts, n = 2)
-plot.ts(ab.ts.sm)
+Together, the above analyses suggest that our data can most likely be fit with and additive model and that transformations or differencing is not required. 
+One technique that is commonly used, mostly for visualization purposes, is *smoothing*. 
+These types of techniques are used as low-pass filters that effectively remove noise from a data set, and aid in the visualization of signal in your dataset.
+In the follow chunk of code we will use a simple moving average procedure from the `TTR` package. 
+The function `sma()` calculates the arithmetic mean of the time series over the past *n* observations.
+this unweighted, moving average approach smooths data with increasing *n*. 
+Try out the code below and play around with *n*.
 
-# Decomose time series into trend, seasonal, and residual
-ab.comp <- decompose(ab.ts)
-plot(ab.comp)
+```{r{}} 
+ab.ts.sm <- SMA(ab.ts, n = 8)
+plot.ts(ab.ts.sm, ylab = "Rodent Abundance (#/hectrare)", xlab = "Time (year)", las = 1)
 
-# Options for removing seasonal trend from data
-ab.adj <- ab.ts - ab.comp$seasonal
-plot(ab.adj)
+ab.ts.hw <- HoltWinters(ab.ts, beta = FALSE, gamma = FALSE)
+ab.ts.hw$fitted
+plot(ab.ts.hw, xlab = "Time (year)", las = 1, main = NA)
 
-# Fit ARIMA model and forecast
-arm <- arima((ab.ts), c(0,1,1), seasonal = list(order = c(0,1,1), period = 12))
-pred.arm <- predict(arm, n.ahead = 10*12)
+
+# ab.ts.2 <- forecast.HoltWinters(abund$nn, h = 19)
+# plot.forecast(ab.ts.2)
+```
+
+As mentioned above, we sampled subsampled the `portal` data set so that it included seasonal variation that could be driven by patterns of precipitation. 
+In the following section we will use the `decompose()` function which decomposes the time series so that we can assess contributions from the overal trend, seasonality, and radom processes.
+If seasonal trends are a nuisance in your study, there are ways to remove them, as done in the chunk below. 
+
+```{r{}
+ab.comp <- decompose(ab.ts) # moving average decomposition
+plot(ab.comp) 
+
+ab.adj <- ab.ts - ab.comp$seasonal # remove seasonality
+plot.ts(ab.adj, ylab = "Rodent Abundance (#/hectrare)", xlab = "Time (year)", las = 1)
+```
+
+Last, we will use an autoregressive integrated moving averge (ARIMA) approach to model our data.
+ARIMA models predict a response variable based on regressing observations with past, lagged observations using linear comibiantion of error terms from the combinations of time points. 
+ARIMA models accept parameters (*p*, *d*, and *q*) that describe the number of lags , differencing, and order of the moving-averge model, respectively. 
+ARIMA models can also be used for forecasting into the future based on processes that fit the observed time series, as shown below. 
+Obviously, the reliability of forecast diminshes with time as it's not being updated with new information. 
+
+```{r}
+ab.arm <- arima((ab.ts), c(0, 0, 1), seasonal = list(order = c(0, 1, 1), period = 2))
+pred.arm <- predict(arm, n.ahead = 10*2)
 ts.plot(ab.ts, pred.arm$pred, lty = c(1,3))
+```
+
+## 5) REPEATED MEASURES ANALYSIS OF VARIANCE (RM-ANOVA)
+When scientists go to the trouble of setting up an experiment, whether it be in a laboratory, a hospital, or in the field, they tend to take more than one measurement on their experimental unit. 
+Such studies are referred to as *longitudinal designs*.
+Historically, there has been confusion about how to deal with the fact that these meausrements are non-indepdent and thus violate some of the major assumptions of most parameteric statistics. 
+Repeated measures Analysis of Variance (ANOVA) provides on way of analyzing factorically designed longitudinal studies. 
+In the following sectionn, we will show you how to peform and interpret a RM-ANOVA using data from the Portal Project. 
+
+```{r}
+time.by.species.rm <- group_by(portal, year, plot_id, plot_type) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
+#richness <-rowSums(filter(time.by.species.rm, plot_type == "Control", plot_type == "Rodent Exclosure")# [,-c(1,2)]>0)
+rich <- rowSums(time.by.species.rm[,-c(1,3)])
+rich.rm1 <-filter(time.by.species.rm, plot_type == "Control", plot_type == "Rodent Exclosure") 
+rich.rm2 <-as.data.frame(rich.rm1)
+
+ar1.syn <- lme(log.abd ~ lim * day.fac, random = ~ 1 | cID, 
+            correlation=corAR1(form = ~ 1 | cID),
+            data=ts.abd)
+#summary(ar1.syn)
+#xtable(anova.lme(ar1.syn,type="sequential"), digits = 4)
+set.caption("RMANOVA for -Ph Synechococcus")
+pander(anova(ar1.syn))  
+
+see 1391
+
+
+# Convert tidyr object to a dataframe
+time.by.species.rm <- as.data.frame(time.by.species.rm)
+
+
+
+rm.dat <- filter(time.by.species.rm, plot_type == "Control", plot_type == "Rodent Exclosure")
+rm.mod <- lme(log.abd ~ lim * day.fac, random = ~ 1 | cID, 
+            correlation=corAR1(form = ~ 1 | cID),
+            data=ts.abd)
+
 ```
 
 
