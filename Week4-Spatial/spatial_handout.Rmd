@@ -54,6 +54,7 @@ require(simba)
 require(gplots)
 #install.packages('rgeos') # Geostatistical package, used here for semivariograms
 require(rgeos)
+require(rgdal)
 ```
 
 ### C. Load a Site-by-Species matrix and Corresponding Environmental data
@@ -159,13 +160,13 @@ Distances to the right of the range are the spatial lags at which the variable o
 
 \centerline{\includegraphics[height=2.5in]{semivariogram1.jpeg}}
 
-```{r, results = 'hide', message = FALSE, warning = FALSE} 
+```{r, results = 'hide', message = FALSE, warning = FALSE, error = TRUE} 
 # Construct a new dataframe for coordinates
 xy <- data.frame(env = Ponds$TDS, pond.name = Ponds$Sample_ID, lats = Ponds$lat, lons = Ponds$long)
 coordinates(xy) <- ~lats+lons # Transform 'xy' into a spatial points dataframe
 
 # Identify the current projection (i.e., lat-long) and datum (NAD83). In our case, the projection and datum correspond to the settings of the GPS device used to gather data.
-proj4string(xy) <- CRS("+proj=longlat + datum=NAD83") # coordinate reference system (CRS)
+proj4string(xy) <- CRS("+proj=longlat +datum=NAD83") # coordinate reference system (CRS)
 
 # Then, transform the projection and data so we can get meaningful georeferenced distances. In this case, we will use the Universal Transverse Mercator projection and the WGS1984 datum.
 UTM <- spTransform(xy, CRS("+proj=utm + zone=51 ellps=WGS84")) # coordinate reference system (CRS)
@@ -190,7 +191,7 @@ Like other correlational statistics, the value of Moran's I varies between -1 (p
 
 Moran's I is generally considered to be a 'global' statistic, quantifying spatial autocorrelation across the entire 2-D landscape into a single number.
 
-```{r} 
+```{r, message = FALSE, warning=FALSE} 
 Moran(Tree.Cover)
 ```
 
@@ -211,7 +212,7 @@ This pattern addresses whether communities close to one another are more similar
 The distance-decay pattern can also be used to address whether near environments have greater similarity than far ones.
 We will use the `simba` package to generate distance decay relationships for bacterial communities of our refuge ponds and for some of the environmental variables we measured.
 
-```{r, results = 'hide', message = FALSE, warning = FALSE}
+```{r, results = 'hide', message = FALSE, warning = FALSE, error = TRUE}
 comm.dist <- 1 - vegdist(OTUs) # Bray-Curtis similarity between the plots
 
 lats <- as.numeric(xy$lats_utm) # lattitude data
@@ -252,7 +253,7 @@ abline(OLS, col="red4")
 
 We can also examine the slope of the regression lines, asking whether they are significantly different from one another.
 
-```{r}
+```{r, error=TRUE}
 diffslope(env, struc, dist, struc) # a function in simba that calculates the difference in slope or intercept of two regression lines
 ```
 
@@ -276,7 +277,7 @@ siteN
 
 As we can see, we recovered between 60,000 and 300,000 sequences per site. As a more convient and insightful way to show how abundance varies among plots, let's plot our data as an abundance distribution:
 
-```{r}
+```{r, fig.width=6, fig.height=4, fig.align='center'}
 par(mfrow=c(1, 1), pty="s")
 plot(density(siteN), col = 'magenta', xlab='Site abundance',
     ylab='Probability Density',  main = 'IN Ponds\nabundance distribution')
