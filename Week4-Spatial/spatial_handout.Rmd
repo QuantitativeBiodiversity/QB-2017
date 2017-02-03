@@ -27,7 +27,7 @@ After completing this exercise you will be able to:
 ```{r, results = 'hide'}
 rm(list=ls())
 getwd()
-setwd("~/GitHub/QB-2017/Week4-Spatial") 
+setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week4-Spatial") 
 ```
 
 ### B. Load Packages 

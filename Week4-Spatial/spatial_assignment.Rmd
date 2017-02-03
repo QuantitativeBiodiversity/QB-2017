@@ -1,13 +1,14 @@
 ---
-title: "Spatial Diversity"
+title: "Assignment: Spatial Diversity"
 author: "Student Name; Z620: Quantitative Biodiversity, Indiana University"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: pdf_document
 geometry: margin=2.54cm
---- 
+---
 
 ## OVERVIEW
-This assignment will emphasize primary concepts and patterns associated with spatial diversity, while using R as a Geographic Information Systems (GIS) environment. Complete the assignment by refering to examples in the handout.
+This assignment will emphasize primary concepts and patterns associated with spatial diversity, while using R as a Geographic Information Systems (GIS) environment. 
+Complete the assignment by refering to examples in the handout.
 
 After completing this assignment you will be able to:  
 1.  Begin using R as a geographical information systems (GIS) environment.  
@@ -15,17 +16,16 @@ After completing this assignment you will be able to:
 3.  Examine effects of geographic distance on community similarity.  
 4.  Generate simulated spatial data.
 
-
 ## Directions:
 1. Change "Student Name" on line 3 (above) with your name.
-2. Complete as much of the exercise as possible during class; what you do not complete in class will need to be done on your own outside of class.
-3. Use the Handout as a guide; it contains a more complete description of data sets along with the proper scripting needed to carry out the exercise.
-4. Be sure to **answer the questions** in this exercise document.
+2. Complete as much of the assignment as possible during class; what you do not complete in class will need to be done on your own outside of class.
+3. Use the handout as a guide; it contains a more complete description of data sets along with the proper scripting needed to carry out the assignment.
+4. Be sure to **answer the questions** in this assignment document.
 Space for your answer is provided in this document and indicated by the ">" character.
 If you need a second paragraph be sure to start the first line with ">".
 5. Before you leave the classroom, **push** this file to your GitHub repo.
-6. When you are done wit the Assignment, **Knit** the text and code into a html file.
-7. After Knitting, please submit the completed Assignment by creating a **pull request** via GitHub.
+6. When you are done wit the assignment, **Knit** the text and code into an html file.
+7. After Knitting, please submit the completed assignment by creating a **pull request** via GitHub.
 Your pull request should include this file *spatial_assignment.Rmd* and the html output of `Knitr` (*spatial_assignment.html*).
 
 
@@ -34,8 +34,7 @@ In the R code chunk below, provide the code to:
 
 1. Clear your R environment
 2. Print your current working directory,
-3. Set your working directory to your "*/Week3-Beta*" folder, and
-4. Load the `vegan` R package (be sure to install if needed).  
+3. Set your working directory to your "*/Week4-Spatial*" folder, and
 
 ```{r, results = 'hide'}
 
@@ -46,7 +45,7 @@ In the R code chunk below, provide the code to:
 
 In the R code chunk below, do the following:  
 
-1. Install and/or load the following packages: vegan, sp, gstat, raster, RgoogleMaps, maptools, rgdal, simba, gplots, rgeos
+1. Install and/or load the following packages: `vegan`, `sp`, `gstat`, `raster`, `RgoogleMaps`, `maptools`, `rgdal`, `simba`, `gplots`, `rgeos`
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
 
@@ -54,7 +53,7 @@ In the R code chunk below, do the following:
 
 ```
 
-***Question 1***:  What are the packages simba, sp, and rgdal used for?
+***Question 1***:  What are the packages `simba`, `sp`, and `rgdal` used for?
 
 > ***Answer 1***:  
 
@@ -72,7 +71,7 @@ In the R code chunk below, use the example in the handout to do the following:
 
 ```
 
-***Question 2a***:  How many sites and OTU's are in the SiteBySpecies matrix? 
+***Question 2a***:  How many sites and OTUs are in the SiteBySpecies matrix? 
 
 > ***Answer 2a***:  
 
@@ -130,17 +129,17 @@ In the R code chunk below, do the following:
 
 ## 6) EXAMINING DISTANCE-DECAY
 
-***Question 6***: In your own words, explain distance decay pattern and what it reveals.
+***Question 6***: In your own words, explain what a distance decay pattern is and what it reveals.
 
 > ***Answer 6***:
 
 In the R code chunk below, do the following:  
 
-1. Generate the distance decay relationship for bacterial communities of our refuge ponds and for some of the environmental variables we measured. 
+1. Generate the distance decay relationship for bacterial communities of our refuge ponds and for some of the environmental variables that were measured. 
 Note: You will need to use some of the data transformations within the *semivariogram* section of the handout.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-# 1) Calculate Bray-Curtis similarity between plots using the vegdist function
+# 1) Calculate Bray-Curtis similarity between plots using the `vegdist()` function
 
 # 2) Assign UTM lattitude and longitude data to 'lats' and 'lons' variables
 
@@ -148,22 +147,22 @@ Note: You will need to use some of the data transformations within the *semivari
 
 # 4) Transform environmental data to numeric type, and assign to variable 'x1'
 
-# 5) Using the vegdist function in simba, calculate the Euclidean distance between the plots for environmental variables. Assign the result to the variable 'env.dist'
+# 5) Using the `vegdist()` function in `simba`, calculate the Euclidean distance between the plots for environmental variables. Assign the result to the variable 'env.dist'
 
-# 6) Transform all distance matrices into database format using the liste function in simba:
+# 6) Transform all distance matrices into database format using the `liste()` function in `simba`:
 
 # 7) Create a data frame containing similarity of the environment and similarity of community.
 
 # 8) Attach the columns labels 'env' and 'struc' to the dataframe you just made.
 
-# 9) After setting the plot parameters, plot the Distance-decay relationships, with regression lines in red.
+# 9) After setting the plot parameters, plot the distance-decay relationships, with regression lines in red.
 
-# 10) Use simba to calculates the difference in slope or intercept of two regression lines
+# 10) Use `simba` to calculates the difference in slope or intercept of two regression lines
 
 ```
 
 
-***Question 7***: What can you conclude about community similarity in regards to environmental distance and geographic distance?
+***Question 7***: What can you conclude about community similarity with regars to environmental distance and geographic distance?
 
 > ***Answer 7***: 
 
@@ -178,16 +177,16 @@ Note: You will need to use some of the data transformations within the *semivari
 In the R code chunk below, do the following: 
 
 1. Define a function that will generate the SSAD for a given OTU.
-2. Draw 6 OTUs at random from the IN ponds dataset and and plot their SSADs as kernel density curves. Use **while loops**  and **if** statements to accomplish this.
+2. Draw six OTUs at random from the IN ponds dataset and and plot their SSADs as kernel density curves. Use **while loops** and **if** statements to accomplish this.
 
 ```{r}
-# 1. Define an ssad function
+# 1. Define an SSAD function
 
 # 2. Set plot parameters
 
 # 3. Declare a counter variable
 
-# 4. Write a 'while' loop to plot the SSADs of 6 species chosen at random 
+# 4. Write a while loop to plot the SSADs of six species chosen at random 
 
 ```
 
@@ -219,11 +218,10 @@ In the R code chunk below, provide the code to:
 
 ```
 
+While consult the handout for assistance, in the R chunk below, provide the code to: 
 
-In the R code chunk below, provide the code to: 
-
-1. Using the handout for assistance, use a nested design to examine the SAR of our simulated community.
-2. Plot the SAR and regression line. Consult the handout for assistance.
+1. Use a nested design to examine the SAR of our simulated community.
+2. Plot the SAR and regression line. 
 
 ```{r}
 # 1. Declare the spatial extent and lists to hold species richness and area data
@@ -255,4 +253,4 @@ In the R code chunk below, provide the code to:
 
 
 ## SYNTHESIS
-Load the dataset you are using for your project. Plot and discuss either the geogrpahic Distance-Decay relationship, the SSADs for at least 4 species, or any variant of the SAR (e.g., random accumulation of plots or areas, accumulation of contiguous plots or areas, nested design).
+Load the dataset you are using for your project. Plot and discuss either the geogrpahic Distance-Decay relationship, the SSADs for at least four species, or any variant of the SAR (e.g., random accumulation of plots or areas, accumulation of contiguous plots or areas, nested design).
