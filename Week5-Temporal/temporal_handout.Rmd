@@ -230,12 +230,21 @@ Historically, there has been confusion about how to deal with the fact that thes
 Repeated measures Analysis of Variance (ANOVA) provides on way of analyzing factorically designed longitudinal studies. 
 In the following sectionn, we will show you how to peform and interpret a RM-ANOVA using data from the Portal Project. 
 
+#Wrangle data
 ```{r}
-time.by.species.rm <- group_by(portal, year, plot_id, plot_type) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
-#richness <-rowSums(filter(time.by.species.rm, plot_type == "Control", plot_type == "Rodent Exclosure")# [,-c(1,2)]>0)
-rich <- rowSums(time.by.species.rm[,-c(1,3)])
-rich.rm1 <-filter(time.by.species.rm, plot_type == "Control", plot_type == "Rodent Exclosure") 
-rich.rm2 <-as.data.frame(rich.rm1)
+time.by.species <- group_by(portal, year, plot_id, plot_type) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
+richness<-rowSums(time.by.species[,-c(1,3)])
+rich.filt <- as.data.frame(time.by.species[,1:3,], richness)
+rich.filt2 <- rich.filt[which(rich.filt$plot_type == "Control" | rich.filt$plot_type == "Rodent Exclosure"), ]
+```
+
+#Plot data
+```{r}
+
+```
+
+#Analyze data
+```{r}
 
 ar1.syn <- lme(log.abd ~ lim * day.fac, random = ~ 1 | cID, 
             correlation=corAR1(form = ~ 1 | cID),
@@ -244,9 +253,8 @@ ar1.syn <- lme(log.abd ~ lim * day.fac, random = ~ 1 | cID,
 #xtable(anova.lme(ar1.syn,type="sequential"), digits = 4)
 set.caption("RMANOVA for -Ph Synechococcus")
 pander(anova(ar1.syn))  
-
-see 1391
-
+#see 1391
+```
 
 # Convert tidyr object to a dataframe
 time.by.species.rm <- as.data.frame(time.by.species.rm)
@@ -266,6 +274,11 @@ rm.mod <- lme(log.abd ~ lim * day.fac, random = ~ 1 | cID,
 # filter(time.by.species, plot_id==2)
 # abundance<-rowSums(filter(time.by.species, plot_id==2)[,-c(1,2)])
 # richness<-rowSums(filter(time.by.species, plot_id==2)[,-c(1,2)]>0)
+#filter(time.by.species, plot_type == "Control", plot_type == "Rodent Exclosure")
+
+
+
+richness<-rowSums(filter(time.by.species, plot_type == "Control", plot_type == "Rodent Exclosure")[,-c(1,3)]>0)
 # biomass <- group_by(portal, year, plot_id) %>% summarize(rod.mass = sum(weight), na.rm = TRUE)
 # p2<-filter(biomass, plot_id > 2)
 # plot(rod.mass ~ year, p2, xaxt = "n", type = "l")
