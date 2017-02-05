@@ -120,19 +120,22 @@ time.by.species <- group_by(portal, year, plot_id) %>% count(taxon) %>% spread(k
 time.by.species <- as.data.frame(time.by.species)
 ```
 
-## 4) BASIC TIME SERIES ANALYSIS
-
+## 4) TIME SERIES ANALYSIS - AUTO-REGRESSIVE MOVING AVERAGE (ARMA) MODELS
 Because many questions in biodiversity science involve time, we are going to provide a brief overview of time series analysis.
-Time series analysis involves statistical tools for detecting and decomposing trends in temporal data.
-There are a number of important features and assumptions that one must consider when analyzing time series data. 
-For example, one common assumption that must be met when peforming time series analysis is that your data must be **stationary**. 
-In brief, this means that the mean, variance, and covariance of your data should not be a function of time.
-If the assumption of stationarity is not met, you need to take corrective measures, which could invovle transforming or differencing (t - 1) the data. 
-In the following sections, we provide a primer of time series analysis using the abundance of rodents in a single site of the Portal Project.
+Time series analysis involves statistical tools for detecting and decomposing trends in temporal data, and distinguishing this from other sources (e.g., error).
+One of the most basic ways of analyzing a time series is with auto-regressive moving aveverage (ARMA) models.
+The autoregressive component of an ARMA model uses regression to obtain *coefficients* that predict current observations using previous or "lagged" observations from a time series. 
+The moving average component of an ARMA model uses multiple regression to recover *error terms* of the current and prior observations. 
+Ultimately, ARMA approaches can help identify trends in data and help to make forecasts about future observations. 
+As such, ARMA is commonly used in ecology, but also in business and economics.
+In this section we walk through the basics of ARMA, but also introduce some other commonly used techniques for the preliminary analysis of a time series. 
+Specifically, we provide a primer of time series analysis using the abundance of rodents in a single site of the Portal Project.
 The Chihuahuan Desert sits in a rain shadow created by the Sierra Madre mountains.
-As a result, the Portal site is dry with rain falling primarily in June through October.
-We will try to detect a signal of this seasonality in our dataset, while detectign long-term trends and forecasting rodent densities into the future.
+As a result, the Portal site is dry with rain falling primarily during the months of June through October.
+We will try to detect a signal of this seasonality in our dataset, while testing for long-term trends and forecasting rodent densities into the future.
 Let's get started by manipulating our data using some of the tools that we introduced above from the `dplyr` and `tidyr` packages.
+
+### Data wrongling
 
 ```{r}
 # Create a time-by-species matrix that includes year, month, and plot_id
@@ -148,56 +151,32 @@ time.by.spec.2$season <- ifelse(time.by.spec.2$season == TRUE, "rain", "norain")
 # Group the data by year and season
 group_by(time.by.spec.2, year, season)
 
-# Pict a plot and then calculate rodent abundance for each season with a year 
-abund <- filter(time.by.spec.2, plot_id == 5) %>% group_by(year, season) %>% count(wt = n)
+# Pick a plot and then calculate rodent abundance for each season with a year 
+abund <- filter(time.by.spec.2, plot_id == 2) %>% group_by(year, season) %>% count(wt = n)
 
 # Correct abundances to express on a per hectare basis
 abund$nn <- abund$nn * 4
 ```
 
-Now, we are going to use a set of time series functions in the R base package. 
-The first thing we will do is create a time series data set, which identifies the start time and seasonality of our sampling.
+### Smoothing
 
-```{r}
-# Define the time series and frequency (i.e., number of observations per year)
-ab.ts <- ts(abund$nn, frequency = 2, start = c(1977, 2))
-
-# Let's look at a plot of the data
-plot.ts(ab.ts, ylab = "Rodent Abundance (#/hectrare)", xlab = "Time (year)", las = 1)
-```
-
-Now, peform some analyses to see whether our data meet the assumption of stationarity. 
-The first thing we will do is use the *autocorrelation function (ACF)*, which effectively looks at the strength of correlation with itself over lagged time intervals.
-Similarly, we will use the *partial autocorrelation function (PACF)*, which controls for values of shorter lag times. 
-In both cases, if a time series is stationary, the correlation of lagged time points will quickly decay. 
-Last, we will use a *Ljung-Box* test, which effectively tests for randomness in a string of observations. 
-
-```{r}
-acf(ab.ts) # autocorrelation function
-pacf(ab.ts) # partial autocorrelation function
-Box.test(ab.ts, lag = 10, type = "Ljung-Box") # small p-values ~ stationary
-```
-
-Together, the above analyses suggest that our data can most likely be fit with and additive model and that transformations or differencing is not required. 
 One technique that is commonly used, mostly for visualization purposes, is *smoothing*. 
-These types of techniques are used as low-pass filters that effectively remove noise from a data set, and aid in the visualization of signal in your dataset.
+These types of techniques are used as low-pass filters that effectively remove noise from a data set, and aid in visualizing signal in your dataset.
 In the follow chunk of code we will use a simple moving average procedure from the `TTR` package. 
 The function `sma()` calculates the arithmetic mean of the time series over the past *n* observations.
 this unweighted, moving average approach smooths data with increasing *n*. 
 Try out the code below and play around with *n*.
 
 ```{r{}} 
-ab.ts.sm <- SMA(ab.ts, n = 8)
+ab.ts.sm <- SMA(ab.ts, n = 5)
 plot.ts(ab.ts.sm, ylab = "Rodent Abundance (#/hectrare)", xlab = "Time (year)", las = 1)
 
 ab.ts.hw <- HoltWinters(ab.ts, beta = FALSE, gamma = FALSE)
 ab.ts.hw$fitted
 plot(ab.ts.hw, xlab = "Time (year)", las = 1, main = NA)
-
-# ab.ts.2 <- forecast.HoltWinters(abund$nn, h = 19)
-# plot.forecast(ab.ts.2)
 ```
 
+### Decomposing the time series
 As mentioned above, we sampled subsampled the `portal` data set so that it included seasonal variation that could be driven by patterns of precipitation. 
 In the following section we will use the `decompose()` function which decomposes the time series so that we can assess contributions from the overal trend, seasonality, and radom processes.
 If seasonal trends are a nuisance in your study, there are ways to remove them, as done in the chunk below. 
@@ -210,6 +189,57 @@ ab.adj <- ab.ts - ab.comp$seasonal # remove seasonality
 plot.ts(ab.adj, ylab = "Rodent Abundance (#/hectrare)", xlab = "Time (year)", las = 1)
 ```
 
+### ARMA
+Now, we are going to use a set of time series functions in the R base package along with some functions from the `tseries` package. 
+The first thing we will do is create a time series data set, which identifies the start time and seasonality of our sampling.
+
+```{r}
+# Define the time series and frequency (i.e., number of observations per year)
+ab.ts <- ts(abund$nn, frequency = 2, start = c(1977, 2))
+
+# Let's look at a plot of the data
+plot.ts(ab.ts, ylab = "Rodent Abundance (#/hectrare)", xlab = "Time (year)", las = 1)
+```
+
+We can see from the plot that there may be some trends in the data.
+If the mean, variance, or covariance change as a function of time, then we are likely to be violating the assumption of **stationary**. 
+A stationary series is one where the mean, variance, and covariance is not related to time.
+If the assumption of stationarity is not met, corrective measures should be taken, which could invovle transforming or differencing (t - 1) the data. 
+Here we will use the `adf.test()` function in the `tseries` package, which implements the Augmented Dickey-Fuller Test.  
+This is a commonly applied statistic that tests stationarity in a time series.
+We will be testing the null hypothesis that time series is non-stationary, which means we will condlude that a time series is stationary if the p-value > 0.05.
+
+```{r}
+adf.test(ab.ts.diff, alternative = "stationary") # small p = non-stationary
+```
+
+The Dickey-Fuller test confirms that our time series does not meet the assumption of stationarity.
+Let's try differencing the time series to see if this helps. 
+
+```{r}
+ab.ts.diff<-diff(ab.ts)
+adf.test(ab.ts.diff, alternative = "stationary") 
+plot.ts(ab.ts.diff, ylab = "Rodent Abundance (#/hectrare)", xlab = "Time (year)", las = 1)
+```
+
+One of thing that we will do know is to look at the lags in our timeseries using 
+the *autocorrelation function (ACF)* and the *partial autocorrelation function (PACF)*.
+The trends in these relationships can help guid us in the parameterization and model selection in our ARMA models. 
+
+```{r}
+acf(ab.ts) # autocorrelation function; decays geometically
+pacf(ab.ts) # partial autocorrelation function; decays geometrically
+```
+
+
+
+Together, the above analyses suggest that our data can most likely be fit with an additive model and that transformations or differencing is not required. 
+
+
+
+
+
+
 Last, we will use an autoregressive integrated moving averge (ARIMA) approach to model our data.
 ARIMA models predict a response variable based on regressing observations with past, lagged observations using linear comibiantion of error terms from the combinations of time points. 
 ARIMA models accept parameters (*p*, *d*, and *q*) that describe the number of lags , differencing, and order of the moving-averge model, respectively. 
@@ -218,6 +248,8 @@ Obviously, the reliability of forecast diminshes with time as it's not being upd
 
 ```{r}
 ab.arm <- arima((ab.ts), c(0, 0, 1), seasonal = list(order = c(0, 1, 1), period = 2))
+# arm models with intercept close to one suggest random walk, not arma
+tsdiag(ab.arm)
 pred.arm <- predict(ab.arm, n.ahead = 10*2)
 ts.plot(ab.ts, pred.arm$pred, lty = c(1,3))
 ```
