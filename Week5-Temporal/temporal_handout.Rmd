@@ -10,13 +10,12 @@ geometry: margin=2.54cm
 
 ## OVERVIEW
 
-In this handout, we will explore some basic aspects of temporal diversity. 
 Biological systems are inherently variable thorugh time.
 While some of this variation is stochastic, ecological systems can change though time becasue of abitoic (e.g., rising temperature, increasing CO~2~, drought) or biotic conditions (e.g., invasive species, disease). 
-While some biodiversity scientists focus on processes that occur on contemporary scales (minutes, days, weeks, years), other scientists are interested in what drives patterns of biodiversity in the fossil record over geologic time scales. 
-In this module, we will first introduce you to a new ecological data structure, the time-by-site-species matrix.
+While some biologists focus on processes that occur on contemporary scales (minutes, days, weeks, years), other scientists are interested in what drives patterns of biodiversity in the fossil record over geologic time scales. 
+In this handout, we will first introduce you to a new ecological data structure, the time-by-site-species matrix.
 You will learn how to manage and manipulate this type of data structure using some new R packages. 
-We will then introduce the basics of time series analysis, which will be followed by sections dealing with repeated-measures analysis of variance (RM-ANOVA), temperal beta diversity (i.e., turnover), and synchrony. 
+We will then introduce the basics of time series analysis, which will be followed by sections dealing with repeated-measures analysis of variance (RM-ANOVA), temporal beta diversity (i.e., turnover), and synchrony. 
 
 ## 1) SETUP
 
@@ -36,18 +35,20 @@ The `require()` function in `R` returns `TRUE` if the package was successfully l
 This `for` loop loads each package and installs the package when `require()` returns `FALSE`.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
-package.list <- c('vegan', 'tidyr', 'dplyr', 'codyn', 'ggplot2', 'cowplot', 'MullerPlot', 'RColorBrewer', 'reshape2', 'lubridate', 'TTR', 'xtable', 'multcomp', 'pander', 'png', 'grid', 'tseries')
+package.list <- c('vegan', 'tidyr', 'dplyr', 'codyn', 'ggplot2', 
+      'cowplot', 'MullerPlot', 'RColorBrewer', 'reshape2', 'lubridate', 
+      'TTR', 'xtable', 'multcomp', 'pander', 'png', 'grid', 'tseries')
 for (package in package.list) {
-  if (!require(package, character.only=T, quietly=T)) {
+  if (!require(package, character.only=T, quietly = T)) {
     install.packages(package)
-    library(package, character.only=T)
+    library(package, character.only = T)
   }
 }
 ```
 
 ## 2) LOADING DATA
 
-To learn about topics of temporal biodiversity, we will be using the long-term monitoring dataset of rodents from the Chihuahuan Desert ecosystem near Portal, Arizona.
+To learn about topics of temporal biodiversity, we will use the long-term rodent dataset from the Chihuahuan Desert ecosystem near Portal, Arizona.
 Known as the "Portal Project" <http://portal.weecology.org/>, this biodiversity study was initiatied in the late 1970s by Jim Brown and colleagues to look at species interactions, specifically competition between rodents and ants for plant seeds.
 Early experiments focused on the exclusion of rodents with fencing and trapping, which led to an increase in the ant population size as well as changes in plant species composition.
 These findings inspired Brown and colleagues to construct an improved experiment that continues today. 
@@ -62,7 +63,7 @@ portal <- read.table("data/combined.csv", sep = ",", header = TRUE)
 
 The version of the data that we are working with spans from 1977 - 2002. 
 During this period, individual rodents were captured from plots ("plot_id"), identified to species ("species_id"), which led to the creation of a "record_id" with an associated date (day, month, and year).
-In addition, the sex, size ("hindfoot_length" and "weight") and taxonomic identity ("genus" and "species") of each animal was recorded. 
+In addition, the sex, size ("hindfoot_length" and "weight") and taxonomic identity ("genus" and "species") of animals were recorded. 
 All of this was done in five experimentally replicated treatments (see Figure): 
 
 1) Controls - fencing around plots does not exclude rodents (plot_id: 2, 4, 8, 11, 12, 14, 17, 22) 
@@ -75,23 +76,24 @@ All of this was done in five experimentally replicated treatments (see Figure):
 
 5) Spectab exclosure - exclusion of Banner-tailed kangaroo rat (*Dipodomys spectabilis*) (plot_id: 1, 9) 
 
-```{r, fig.width = 8, fig.height = 3.75, echo=FALSE, fig.align='center', echo=FALSE}
-img <- readPNG("data/portal.png")
-grid.raster(img)
+```{r, fig.width = 8, fig.height = 3.75, echo = FALSE, fig.align = 'center', echo = FALSE}
+portal.img <- readPNG("data/portal.png")
+grid.raster(portal.img)
 ```
 
 ## 3) MANAGING AND MANIPULATING DATA
 
-The Portal Project is a great example of a long-term biodiversity project. 
-The success of the Portal Project is based not only on the generation of a lot of quality data, but also the organization and proper management of these data. 
-One thing you may notice when looking at `portal` is that it has a lot of observations, almost 35,000.
-These data are entered in *long format*, which means that, as described above, each row represents a unique observation. 
-The long format is a convenient way to enter data that reduces entry errors.
-However, you need to manipulate the data for visualization and statistical analysis. 
-For example, many R packages and functions will want you to organize your data in *wide format* where, for example, different sampling time points would be represented in columns.
+The success of the Portal Project is based in part on insightful questions and the generation of data from a creative long-term experiment. 
+In addition to generating a lot of quality data, it was criticial for the Protal Project data to be organized, accessible, and properly managed.  
+One thing you may notice when looking at `portal` is that it has a lot of observations, almost 35,000 (and remmeber this is only 1977 - 2002).
+These data are entered in *long format*, which means tha each row represents a unique observation (i.e., a trapped animal). 
+The long format is a convenient way to enter data that reduces the probability of entry errors.
+However, one needs to manipulate the long-format data for visualization and statistical analysis. 
+For example, many R packages and functions will want you to organize your data in *wide format* where different sampling time points would be represented in columns.
 
-In the following sections, we will demonstate how to manipulate the `portal` data set to carry out different types of analyses using functions from the `dplyr` and `tidyr` packages, which were designed for transforming, subsetting, and summarizing tabular data.
-The functions contained in these two packages (and others) are preferred ways for manipulating data in R compared to other control-flow statements (e.g., for loops and while loops) that are commonly used in other programming languages. 
+In the following sections, we will demonstate how to manipulate the `portal` data set to carry out different types of analyses using functions from the `dplyr` and `tidyr` packages. 
+These packages were especially designed for transforming, subsetting, and summarizing tabular data.
+The functions contained in these two packages (and others; see `apply()` and `aggregate()`) are fast and efficienct, and thus are preferred ways for manipulating data in R compared to other control-flow statements (e.g., for loops and while loops) that are commonly used in other programming languages. 
 
 First, let's use the `unite()` function from the `tidyr` package to create new columns that contain information in other columns. 
 
@@ -106,45 +108,63 @@ portal <- unite(portal, col = taxon, c(genus, species), sep = "_", remove = FALS
 Now, we are going to use `dplyr` to create a time-by-species matrix. 
 To do this, we are going to use a new operator referred to as "pipes" (%>%). 
 Pipes allow output from one function to be used as input for another function in the same line of code.
-When using pipes, you use the output from the function to left to feed into the next function to the right. 
-To build the time-by-species matrix, we we also be using a `dplyr` function called `group_by`, which splits the dataset up using a single or multiple variables.
+When using pipes, the output from the function to left is fed into the next function to the right. 
+To build the time-by-species matrix, we will also use a `dplyr` function called `group_by`, which splits the dataset up using a single or multiple variables.
 After this, `dplyr` allow one to apply functions to the split datset using functions like `summarise()`, which can return summary statistics (e.g., mean, min, max).
-You can also use the `spread()` function from `tidyr` on the split dataset to convert a parts of a long format dataset to a wide format dataset. 
+You can also use the `spread()` function from `tidyr` on the split dataset to convert parts of a long format dataset to a wide format dataset. 
+
+In the following R chunk, we will use `count()` to sum the number of individuals belonging to each taxon while maintaining the grouping by year and plot_id.
+In this case, the fill argument assigns a value of zero if there are no values for a given combination of groupings
 
 ```{r}
-# `count()` sums individuals in each unique taxon, while
-# maintaining the grouping by year and plot_id;
-# fill argument assigns value of 0 if there are no values for a combination
 time.by.species <- group_by(portal, year, plot_id) %>% 
   count(taxon) %>% spread(key = taxon, value = n, fill = 0)
+```
 
-# we can now create many site- or time-by-species matrices from this structure
-dplyr::filter(time.by.species, year == 1984) # return 1984 site by species
-dplyr::filter(time.by.species, plot_id == 5) # return plot5 time by species
+Now we can create differerent site-by-species-by-time matrices
+```{r, results='hide'}
+dplyr::filter(time.by.species, year == 1984) # return 1984 site-by-species
+dplyr::filter(time.by.species, plot_id == 5) # return plot5 time-by-species
+```
 
-
-# Convert tidyr object to a dataframe
+Last, let's convert the `tidyr` object to a dataframe
+```{r}
 time.by.species <- as.data.frame(time.by.species)
 ```
 
 ## 4) TIME SERIES ANALYSIS - AUTO-REGRESSIVE MOVING AVERAGE (ARMA) MODELS
-Because many questions in biodiversity science involve time, we are going to provide a brief overview of time series analysis.
-Time series analysis involves statistical tools for detecting and decomposing trends in temporal data, and distinguishing this from other sources (e.g., error).
+Because many questions in biodiversity science involve time, we are going to provide a brief introduction to time series analysis.
+Time series analysis involves statistical tools for detecting and decomposing trends in temporal data, and distinguishing this from other sources (e.g., seasonality, cycles, and error).
 One of the most basic ways of analyzing a time series is with auto-regressive moving aveverage (ARMA) models.
-The autoregressive component of an ARMA model uses regression to obtain *coefficients* that predict current observations using previous or "lagged" observations from a time series. 
-The moving average component of an ARMA model uses multiple regression to recover *error terms* of the current and prior observations. 
+The autoregressive component of an ARMA model uses regression to obtain *coefficients* that predict current observations using previous or "lagged" observations from a time series, which can be described with the following equation""
+
+$$Y_{t} = {c + \sum\limits_{i=1}^{p} {\phi_i} {Y_{t-i}} + {\epsilon_t} }$$
+
+where $Y_{t}$ is an observation at time $t$, $c$ is a constant, ${\epsilon}$ is the error term, and ${\phi}$ is the fitted parameter associated with the autoregressive order (or lag) $p$. 
+
+The moving average component of an ARMA model uses multiple regression to recover *error terms* of the current and prior observations, which can be described with the following equation:  
+
+$$Y_{t} = {{\mu} + {\epsilon_t} + \sum\limits_{i=1}^{q} {\theta_i}{\epsilon_{t-1}}}$$
+
+where ${\mu} is the mean of the time series ($Y$), ${\theta}$ is fitted parameter, and ${\epsilon}$ refers to errors associated with order (or lag) $q$. The full ARMA model can then be expressed as follows
+
+$$Y_{t} = {c + \sum\limits_{i=1}^{p} {\phi_i} {Y_{t-i}} + {\epsilon_t} } + {\mu} + {\epsilon_t} + \sum\limits_{i=1}^{q} {\theta_i}{\epsilon_{t-1}}$$
+
 Ultimately, ARMA approaches can help identify trends in data and help to make forecasts about future observations. 
-As such, ARMA is commonly used in ecology, but also in business and economics.
-In this section we walk through the basics of ARMA, but also introduce some other commonly used techniques for the preliminary analysis of a time series. 
-Specifically, we provide a primer of time series analysis using the abundance of rodents in a single site of the Portal Project.
-The Chihuahuan Desert sits in a rain shadow created by the Sierra Madre mountains.
-As a result, the Portal site is dry with rain falling primarily during the months of June through October.
-We will try to detect a signal of this seasonality in our dataset, while testing for long-term trends and forecasting rodent densities into the future.
-Let's get started by manipulating our data using some of the tools that we introduced above from the `dplyr` and `tidyr` packages.
+As such, ARMA is commonly used in biology and the environmental sciences, but also in business and economics.
+In this section we walk through the basic ways to implement ARMA in R. 
+Before that, we will aslo introduce some other commonly used techniques that are commonly used in the analysis of time series. 
+We will demonstrate these tools using the abundance of rodents in a single site of the Portal Project.
+Because, the Chihuahuan Desert sits in a rain shadow created by the Sierra Madre mountains, the Portal site is an arid ecosytems with rain falling primarily during the months of June through October.
+We will try to detect a signal of this *seasonality* in our dataset, while testing for long-term trends and forecasting rodent densities into the future.
 
 ### Data wrangling
 
-```{r}
+In the following R chunk, we are going to manipulate `portal` using some of the tools that we introduced above from the `dplyr` and `tidyr` packages.
+Again, we use `count()` to sum the number of individuals belonging to each taxon while maintaining the grouping by year, month, and plot_id.
+We are retaining month so that we can create a categorical variable called "season". 
+
+```{r, results='hide'}
 # Create a time-by-species matrix that includes year, month, and plot_id
 time.by.spec.2 <- group_by(portal, year, month, plot_id) %>% count(taxon) 
 
@@ -157,45 +177,69 @@ time.by.spec.2$season <- ifelse(time.by.spec.2$season == TRUE, "rain", "norain")
 
 # Group the data by year and season
 group_by(time.by.spec.2, year, season)
+```
 
-# Pick a plot and then calculate rodent abundance for each season with a year 
+Now we are going to use the `filter()` function in `dplyr` to pick a plot and calcualte rodent abundance for each season within a year.
+We will then express the abundance data on a per hectare basis (0.25 * 4 = 1 ha).
+We will also use the `ts()` function to make a time series object for our corrected data.
+
+```{r}
 abund <- filter(time.by.spec.2, plot_id == 2) %>% 
   group_by(year, season) %>% 
   count(wt = n)
 
-# Correct abundances to express on a per hectare basis
 abund$nn <- abund$nn * 4
+
+abund.ts <- ts(abund$nn, frequency = 2, start = c(1977, 2))
+
+plot.ts(abund.ts, type = "l", ylab = "Rodent Abundance (#/hectrare)", xlab = "Time (year)", las = 1, ylim = c(0, 500))
 ```
 
 ### Smoothing
 
-One technique that is commonly used, mostly for visualization purposes, is *smoothing*. 
-These types of techniques are used as low-pass filters that effectively remove noise from a data set, and aid in visualizing signal in your dataset.
-In the follow chunk of code we will use a simple moving average procedure from the `TTR` package. 
-The function `sma()` calculates the arithmetic mean of the time series over the past *n* observations.
-This unweighted, moving average approach smooths data with increasing *n*. 
+One technique that is commonly used, mostly for visualizing trends in a time series is *smoothing*. 
+These types of techniques effectively remove noise from a data set, and aid in detecting signal in your dataset.
+The simplest form of smoothing is the *simple moving average*. 
+Not to be confused with the moving average procedure describd in the ARMA, the simple moving average calculates an unweighted arithmetic mean for *Y* across a window of past *n* observations.  
+Let's give this a try uses the `SMA()` function in the `TTR` package. 
 Try out the code below and play around with *n*.
 
 ```{r{}} 
-ab.ts.sm <- SMA(ab.ts, n = 5)
-plot.ts(ab.ts.sm, ylab = "Rodent Abundance (#/hectrare)", xlab = "Time (year)", las = 1)
-
-ab.ts.hw <- HoltWinters(ab.ts, beta = FALSE, gamma = FALSE)
-ab.ts.hw$fitted
-plot(ab.ts.hw, xlab = "Time (year)", las = 1, main = NA)
+abund.sm <- SMA(abund$nn, n = 5)
+plot(abund.sm, type = "l", ylab = "Rodent Abundance (#/hectrare)", xlab = "Time (year)", las = 1, ylim = c(0, 500))
+lines(abund$nn, col = "red")
+legend(2, 450, col = c("black", "red"), lty = c(1,1), c("non-smooth", "smooth"), bty = "n", cex = 1)
 ```
 
-### Decomposing the time series
+One can also *exponentially smooth* a time series. 
+Such procedures often use low-pass filters that apply exponentially less weight on observations over time. 
+A common statistic for peforming exponential smoothing is Holt-Winters filtering.
+In R, the `HoltWinters()` function in the `stats` package allows one to specify two parameters. 
+The beta argument when set to FALSE peforms exponential smoothing, while the gamma argument is used to specify seasonality.
+From the output, you will get an alpha parameter, which ranges from 0 to 1. 
+Values closer to 1 indicate that the smoothing is influenced by current observations, while values closer to 0 indciate that more weight is placed on past observations. 
+
+```{r}
+abund.hw <- HoltWinters(abund$nn, beta = FALSE, gamma = FALSE)
+# abund.hw$fitted
+plot(abund.hw, xlab = "Time (year)", ylab = "Rodent Abundance (#/hectrare)", las = 1, main = NA)
+legend(2, 400, col = c("black", "red"), lty = c(1,1), c("non-smooth", "smooth"), bty = "n", cex = 1)
+```
+
+### Decomposition of a time series
+A time series can be broken down into different categories to help explain what is giving rise to patterns. 
+The common categories of a time series *decomposition* are the trend, seasonal, cycle, and error.
 As mentioned above, we sampled subsampled the `portal` data set so that it included seasonal variation that could be driven by patterns of precipitation. 
-In the following section we will use the `decompose()` function which decomposes the time series so that we can assess contributions from the overal trend, seasonality, and radom processes.
+In the following section we will use the `decompose()` function which decomposes the time series so that we can assess contributions from the overal trend, seasonality, and radom processes (i.e., error).
 If seasonal trends are a nuisance in your study, there are ways to remove them, as done in the chunk below. 
 
 ```{r{}
-ab.comp <- decompose(ab.ts) # moving average decomposition
+abund.comp <- decompose(abund.ts) # moving average decomposition
 plot(ab.comp) 
-
-ab.adj <- ab.ts - ab.comp$seasonal # remove seasonality
-plot.ts(ab.adj, ylab = "Rodent Abundance (#/hectrare)", xlab = "Time (year)", las = 1)
+abund.adj <- abund.ts - abund.comp$seasonal # remove seasonality
+plot.ts(abund.adj, ylab = "Rodent Abundance (#/hectrare)", xlab = "Time (year)", las = 1, col = "red", ylim = c(0, 500))
+lines(abund.ts, col = "black")
+legend(1977, 475, col = c("black", "red"), lty = c(1,1), c("with seasonality", "seasonality corrected"), bty = "n", cex = 1)
 ```
 
 ### ARMA
