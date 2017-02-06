@@ -522,15 +522,29 @@ plot(turn.plot)
 
 
 ### C. Rank Shift
+While turnover gives a measure of how dynamic a community is over time, it would also be interesting to learn how often dominance (i.e., the most abundant species) changes over time. 
+If turnover is due mostly to gains and losses of rare species, with little change to the dominant members, this is not uncommon. 
+However, if the community sees drastic rearrangements of community dominance (i.e., the most abundant species change ranks frequently) this could suggest something different is going on.
+Mean rank shifts measure the relative change in species rank abundances.  
+$$
+MRS = \sum_{i=1}^{n}\left(\left| R_{i, t+1} - R_{i, t} \right|\right)/n
+$$
 
+Here, we calculate MRS, plot it, and characterize its variability.
 ```{r}
-portal.rankshift <- rank_shift(df = portal.species.abunds, 
-                               time.var = "year",
-                               species.var = "taxon",
-                               abundance.var = "n")
+# above we calculated abundances of species in each site over time
+portal.species.abunds
+portal.rankshift <- rank_shift(
+  df = as.data.frame(portal.species.abunds), 
+  time.var = "year",
+  species.var = "taxon",
+  abundance.var = "n",
+  replicate.var = "plot_type")
+
+# here, we will replace the year range with a single value to plot
 portal.rankshift$year <- as.numeric(substr(portal.rankshift$year_pair, 6, 9))
 
-rankshift.plot <- ggplot(portal.rankshift, aes(x = year, y = MRS)) + 
+rankshift.plot <- ggplot(portal.rankshift, aes(x = year, y = MRS, color = plot_type)) + 
   geom_line(size = 1) + 
   xlim(1977, 2002) + 
   xlab("Year") + 
@@ -538,54 +552,145 @@ rankshift.plot <- ggplot(portal.rankshift, aes(x = year, y = MRS)) +
 
 plot(rankshift.plot)
 
-# Check out help(rate_change_interval) and note that this function calculates the 
-# Euclidean distance between each site. Remember, this is not an ideal distance.
-# Let's use an appropriate transformation on the abundances first.
+# How variable are each groups? Let's calculate the coefficient of variation
+group_by(portal.rankshift, plot_type) %>% summarise(variability = sd(MRS) / mean(MRS))
 
-# let's cound the total abundances in each year (i.e., rowsum)
-total.abunds <- portal.species.abunds %>% group_by(year) %>% count(wt = n)
-
-# Now, let's join these total counts with the counts for each species
-portal.hellinger.transf <- inner_join(portal.species.abunds, total.abunds, by = "year") %>% 
-  mutate(hellinger.transf = sqrt(n / nn))
-
-# Now, we have a third column, the square root of the relative abundances, the hellinger transformation
-# calculating the euclidean distance on Hellinger-transformed data is appropriate.
-portal.change.int <- rate_change_interval(portal.hellinger.transf,
-                     time.var = "year",
-                     species.var = "taxon",
-                     abundance.var = "hellinger.transf")
-
-rate.plot <- ggplot(portal.change.int, aes(interval, distance)) + 
-  geom_point() + 
-  stat_smooth(method = "loess", se = F, size = 1) + 
-  ylab("Hellinger Distance") + 
-  xlab("Time Interval (Years)")
-rate.plot
-
-turnover.grid.plot <- plot_grid(rich.plot, 
-          turn.plot, 
-          rankshift.plot,
-          rate.plot,
-          labels = c("A", "B", "C", "D"), 
-          nrow = 4, align = "v")
-
-ggsave("fig-turnover-grid.png", turnover.grid.plot,
-       width = 6, height = 10, units = "in")
-graphics.off()
-grid::grid.raster(png::readPNG("fig-turnover-grid.png"))
+cyclic_shift(df = as.data.frame(portal.species.abunds), 
+  time.var = "year",
+  species.var = "taxon",
+  abundance.var = "n",
+  replicate.var = "plot_type",
+  FUN = rank_shift(),
+  bootnumber = 10)
 
 ```
 
+### D. Rate Change Inverval
+The temporal lag in community similarity suggests a time duration at which communities become sufficiently dissimilar to one another. 
+For example, in highly dynamic systems with high species replacement and large mean rank shifts, temporal turnover may saturate after a relatively short time interval, say 5 years, after which pairwise dissimilarity values remain sufficiently different. 
+Alternatively, in more stable communities, comparably large pairwise dissimmilarities may take tens if not hundreds of years.
+```{r}
+portal.total.abunds <- portal.species.abunds %>% group_by(year, plot_type) %>% count(wt = n)
+portal.change.int1 <- rate_change_interval(portal.species.abunds,
+                     time.var = "year",
+                     species.var = "taxon",
+                     abundance.var = "n", 
+                     replicate.var = "plot_type")
+
+rate.plot1 <- ggplot(portal.change.int1, aes(interval, distance)) + 
+  geom_point() + 
+  facet_wrap(~plot_type) +
+  stat_smooth(method = "loess", se = F, size = 1) + 
+  ylab("Euclidean Distance") + 
+  xlab("Time Interval (Years)")
+rate.plot1
+```
+Each plot looks quite different from one another. The control plot tends to keep increasing, while the Krat exclosures resemble one another and seem to saturate. The Spectab exclosure shows relatively little dissimilarity even across the whole 25-year experiment. The rodent exclosures appear to have gone through a long-term fluctuation and seem to more closely resemble each other after 25 years apart than after 10 years apart.
+
+But what is on the y-axis? Use `help(rate_change_interval)` to find out.
+
+We see that this function calculates the Euclidean distance between two communities. Remember from our discussion of beta-diversity, that Euclidean distances are not appropriate for calculating community dissimilarity because the distance between sites that share no species in common may be shorter than between sites that share species but in different abundances! So, we need to transform these data with an appropriate transformation before making strong inferences about what is going on in our dataset, especially noting the hump-shaped pattern of the rodent exclosure treatment. Recall that one of the appropriate transformations is the Hellinger transformation, advocated by Legendre and Gallagher (2001). The Euclidean distance calculated on the Hellinger-transformed species abundances generates the Hellinger distance.
+
+The Hellinger transformation is the square root of the relative abundances: $y'{ij} = \sqrt{\frac{y{ij}}{y_{i+}}}$
+
+```{r}
+# In order to calculate relative abundances, we need total abundances
+# First, let's count the total abundances
+total.abunds <- portal.species.abunds %>% 
+  group_by(year, plot_type) %>% 
+  count(wt = n)  # The wt sums the values of n within a year
+total.abunds # We now have a column nn that is the site total abund.
+
+# Now, let's join these total counts with the counts for each species
+portal.hellinger.transf <- inner_join(
+  portal.species.abunds, total.abunds, by = c("year", "plot_type")) %>% 
+  mutate(hellinger.transf = sqrt(n / nn))
+
+# The mutate function creates a new column "hellinger.transf" 
+# by taking the square root of species relative abundance
+portal.hellinger.transf
+
+# We can use this new column as our "abundance" vector
+portal.change.int2 <- rate_change_interval(portal.hellinger.transf,
+                     time.var = "year",
+                     species.var = "taxon",
+                     abundance.var = "hellinger.transf", 
+                     replicate.var = "plot_type")
+
+rate.plot2 <- ggplot(portal.change.int2, aes(interval, distance)) + 
+  geom_point() + 
+  facet_wrap(~plot_type) +
+  stat_smooth(method = "loess", se = F, size = 1) + 
+  ylab("Hellinger Distance") + 
+  xlab("Time Interval (Years)")
+rate.plot2
+```
+
+These figures tell a much different story than the previous ones using just the Euclidean distances alone. Thus, it remains important to understand the distance metrics you are using and how they are influenced by species abundances.
+
+
 
 ## 7) SYNCHRONY, or covarying species; perhaps stability, compensatory dynamics, or variance ratio?
+Species may also exhibit synchrony: their changes in abundance are not independent from one another. 
+...
+
+
+
 http://onlinelibrary.wiley.com/doi/10.1111/2041-210X.12188/epdf
 https://cran.r-project.org/web/packages/vrtest/vrtest.pdf
+
+### A. Species synchrony
+```{r}
+portal.loreau <- synchrony(df = as.data.frame(portal.species.abunds),
+          time.var = "year",
+          species.var = "taxon",
+          abundance.var = "n",
+          replicate.var = "plot_type",
+          metric = "Loreau")
+names(portal.loreau)[2] <- "loreau"
+portal.gross <- synchrony(df = as.data.frame(portal.species.abunds),
+          time.var = "year",
+          species.var = "taxon",
+          abundance.var = "n",
+          replicate.var = "plot_type",
+          metric = "Gross")
+names(portal.gross)[2] <- "gross"
+```
+
+### B. Variance Ratio
+VR = 1 species do not covary, 
+VR > 1 species positively covary
+VR < 1 species negatively covary
+Bootstrapping...CI returned. 
+```{r}
+portal.vr <- variance_ratio(df = as.data.frame(portal.species.abunds),
+               time.var = "year",
+               species.var = "taxon",
+               abundance.var = "n",
+               replicate.var = "plot_type",
+               bootnumber = 100,
+               average.replicates = T,
+               level = 0.95)
+```
+
+### C. Community Stability
+Temporal mean over standard deviation of aggregate species abundances
+```{r}
+portal.stab <- community_stability(df = as.data.frame(portal.species.abunds),
+                    time.var = "year",
+                    abundance.var = "n",
+                    replicate.var = "plot_type")
+
+# Let's take a look at stability metrics across exclosures
+pander(full_join(portal.loreau, portal.gross) %>% 
+  full_join(portal.stab))
+```
+
 
 ## 8) Using environmental drivers to explain temporal biodiversity data (univariate, multivariate, both?)
 ## loading and plotting precipitation data
 ## perhaps take the sum rather than mean of precip below
-```{r}
+```{r, eval=FALSE}
 precip1 <- read.table(file = "./data/Portal_precipitation_19801989.csv", header = T, sep = ",")
 precip2 <- read.table(file = "./data/Portal_precipitation_19892002.csv", header = T, sep = ",")
 
