@@ -1,7 +1,7 @@
 ---
 title: "Phylogenetic Diversity - Traits"
 author: "Z620: Quantitative Biodiversity, Indiana University"
-date: "February 20, 2015"
+date: "February 17, 2017"
 header-includes:
    - \usepackage{array}
 output: pdf_document
@@ -25,27 +25,27 @@ After completing this exercise you will know how to:
 ```{r, results = 'hide'}
 rm(list = ls())
 getwd()
-setwd("~/GitHub/QuantitativeBiodiversity/Assignments/PhyloTraits")
+setwd("~/GitHub/QB-2017/Week6-PhyloTraits")
 ```
 
 ### B. Load Packages 
 There are many contributed R packages that have been developed for conducting phylogenetic analyses (http://goo.gl/DtU16j). 
 We will rely heavily on the `ape` (http://goo.gl/nExs0), which peforms a wide range of phylogenetic analyses. 
-We will supplement this with other packages for some specialized tasks such as sequence alignment (`muscle`), reading of aligned sequences (`seqinr`), and testing for phylogenetic signal (`geiger`).
-You may also want to check out the `phangorn` package (http://goo.gl/iWU6Vt), which is good for conducting maximum likelihood analyses. 
+We will supplement this with other packages for some specialized tasks such as reading of aligned sequences (`seqinr`), and testing for phylogenetic signal (`geiger`).
+We will also align sequences using the program `muscle` through the terminal.
+You may also want to check out the `phangorn` package (http://goo.gl/iWU6Vt), which is good for conducting maximum likelihood analyses in R. It is also worth looking into the Randomized Axelerated Maximum Likelihood (RAxML) package for generating maximum likelihood values with bootstrap support (http://sco.h-its.org/exelixis/web/software/raxml/index.html). For large numbers of taxa programs like RAxML may be too slow. Here you can use the program FastTree to generate approximately-maximum-likelihood phylogenetic trees, sacrificing exactness for speed. However, both RAxML and FastTree will have to be run in the terminal.
+
 After the initial installation of these packages using the `install.packages()` fucntion, let's load the packages and their dependencies with the `require()` function:
 
+
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
-require("muscle")
-require("ape")
-require("seqinr")
-require("phylobase")
-require("adephylo")
-require("geiger") 
-require("picante")
-require("stats")
-require("RColorBrewer")
-require("caper")
+package.list <- c('ape', 'seqinr', 'phylobase', 'adephylo', 'geiger', 'picante', 'stats', 'RColorBrewer', 'caper', 'phylolm', 'pmc')
+for (package in package.list) {
+  if (!require(package, character.only=TRUE, quietly=TRUE)) {
+    install.packages(package)
+    library(package, character.only=TRUE)
+  }
+}
 ```
 
 ## 2) DESCRIPTION OF DATA
@@ -85,10 +85,10 @@ Do not save any inadvertent changes to *p.isolates.fasta*.
 Now, let's align our sequences. 
 Using the `muscle` fuction, we will read in our FASTA file and create a FASTA-aligned output file (with an .afa extension).  
 
-```{r, results = 'hide', message = FALSE, warning = FALSE} 
-# Identify input and output files to perform alignment in the `muscle` package
-muscle::muscle(seqs="./data/p.isolates.fasta", out = "./data/p.isolates.afa") 
+```{bash, results = 'hide'}
+muscle -in ./data/p.isolates.fasta -out ./data/p.isolates_test.afa
 ```
+
 
 ***Question 1***: Using nano or your favorite text editor, compare the `p.isolates.fasta` file and the `p.isolates.afa` file. 
 Describe the differences that you observe between the files. 
@@ -540,63 +540,76 @@ c.  Discuss what factors might give rise to differences between the metrics.
 > ***Answer 7b***:  
 > ***Answer 7c***:  
   
-## 7) HOMEWORK
-
-1.  Below is the output of a multiple regression model depicting the relationship between the maximum growth rate ($\mu_{max}$) of each bacterial isolate and the niche breadth of that isoalte on the 18 different sources of phosphorus. 
-One feature of the study which we did not reveal earlier in the handout is that the isolates came from two different lakes. 
-One of the lakes is an very oligotrophic (i.e., low phosphorus) ecosystem named Little Long (LL) Lake. 
-The other lake is an extremely eutrophic (i.e., high phosphorus) ecosystem named Wintergreen (WG) Lake.
-We included a "dummy variable" (D) in the multiple regression model (0 = WG, 1 = LL) to account for the environment from which the bacteria were obtained.  
-Based on your knowledge of the traits and their phylogenetic distributions, what conclusions would you draw about our data and the evidence for a generalist-specialist tradeoff? 
-
-```{r, echo=FALSE, fig.width=6, fig.height=4}
-p.growth <- read.table("./data/p.isolates.raw.growth.txt", sep = "\t", header = TRUE, row.names = 1)
-umax <- (apply(p.growth, 1, max)) # calculate max growth
-lake <- ifelse(grepl("WG",row.names(p.growth)),'WG', 'LL') # make an empty vector for lake id
-tradeoff <- data.frame(nb,umax,lake) # make new data frame
-
-D <- (lake == "LL") * 1
-fit<-lm(log10(umax) ~ nb + D + nb * D)
-
-LL.nb <- subset(nb,lake == "LL")
-WG.nb <- subset(nb,lake == "WG")
-
-LL.umax <- subset(umax,lake == "LL")
-WG.umax<-subset(umax,lake == "WG")
-par(mar=c(4,4,0,1)+ 0.1)
-plot(LL.nb, log10(LL.umax), axes = F, xlab = "Niche Breadth", ylab = "Maximum Growth Rate", 
-  pch = 21, cex = 2.0, las = 1, col = "black", bg = "white",
-  xlim=c(0,1), ylim = c(-2, 1))
   
-  points(WG.nb,log10(WG.umax),pch=21,cex=2,col="black", bg="black")
-  box()
-  ticks <- c(0.01, 0.1, 1, 10)
-  axis(side = 1, labels = T, cex.axis = 1)
-  axis(side = 2, las = 1, cex.axis = 1, labels = ticks,
-    at = log10(ticks))
-  axis(3,labels = F)
-  axis(side = 4, at = log10(ticks), labels = F)
-
-curve(fit$coefficients[1] + fit$coefficients[2] * x, from = min(WG.nb - 0.1), 
-  to = max(WG.nb +0.1), add = TRUE, lty = 2)
-Int <- fit$coefficients[1] + fit$coefficients[3]
-Slp <- fit$coefficients[2] + fit$coefficients[4]
-curve((Int) + (Slp) * x, from = min(LL.nb - 0.08), to =max(LL.nb + 0.1), add = TRUE, lty = 2)
   
-  legend("topleft", legend = c("LL","WG"), pch = c(1,16), cex = 1, col = "black", bty = "n")
+## 7) QUANTIFYING TRAIT EVOLUTION
 
-summary(fit)
+talk about how things are related, need to correct for  
 
-coefficients <- coefficients(fit) # model coefficients
-confit <- confint(fit,level=0.95) # 95% CI for parameters
-predicted <- fitted(fit) # predicted values
-residuals <- residuals(fit) # residuals
-anova <- anova(fit) # anova table
-vcov <- vcov(fit) # covariance matrix for model parameters
-influence <- influence(fit) # regression diagnostics
-par(mfrow = c(2, 2), mar = c(5.1 ,4.1 ,4.1 ,2.1))
-plot(fit)
+### A. Correcting for the underlying phylogeny
+
+  
+  
+Clean mammal dataset
+
+```{r}
+mammal.Tree <- read.tree("./data/mammal_best_super_tree_fritz2009.tre")
+mammal.data <- read.table("./data/mammal_BMR.txt", sep = "\t", header = TRUE)
+# subset
+mammal.data<- mammal.data[,c("Species","BMR_.mlO2.hour.","Body_mass_for_BMR_.gr.")]
+mammal.species <- array(mammal.data$Species)
+pruned.mammal.tree <- drop.tip(mammal.Tree, mammal.Tree$tip.label[-na.omit(match(mammal.species, mammal.Tree$tip.label))])
+
+pruned.mammal.data <- mammal.data[mammal.data$Species %in% pruned.mammal.tree$tip.label,]
+# turn column of Species names into rownames 
+rownames(pruned.mammal.data) <- pruned.mammal.data$Species
+
 ```
 
-2.  Use Knitr to create a pdf of your completed PhyloTraits_handout.Rmd document, push it to GitHub, and create a pull request.
-The due date for this assignment is February 25, 2015 at 12:00 PM (noon).
+Let's look at the relationship between mass and BMR 
+
+```{r}
+fit <- lm(log10(BMR_.mlO2.hour.) ~ log10(Body_mass_for_BMR_.gr.), data=pruned.mammal.data)
+plot(log10(pruned.mammal.data$Body_mass_for_BMR_.gr.), log10(pruned.mammal.data$BMR_.mlO2.hour.),  las = 1, xlab="Body mass, log", ylab="Basal Metabolic Rate (BMR), log")
+abline(a = fit$coefficients[1], b = fit$coefficients[2])
+b1 <- round(fit$coefficients[2],3)
+eqn <- bquote(italic(b) == .(b1))
+text(0.5, 4.5, eqn, pos = 4)
+```
+
+Now let's correct for phylogeny
+
+
+
+```{r}
+fit.phy <- phylolm(log10(BMR_.mlO2.hour.) ~ log10(Body_mass_for_BMR_.gr.), data = pruned.mammal.data, 
+                   pruned.mammal.tree, model = 'lambda')
+
+plot(log10(pruned.mammal.data$Body_mass_for_BMR_.gr.), log10(pruned.mammal.data$BMR_.mlO2.hour.),  las = 1, xlab="Body mass, log", ylab="Basal Metabolic Rate (BMR), log")
+abline(a = fit.phy$coefficients[1], b = fit.phy$coefficients[2])
+b1.phy <- round(fit.phy$coefficients[2],3)
+eqn <- bquote(italic(b) == .(b1.phy))
+text(0.5, 4.5, eqn, pos = 4)
+
+```
+
+### B. 
+
+
+## REFERENCES
+
+Boettiger, C., Coop, G., & Ralph, P. (2012). Is your phylogeny informative? Measuring the power of comparative methods. Evolution, 66(7), 2240–2251. http://doi.org/10.1111/j.1558-5646.2011.01574.x
+
+Bartoszek, K., Pienaar, J., Mostad, P., Andersson, S., & Hansen, T. F. (2012). A phylogenetic comparative method for studying multivariate adaptation. Journal of Theoretical Biology, 314, 204–215. http://doi.org/10.1016/j.jtbi.2012.08.005
+
+Butler, M., & King, A. A. (2004). Phylogenetic comparative analysis: a modeling approach for adaptive evolution. American Naturalist, 164(6), 683–695.
+Revell, L. J. (2010). Phylogenetic signal and linear regression on species data. Methods in Ecology and Evolution, 1(4), 319–329. http://doi.org/10.1111/j.2041-210X.2010.00044.x
+
+Cadotte, M. W., & Davies, T. J. (2016). Phylogenies in Ecology: A Guide to Concepts and Methods. Princeton, NJ: Princeton University Press.
+
+Lynch, M. (1991). Methods for the Analysis of Comparative Data in Evolutionary Biology. Evolution, 45(5), 1065. http://doi.org/10.2307/2409716
+
+Paradis, E. (2012). Analysis of Phylogenetics and Evolution with R. New York: Springer.
+Hansen, T. F., & Bartoszek, K. (2012). Interpreting the evolutionary regression: The interplay between observational and biological errors in phylogenetic comparative studies. Systematic Biology, 61(3), 413–425. http://doi.org/10.1093/sysbio/syr122
+
+

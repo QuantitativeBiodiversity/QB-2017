@@ -376,3 +376,66 @@ Based on your knowledge of the traits and their phylogenetic distributions, what
 
 2.  Use Knitr to create a pdf of your completed PhyloTraits_handout.Rmd document, push it to GitHub, and create a pull request.
 The due date for this assignment is February 25, 2015 at 12:00 PM (noon).
+
+
+
+## 7) HOMEWORK
+
+1.  Below is the output of a multiple regression model depicting the relationship between the maximum growth rate ($\mu_{max}$) of each bacterial isolate and the niche breadth of that isoalte on the 18 different sources of phosphorus. 
+One feature of the study which we did not reveal earlier in the handout is that the isolates came from two different lakes. 
+One of the lakes is an very oligotrophic (i.e., low phosphorus) ecosystem named Little Long (LL) Lake. 
+The other lake is an extremely eutrophic (i.e., high phosphorus) ecosystem named Wintergreen (WG) Lake.
+We included a "dummy variable" (D) in the multiple regression model (0 = WG, 1 = LL) to account for the environment from which the bacteria were obtained.  
+Based on your knowledge of the traits and their phylogenetic distributions, what conclusions would you draw about our data and the evidence for a generalist-specialist tradeoff? 
+
+```{r, echo=FALSE, fig.width=6, fig.height=4}
+p.growth <- read.table("./data/p.isolates.raw.growth.txt", sep = "\t", header = TRUE, row.names = 1)
+umax <- (apply(p.growth, 1, max)) # calculate max growth
+lake <- ifelse(grepl("WG",row.names(p.growth)),'WG', 'LL') # make an empty vector for lake id
+tradeoff <- data.frame(nb,umax,lake) # make new data frame
+
+D <- (lake == "LL") * 1
+fit<-lm(log10(umax) ~ nb + D + nb * D)
+
+LL.nb <- subset(nb,lake == "LL")
+WG.nb <- subset(nb,lake == "WG")
+
+LL.umax <- subset(umax,lake == "LL")
+WG.umax<-subset(umax,lake == "WG")
+par(mar=c(4,4,0,1)+ 0.1)
+plot(LL.nb, log10(LL.umax), axes = F, xlab = "Niche Breadth", ylab = "Maximum Growth Rate", 
+  pch = 21, cex = 2.0, las = 1, col = "black", bg = "white",
+  xlim=c(0,1), ylim = c(-2, 1))
+  
+  points(WG.nb,log10(WG.umax),pch=21,cex=2,col="black", bg="black")
+  box()
+  ticks <- c(0.01, 0.1, 1, 10)
+  axis(side = 1, labels = T, cex.axis = 1)
+  axis(side = 2, las = 1, cex.axis = 1, labels = ticks,
+    at = log10(ticks))
+  axis(3,labels = F)
+  axis(side = 4, at = log10(ticks), labels = F)
+
+curve(fit$coefficients[1] + fit$coefficients[2] * x, from = min(WG.nb - 0.1), 
+  to = max(WG.nb +0.1), add = TRUE, lty = 2)
+Int <- fit$coefficients[1] + fit$coefficients[3]
+Slp <- fit$coefficients[2] + fit$coefficients[4]
+curve((Int) + (Slp) * x, from = min(LL.nb - 0.08), to =max(LL.nb + 0.1), add = TRUE, lty = 2)
+  
+  legend("topleft", legend = c("LL","WG"), pch = c(1,16), cex = 1, col = "black", bty = "n")
+
+summary(fit)
+
+coefficients <- coefficients(fit) # model coefficients
+confit <- confint(fit,level=0.95) # 95% CI for parameters
+predicted <- fitted(fit) # predicted values
+residuals <- residuals(fit) # residuals
+anova <- anova(fit) # anova table
+vcov <- vcov(fit) # covariance matrix for model parameters
+influence <- influence(fit) # regression diagnostics
+par(mfrow = c(2, 2), mar = c(5.1 ,4.1 ,4.1 ,2.1))
+plot(fit)
+```
+
+2.  Use Knitr to create a pdf of your completed PhyloTraits_handout.Rmd document, push it to GitHub, and create a pull request.
+The due date for this assignment is February 25, 2015 at 12:00 PM (noon).
