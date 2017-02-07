@@ -270,14 +270,29 @@ plot.phylo(F84.rooted, type = "phylogram", direction = "left", show.tip.label=TR
 
 `phangorn`
 
-```{r}
-# requires alignment to be read in with as phyDat object
-#p.DNAbin.phyDat <- read.phyDat("./data/p.isolates.afa", format="fasta", type="DNA")
-#dm <- dist.ml(p.DNAbin.phyDat)
-#treeNJ <- NJ(dm)
-#fit <- pml(nj.tree, data=p.DNAbin)
+Because it can take a long time to estimate a maximum likelihood phylogeny in R, we've blocked out the code. Feel free to make your own maximum likelihood phylogeny on your own.  
 
+```{r}
+# Requires alignment to be read in with as phyDat object
+#p.DNAbin.phyDat <- read.phyDat("./data/p.isolates.afa", format="fasta", type="DNA")
+#fit <- pml(nj.rooted, data=p.DNAbin.phyDat)
+# Fit tree using a JC69 substitution model
+#fitJC <- optim.pml(fit, TRUE)
+# Fit tree using a GTR model with gamma distributed rates.
+#fitGTR <- optim.pml(fitGTR, model="GTR", optInv=TRUE, optGamma=TRUE,
+#  rearrangement = "NNI", control = pml.control(trace = 0))
+# You can perform model selection with either an ANOVA test or by AIC value
+#anova(fitJC, fitGTR)
+#AIC(fitJC)
+#AIC(fitGTR)
+
+# And you can perform a bootstrap test to see how well-supported the edges are
+#bs = bootstrap.pml(fitJC, bs=100, optNni=TRUE,
+  #control = pml.control(trace = 0))
 ```
+
+
+We have also included a short script in the folder `bash` under Week6 that will allow you to generate a maximum likelihood tree on the IU computer cluster Mason using the program RAxML. Generating a maximum likelihood tree is computationally intensive, so if you need a maximum likelihood tree it's often easier to run it on a desktop or a computer cluster rather than your laptop. If you are an IU student, postdoc, or faculty member you can register for an account on Mason. See the IU Mason webpage for more information (https://kb.iu.edu/d/bbhh).
 
 
 ## 5) INTEGRATING TRAITS AND PHYLOGENY
@@ -572,7 +587,7 @@ As a side note, often measures of phylogenetic signal build off of these simple 
 ## 7) PHYLOGENETIC REGRESSION ANALYSIS
 
 
-You will often want to examine the relationship between two variables. The simplest way to do this is by performing a simple linear regression, a method that you learned in Week 1. However, as outlined above, your samples violate the assumption of independance for regression analysis due to their shared evolutionary history. The way arround this issue is to perform a phylogenetic regression. The main difference between the two is that in a simple linear regression the residual errors $\varepsilon$ are assumed to be independent and identically distributed random variables that follow a normal distribution, while in a phylogenetic regression the residual errors are described by a covariance matrix that takes into account the underlying phylogeny. It is also important to take into account the phylogenetic signal in the residual error, not just the evolutionary history described by the phylogeny. If phylogenetic signal is not taken into account your phylogenetic regression can have poor statistical performance (Revell, 2010).
+You will often want to examine the relationship between two variables. The simplest way to do this is by performing a simple linear regression, a method that you learned in Week 1. However, as outlined above, your samples violate the assumption of independance for regression analysis due to their shared evolutionary history. The way arround this issue is to perform a phylogenetic regression. The main difference between the two is that in a simple linear regression the residual errors $\varepsilon$, given an independant variable ($X$), are assumed to be independent and identically distributed random variables that follow a normal distribution with a mean of $0$ and a variance of $\sigma^{2}$ : $\varepsilon \mid X \sim N(0, \sigma^{2} I_{n})$. However, in a phylogenetic regression the variance of the residual errors are described by a covariance matrix ($V$)  that takes into account the branch lengths of the underlying phylogeny: $\varepsilon \mid X \sim N(0, V)$. It is also important to take into account the phylogenetic signal in the residual error when $V$ is estimated, not just the evolutionary history described by the phylogeny. If phylogenetic signal is not taken into account your phylogenetic regression can have poor statistical performance (Revell, 2010).
 
 To show how to perform a phylogenetic regression we will examine the scaling relationship (i.e. power law) between body mass (M) and Basal Metabolic Rate (BMR), the minimal rate of energy expenditure per unit time by endothermic animals at rest. This relationship has significant phylogenetic signal and can be described by the power law  $BMR = cM^{z}$, where z is the scaling exponent and c is the scaling factor (Capellini et al., 2010). In regression terms this can be described $log(BMR) = log(c) + zlog(M)$, an equation that you should recognize from Week 4.
 
