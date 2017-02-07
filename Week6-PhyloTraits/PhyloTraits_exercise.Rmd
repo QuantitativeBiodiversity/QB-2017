@@ -358,6 +358,10 @@ c.  Discuss what factors might give rise to differences between the metrics.
 > ***Answer 7a***:  
 > ***Answer 7b***:  
 > ***Answer 7c***:  
+
+
+### BM vs. Lambda
+
   
 ## 7) HOMEWORK
 
