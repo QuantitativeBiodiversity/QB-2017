@@ -10,8 +10,8 @@ geometry: margin=2.54cm
 
 ## OVERVIEW
 
-Biological systems are inherently variable thorugh time.
-While some of this variation is stochastic, ecological systems can change though time becasue of abitoic (e.g., rising temperature, increasing CO~2~, drought) or biotic conditions (e.g., invasive species, disease). 
+Biological systems are inherently variable through time.
+While some of this variation is stochastic, ecological systems can change though time because of abiotic (e.g., rising temperature, increasing CO~2~, drought) or biotic conditions (e.g., invasive species, disease). 
 While some biologists focus on processes that occur on contemporary scales (minutes, days, weeks, years), other scientists are interested in what drives patterns of biodiversity in the fossil record over geologic time scales. 
 In this handout, we will first introduce you to a new ecological data structure, the time-by-site-species matrix.
 You will learn how to manage and manipulate this type of data structure using some new R packages. 
@@ -24,7 +24,7 @@ We will then introduce the basics of time series analysis, which will be followe
 ```{r, results = 'hide'}
 rm(list=ls()) 
 getwd() 
-setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week5-Temporal/") 
+setwd("~/GitHub/QB-2017/Week5-Temporal/") 
 ```
 
 ### Install Packages
@@ -49,7 +49,7 @@ for (package in package.list) {
 ## 2) LOADING DATA
 
 To learn about topics of temporal biodiversity, we will use the long-term rodent dataset from the Chihuahuan Desert ecosystem near Portal, Arizona.
-Known as the "Portal Project" <http://portal.weecology.org/>, this biodiversity study was initiatied in the late 1970s by Jim Brown and colleagues to look at species interactions, specifically competition between rodents and ants for plant seeds.
+Known as the "Portal Project" <http://portal.weecology.org/>, this biodiversity study was initiated in the late 1970s by Jim Brown and colleagues to look at species interactions, specifically competition between rodents and ants for plant seeds.
 Early experiments focused on the exclusion of rodents with fencing and trapping, which led to an increase in the ant population size as well as changes in plant species composition.
 These findings inspired Brown and colleagues to construct an improved experiment that continues today. 
 The Portal Project monitors 24 replicated experimental plots, each 0.25 ha in area (50 X 50 m).
@@ -84,16 +84,16 @@ grid.raster(portal.img)
 ## 3) DATA WRANGLING
 
 The success of the Portal Project is based reflects insightful questions from a creative long-term experiment. 
-In addition to generating a lot of quality information, it was criticial for the Protal Project's data to be organized, accessible, and properly managed.  
+In addition to generating a lot of quality information, it was critical for the Portal Project's data to be organized, accessible, and properly managed.  
 One thing you may notice when looking at `portal` is that it has a lot of observations, almost 35,000 (and remember this is only 1977 - 2002).
-These data are entered in *long format*, which means tha each row represents a unique observation (i.e., a trapped animal). 
+These data are entered in *long format*, which means that each row represents a unique observation (i.e., a trapped animal). 
 The long format is a convenient way to enter data that reduces the probability of entry errors.
 However, one needs to manipulate the long-format data for visualization and statistical analysis. 
 For example, many R packages and functions will want you to organize your data in *wide format* where different sampling time points would be represented in columns.
 
-In the following sections, we will demonstate how to manipulate the `portal` data set to carry out different types of analyses using functions from the `dplyr` and `tidyr` packages. 
+In the following sections, we will demonstrate how to manipulate the `portal` data set to carry out different types of analyses using functions from the `dplyr` and `tidyr` packages. 
 These packages were especially designed for transforming, subsetting, and summarizing tabular data.
-The functions contained in these two packages (and others like `apply()` and `aggregate()`) are fast and efficienct, and thus are preferred ways for manipulating data in R compared to other control-flow statements (e.g., for loops and while loops) that are commonly used in other programming languages. 
+The functions contained in these two packages (and others like `apply()` and `aggregate()`) are fast and efficient, and thus are preferred ways for manipulating data in R compared to other control-flow statements (e.g., for loops and while loops) that are commonly used in other programming languages. 
 
 First, let's use the `unite()` function from the `tidyr` package to create new columns that contain information in other columns. 
 
@@ -139,8 +139,8 @@ time.by.species <- as.data.frame(time.by.species)
 Because many questions in biodiversity science involve time, we are going to provide a brief introduction to some basic concepts and practices associated with time series analysis.
 Time series analysis involves a suite of statistical tools for detecting and decomposing trends in temporal data, and distinguishing this from other sources (e.g., seasonality, cycles, and error).
 We will demonstrate some of these tools using the abundance of rodents in a single site of the Portal Project.
-Because, the Chihuahuan Desert sits in a rain shadow created by the Sierra Madre mountains, the Portal site is an arid ecosytems with rain falling primarily during the months of June through October.
-This variabiltiy in precipitation provides an opportunity for us to detect a signal of this *seasonality* in our dataset, while testing for long-term trends and forecasting rodent densities into the future.
+Because, the Chihuahuan Desert sits in a rain shadow created by the Sierra Madre Mountains, the Portal site is an arid ecosystems with rain falling primarily during the months of June through October.
+This variability in precipitation provides an opportunity for us to detect a signal of this *seasonality* in our dataset, while testing for long-term trends and forecasting rodent densities into the future.
 
 ### Data wrangling
 
@@ -163,10 +163,10 @@ time.by.spec.2$season <- ifelse(time.by.spec.2$season == TRUE, "rain", "norain")
 group_by(time.by.spec.2, year, season)
 ```
 
-Now we are going to use the `filter()` function in `dplyr` to pick a plot and calcualte rodent abundance for each season within a year.
+Now we are going to use the `filter()` function in `dplyr` to pick a plot and calculate rodent abundance for each season within a year.
 We will then express the abundance data on a per hectare basis (0.25 ha * 4 = 1 ha).
 Then, we are going to use a set of time series functions in the R base package along with some functions from the `tseries` package. 
-The first thing we will do is create a time series data set, which identifies the start time and seasonality of our sampling, which is determined by the frequency argument. 
+The first thing we will do is to create a time series data set, which identifies the start time and seasonality of our sampling, which is determined by the frequency argument. 
 
 ```{r}
 abund <- filter(time.by.spec.2, plot_id == 2) %>% 
@@ -188,7 +188,7 @@ Smoothing techniques attempt to remove noise from a data set, and are used as an
 The simplest form of smoothing is the *simple moving average*. 
 Simple moving average calculates an unweighted arithmetic mean of your observations across a window of past *n* observations.  
 Let's give this a try using the `SMA()` function in the `TTR` package. 
-Play around with *n* to visualize the effects of the smooting window.
+Play around with *n* to visualize the effects of the smoothing window.
 
 ```{r, smoothlayer1, eval = TRUE} 
 abund.sm <- SMA(abund$nn, n = 5)
@@ -201,11 +201,11 @@ legend(2, 450, col = c("red", "black"), lty = c(1,1), c("smooth", "non-smooth"),
 One can also *exponentially smooth* a time series. 
 Such procedures often use low-pass filters, which means that low frequency signal is retained.
 In addition, this smoothing process places exponentially less weight on observations over time. 
-A common statistic for peforming exponential smoothing is Holt-Winters filtering.
+A common statistic for performing exponential smoothing is Holt-Winters filtering.
 In R, the `HoltWinters()` function in the `stats` package allows one to specify two parameters. 
-The beta argument when set to FALSE peforms exponential smoothing, while the gamma argument is used to specify seasonality.
+The beta argument when set to FALSE performs exponential smoothing, while the gamma argument is used to specify seasonality.
 In the output, you will get an alpha parameter, which ranges from 0 to 1. 
-Values closer to 1 indicate that the smoothing is influenced by current observations, while values closer to 0 indciate that more weight is placed on past observations. 
+Values closer to 1 indicate that the smoothing is influenced by current observations, while values closer to 0 indicate that more weight is placed on past observations. 
 
 ```{r}
 abund.hw <- HoltWinters(abund$nn, beta = FALSE, gamma = FALSE)
@@ -221,7 +221,7 @@ legend(2, 400, col = c("black", "red"), lty = c(1,1),
 A time series can be broken down into different categories to gain insight into what is giving rise to patterns. 
 The common categories of a time series *decomposition* are the trend, seasonal, cycle, and residual error.
 As mentioned above, we subsampled the `portal` data set so that it included seasonal variation that could be driven by patterns of precipitation. 
-In the following section we will use the `decompose()` function to look at different decompposition categories.
+In the following section we will use the `decompose()` function to look at different decomposition categories.
 If seasonal trends are a nuisance in your study, there are ways to remove them, as done in the chunk below. 
 
 ```{r{}
@@ -245,7 +245,7 @@ abund.adj <- abund.ts - abund.comp$seasonal
 
 ###  Auto-regressive moving average (ARMA) models
 
-One of the most basic ways of analyzing a time series is with auto-regressive moving aveverage (ARMA) models.
+One of the most basic ways of analyzing a time series is with auto-regressive moving average (ARMA) models.
 ARMA approaches can identify trends in data and help to make forecasts about future observations. 
 As such, ARMA is commonly used in biology and the environmental sciences, but also in business and economics.
 In this section we walk through the basic ways to implement ARMA in R. 
@@ -268,7 +268,7 @@ $$Y_{t} = {c + \sum\limits_{i=1}^{p} {\phi_i} {Y_{t-i}} + {\epsilon_t} } + {\mu}
 #### Assumptions of ARMA models: stationarity
 
 If the mean, variance, or covariance in a time series change as a function of time, then we are likely to be violating the assumption of **stationary**. 
-If the assumption of stationarity is not met, corrective measures should be taken, which could invovle transforming or differencing (t - 1) the data. 
+If the assumption of stationarity is not met, corrective measures should be taken, which could involve transforming or differencing (t - 1) the data. 
 Here we will use the `adf.test()` function in the `tseries` package, which implements the Augmented Dickey-Fuller Test.  
 This is a commonly applied statistic that tests stationarity in a time series.
 We will be testing the null hypothesis that the time series is non-stationary, which means we will conclude that a time series is stationary if the p-value > 0.05.
@@ -290,7 +290,7 @@ plot.ts(abund.ts.diff, ylab = "Rodent Abundance (#/hectrare)", xlab = "Time (yea
 One of thing that we will do know is to look at the lags in our time series using 
 the *autocorrelation function (ACF)*.
 These plots help us visualize structure in our data, but also help inform the parameterization of our ARMA models.
-Specifically, the ACF tells us about the lags of the forecast errors and thus tells abotu the MA component of the model. 
+Specifically, the ACF tells us about the lags of the forecast errors and thus tells us about the MA component of the model. 
 The ACF simply looks at the correlation between lagged intervals in the time series.
 The ACF will always equal 1 with a zero lag. 
 After that, we expect the ACF to decline with increasing time lag.
@@ -300,7 +300,7 @@ Recall, the frequency of our data divides the year up into rainy and non-rainy s
 So the lag = 2 correlation is reflecting autocorrelation on an annual cycle. 
 
 ```{r}
-acf(abund.ts) # autocorrelation function; decays geometically
+acf(abund.ts) # autocorrelation function; decays geometrically
 ```
 
 We will also look at the time series using the *partial autocorrelation function (PACF)*. 
@@ -317,7 +317,7 @@ Actually, because we found that differencing helped us meet the assumption of st
 ARIMA models accept parameters (*p*, *d*, and *q*) that describe the number of autoregressive lags (inferred from PACF), differencing, and order of the moving-averge model (inferred from ACF), respectively. 
 We are going to use the function `auto.arima` from the `forecast` package to identify the best ARIMA model based on information criteria (AIC, AICc, and BIC).
 This function is particularly useful because we have some complexities related to the effects of seasonality on our parameters.
-After identifyng the ARIMA model, we can look at the diagnostics using `tsdiag` and then make forecasts about rodent densities into the future using the `predict()` function from the `arima` package. 
+After identifying the ARIMA model, we can look at the diagnostics using `tsdiag` and then make forecasts about rodent densities into the future using the `predict()` function from the `arima` package. 
 
 ```{r}
 abund.arm <- auto.arima(abund.ts)
@@ -328,19 +328,19 @@ ts.plot(abund.ts, pred.arm$pred, lty = c(1,3))
 ```
 
 ## 5) REPEATED MEASURES ANALYSIS OF VARIANCE (RM-ANOVA)
-When scientists go to the trouble of setting up an experiment, whether it be in a laboratory, a hospital, or in the field, they tend to take more than one measurement on their experimental unit. 
+When scientists go to the trouble of setting up an experiment, whether it is in a laboratory, a hospital, or in the field, they tend to take more than one measurement on their experimental unit. 
 Such studies are referred to as *longitudinal designs*.
-Historically, there has been confusion about how to deal with the fact that these meausrements are non-indepdent and thus violate some of the major assumptions of most parameteric statistics. 
+Historically, there has been confusion about how to deal with the fact that these measurements are non-independent and thus violate some of the major assumptions of most parametric statistics. 
 Repeated measures Analysis of Variance (ANOVA) provides on way of analyzing factorically designed longitudinal studies. 
-In the following sectionn, we will show you how to peform and interpret a RM-ANOVA using data from the Portal Project. 
+In the following section, we will show you how to perform and interpret a RM-ANOVA using data from the Portal Project. 
 
 ### Wrangle data for RM-ANOVA
 Annual observed richness 
 ```{r}
-# Contstruct time-by-species matrix
+# Construct time-by-species matrix
 time.by.species <- group_by(portal, year, plot_id, plot_type) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
 
-# Caclculate observed richness from time-by-species matrix
+# Calculate observed richness from time-by-species matrix
 richness <- as.data.frame(rowSums(time.by.species[,-c(1,3)] > 0)) 
 
 # Create dataframe with experimental design and richness data
@@ -357,9 +357,9 @@ In the following section, we'll return to the `group_by` function from `dplyr` a
 After that we will introduce a new way of plotting data in R.
 While the base package in R can make beautiful plots and has a tremendous amount of flexibility, it can also require a lot of effort and code to generate figures. 
 Another, perhaps easier, way to make figures in R is with the package `ggplot`. 
-As you'll see below, with relatively few lines of code, we can make a nice-lookig plot with `ggplot` showing the effects of rodent exlcosure on mammal richness.  
+As you'll see below, with relatively few lines of code, we can make a nice-looking plot with `ggplot` showing the effects of rodent exlcosure on mammal richness.  
 
-After this, `dplyr` allows one to apply functions to the split datset using functions like `summarise()`, which can return summary statistics (e.g., mean, min, max).
+After this, `dplyr` allows one to apply functions to the split dataset using functions like `summarise()`, which can return summary statistics (e.g., mean, min, max).
 
 
 ```{r}
@@ -386,7 +386,7 @@ plot(rich.plot)
 
 Background on RM-ANOVA. Why and when it's useful. 
 
-Expand to talk about covrariance structure and how this ties in with ARIMA stuff above. 
+Expand to talk about covariance structure and how this ties in with ARIMA stuff above. 
 
 Have them do AIC tests with other structures. 
 
@@ -405,7 +405,7 @@ pander(anova(rich.rm))
 ```
 
 ### Some practice chunks to be eventually deleted
-```{r}
+```{r, eval=FALSE}
 # Some trials with calcuating abundance and richness
 # time.by.species <- group_by(portal, year, plot_id) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
 # filter(time.by.species, plot_id==2)
@@ -508,7 +508,7 @@ There appears to have been an event that occurred around 1996 that led to a syst
 Although we have just described general trends in richness, we have not yet learned anything about the change in species composition over time (i.e., species turnover).
 Turnover gives us an idea of how similar species composition is over time: low turnover means that the composition and its relative abundances remain relatively stable through time, while high turnover suggests a highly dynamic community structure. 
 Just like turnover in space, turnover can be driven by the introduction of new species or the loss of resident species.
-Here we will calclulate the overall turnover, but also assess how this metric is influenced by the introduction of new species versus the disappearance of resident species. 
+Here we will calculate the overall turnover, but also assess how this metric is influenced by the introduction of new species versus the disappearance of resident species. 
 
 Total turnover = $\frac{\textrm{species gained + species lost}}{\textrm{total species in both timepoints}}$
 
@@ -622,20 +622,25 @@ plot(rankshift.plot)
 # How variable are each groups? Let's calculate the coefficient of variation
 group_by(portal.rankshift, plot_type) %>% summarise(variability = sd(MRS) / mean(MRS))
 
-cyclic_shift(df = as.data.frame(portal.species.abunds), 
-  time.var = "year",
-  species.var = "taxon",
-  abundance.var = "n",
-  replicate.var = "plot_type",
-  FUN = rank_shift(),
-  bootnumber = 10)
+
+# The cyclic_shift function is not recognizing portal.species.abunds as the data frame. NW, are you familiar with what this function is doing? -WS
+
+#cyclic_shift(df = as.data.frame(portal.species.abunds), 
+#  time.var = "year",
+#  species.var = "taxon",
+#  abundance.var = "n",
+#  replicate.var = "plot_type",
+#  FUN = rank_shift(),
+#  bootnumber = 10)
+
+
 
 ```
 
-### D. Rate Change Inverval
+### D. Rate Change Interval
 The temporal lag in community similarity suggests a time duration at which communities become sufficiently dissimilar to one another. 
 For example, in highly dynamic systems with high species replacement and large mean rank shifts, temporal turnover may saturate after a relatively short time interval, say 5 years, after which pairwise dissimilarity values remain sufficiently different. 
-Alternatively, in more stable communities, comparably large pairwise dissimmilarities may take tens if not hundreds of years.
+Alternatively, in more stable communities, comparably large pairwise dissimilarities may take tens if not hundreds of years.
 ```{r}
 portal.total.abunds <- portal.species.abunds %>% group_by(year, plot_type) %>% count(wt = n)
 portal.change.int1 <- rate_change_interval(portal.species.abunds,
@@ -647,6 +652,7 @@ portal.change.int1 <- rate_change_interval(portal.species.abunds,
 rate.plot1 <- ggplot(portal.change.int1, aes(interval, distance)) + 
   geom_point() + 
   facet_wrap(~plot_type) +
+  theme(strip.text.x = element_text(size = 7)) +
   stat_smooth(method = "loess", se = F, size = 1) + 
   ylab("Euclidean Distance") + 
   xlab("Time Interval (Years)")
@@ -687,6 +693,7 @@ portal.change.int2 <- rate_change_interval(portal.hellinger.transf,
 rate.plot2 <- ggplot(portal.change.int2, aes(interval, distance)) + 
   geom_point() + 
   facet_wrap(~plot_type) +
+  theme(strip.text.x = element_text(size = 7)) +
   stat_smooth(method = "loess", se = F, size = 1) + 
   ylab("Hellinger Distance") + 
   xlab("Time Interval (Years)")
