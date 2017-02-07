@@ -24,7 +24,7 @@ We will then introduce the basics of time series analysis, which will be followe
 ```{r, results = 'hide'}
 rm(list=ls()) 
 getwd() 
-setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week5-Temporal/") 
+setwd("~/GitHub/QB-2017/Week5-Temporal/") 
 ```
 
 ### Install Packages
@@ -106,15 +106,16 @@ portal <- unite(portal, col = taxon, c(genus, species), sep = "_", remove = FALS
 ```
 
 Now, we are going to use `dplyr` to create a time-by-species matrix. 
-To do this, we are going to use a new operator referred to as "pipes" (%>%). 
+To do this, we are going to use a new operator referred to as "pipes" (`%>%`). 
 Pipes allow output from one function to be used as input for another function in the same line of code.
 When using pipes, the output from the function to the left is fed into the next function on the right. 
 
 In the following R chunk, we will build a time-by-species matrix. 
-First, we will use a `dplyr` function called `group_by`, which splits the dataset up according the variable(s) supplied.
-We then use `count()` function to sum the number of individuals belonging to each taxon while maintaining the year and plot_id grouping.
+First, we will use a `dplyr` function called `group_by()`, which splits the dataset up according the variable(s) supplied.
+We then use the `count()` function to sum the number of individuals belonging to each taxon while maintaining the year and plot_id grouping.
 The fill argument assigns a value of zero if there are no values for a given combination of groupings.
 Finally, we use the `spread()` function from `tidyr` on the split dataset to convert parts of a long format dataset to a wide format dataset. 
+The `key = ` argument specifies the new column names and the `value = ` argument specifies the values that will become the elements of the wide form dataset.
 
 ```{r}
 time.by.species <- group_by(portal, year, plot_id) %>% 
@@ -177,7 +178,7 @@ abund$nn <- abund$nn * 4
 
 abund.ts <- ts(abund$nn, frequency = 2, start = c(1977, 2))
 
-plot.ts(abund.ts, type = "l", ylab = "Rodent Abundance (#/hectrare)", 
+plot.ts(abund.ts, type = "l", ylab = "Rodent Abundance (#/hectare)", 
         xlab = "Time (year)", las = 1, ylim = c(0, 500))
 ```
 
@@ -192,7 +193,7 @@ Play around with *n* to visualize the effects of the smooting window.
 
 ```{r, smoothlayer1, eval = TRUE} 
 abund.sm <- SMA(abund$nn, n = 5)
-plot(abund.sm, type = "l", col = "red", ylab = "Rodent Abundance (#/hectrare)", 
+plot(abund.sm, type = "l", col = "red", ylab = "Rodent Abundance (#/hectare)", 
      xlab = "Time (year)", las = 1, ylim = c(0, 500))
 lines(abund$nn, col = "black")
 legend(2, 450, col = c("red", "black"), lty = c(1,1), c("smooth", "non-smooth"), bty = "n", cex = 1)
@@ -275,6 +276,8 @@ We will be testing the null hypothesis that the time series is non-stationary, w
 
 ```{r}
 adf.test(abund.ts, alternative = "stationary") # small p = non-stationary # note data problem
+
+# p-value = 0.3252 for this, which would indicate stationarity, correct?
 ```
 
 The Dickey-Fuller test indicates that our time series does not meet the assumption of stationarity.
@@ -357,7 +360,7 @@ In the following section, we'll return to the `group_by` function from `dplyr` a
 After that we will introduce a new way of plotting data in R.
 While the base package in R can make beautiful plots and has a tremendous amount of flexibility, it can also require a lot of effort and code to generate figures. 
 Another, perhaps easier, way to make figures in R is with the package `ggplot`. 
-As you'll see below, with relatively few lines of code, we can make a nice-lookig plot with `ggplot` showing the effects of rodent exlcosure on mammal richness.  
+As you'll see below, with relatively few lines of code, we can make a nice-looking plot with `ggplot` showing the effects of rodent exlcosure on mammal richness.  
 
 After this, `dplyr` allows one to apply functions to the split datset using functions like `summarise()`, which can return summary statistics (e.g., mean, min, max).
 
@@ -369,8 +372,6 @@ rich.treat.plot <- group_by(rich.treat, plot_type, year) %>%
     sd = sd(richness),       # stand. dev. per group
     n = n(),                 # num. obs. per group
     sem = sd/sqrt(n))        # calc. std. err. mean.
-
-### NW: I used your sem function below (as well as one from Week1) and it doesn't work on this data set; or at least is generating lots of warnings; I wonder if this has somehting to do with unequal sample size? Maybe it's find to just leave it as standard deviaiton, but SEM is probably more appropriate. 
 
 rich.plot <- ggplot(rich.treat.plot, aes(x = year, y = mean, color = plot_type)) +
   geom_line(size = 1, show.legend = T) + 
@@ -405,7 +406,7 @@ pander(anova(rich.rm))
 ```
 
 ### Some practice chunks to be eventually deleted
-```{r}
+```{r, eval=FALSE}
 # Some trials with calcuating abundance and richness
 # time.by.species <- group_by(portal, year, plot_id) %>% count(taxon) %>% spread(key = taxon, value = n, fill = 0)
 # filter(time.by.species, plot_id==2)
@@ -510,7 +511,7 @@ Turnover gives us an idea of how similar species composition is over time: low t
 Just like turnover in space, turnover can be driven by the introduction of new species or the loss of resident species.
 Here we will calclulate the overall turnover, but also assess how this metric is influenced by the introduction of new species versus the disappearance of resident species. 
 
-Total turnover = $\frac{\textrm{species gained + species lost}}{\textrm{total species in both timepoints}}$
+$$\textrm{Total turnover} = \frac{\textrm{species gained + species lost}}{\textrm{total species in both timepoints}}$$
 
 To perform these analyses, we will use the `codyn` package (Hallett et al. 2016), which calculates a number of metrics to analyze community dynamics.
 ```{r}
@@ -619,16 +620,16 @@ rankshift.plot <- ggplot(portal.rankshift, aes(x = year, y = MRS, color = plot_t
 
 plot(rankshift.plot)
 
-# How variable are each groups? Let's calculate the coefficient of variation
-group_by(portal.rankshift, plot_type) %>% summarise(variability = sd(MRS) / mean(MRS))
+# Does one plot type show higher or lower MRS, on average?
+group_by(portal.rankshift, plot_type) %>% summarise(mean(MRS))
 
-cyclic_shift(df = as.data.frame(portal.species.abunds), 
-  time.var = "year",
-  species.var = "taxon",
-  abundance.var = "n",
-  replicate.var = "plot_type",
-  FUN = rank_shift(),
-  bootnumber = 10)
+# cyclic_shift(df = as.data.frame(portal.species.abunds), 
+#   time.var = "year",
+#   species.var = "taxon",
+#   abundance.var = "n",
+#   replicate.var = "plot_type",
+#   FUN = rank_shift(),
+#   bootnumber = 10)
 
 ```
 
