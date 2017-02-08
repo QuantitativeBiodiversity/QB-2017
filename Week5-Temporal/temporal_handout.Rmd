@@ -114,15 +114,16 @@ portal <- unite(portal, col = taxon, c(genus, species), sep = "_", remove = FALS
 ```
 
 Now, we are going to use `dplyr` to create a time-by-species matrix. 
-To do this, we are going to use a new operator referred to as "pipes" (%>%). 
+To do this, we are going to use a new operator referred to as "pipes" (`%>%`). 
 Pipes allow output from one function to be used as input for another function in the same line of code.
 When using pipes, the output from the function to the left is fed into the next function on the right. 
 
 In the following R chunk, we will build a time-by-species matrix. 
-First, we will use a `dplyr` function called `group_by`, which splits the dataset up according the variable(s) supplied.
-We then use `count()` function to sum the number of individuals belonging to each taxon while maintaining the year and plot_id grouping.
+First, we will use a `dplyr` function called `group_by()`, which splits the dataset up according the variable(s) supplied.
+We then use the `count()` function to sum the number of individuals belonging to each taxon while maintaining the year and plot_id grouping.
 The fill argument assigns a value of zero if there are no values for a given combination of groupings.
 Finally, we use the `spread()` function from `tidyr` on the split dataset to convert parts of a long format dataset to a wide format dataset. 
+The `key = ` argument specifies the new column names and the `value = ` argument specifies the values that will become the elements of the wide form dataset.
 
 ```{r}
 time.by.species <- group_by(portal, year, plot_id) %>% 
@@ -185,7 +186,7 @@ abund$nn <- abund$nn * 4
 
 abund.ts <- ts(abund$nn, frequency = 2, start = c(1977, 2))
 
-plot.ts(abund.ts, type = "l", ylab = "Rodent Abundance (#/hectrare)", 
+plot.ts(abund.ts, type = "l", ylab = "Rodent Abundance (#/hectare)", 
         xlab = "Time (year)", las = 1, ylim = c(0, 500))
 ```
 
@@ -200,7 +201,7 @@ Play around with *n* to visualize the effects of the smoothing window.
 
 ```{r, smoothlayer1, eval = TRUE} 
 abund.sm <- SMA(abund$nn, n = 5)
-plot(abund.sm, type = "l", col = "red", ylab = "Rodent Abundance (#/hectrare)", 
+plot(abund.sm, type = "l", col = "red", ylab = "Rodent Abundance (#/hectare)", 
      xlab = "Time (year)", las = 1, ylim = c(0, 500))
 lines(abund$nn, col = "black")
 legend(2, 450, col = c("red", "black"), lty = c(1,1), c("smooth", "non-smooth"), bty = "n", cex = 1)
@@ -283,6 +284,8 @@ We will be testing the null hypothesis that the time series is non-stationary, w
 
 ```{r}
 adf.test(abund.ts, alternative = "stationary") # small p = non-stationary # note data problem
+
+# p-value = 0.3252 for this, which would indicate stationarity, correct?
 ```
 
 The Dickey-Fuller test indicates that our time series does not meet the assumption of stationarity.
@@ -377,8 +380,6 @@ rich.treat.plot <- group_by(rich.treat, plot_type, year) %>%
     sd = sd(richness),       # stand. dev. per group
     n = n(),                 # num. obs. per group
     sem = sd/sqrt(n))        # calc. std. err. mean.
-
-### NW: I used your sem function below (as well as one from Week1) and it doesn't work on this data set; or at least is generating lots of warnings; I wonder if this has somehting to do with unequal sample size? Maybe it's find to just leave it as standard deviaiton, but SEM is probably more appropriate. 
 
 rich.plot <- ggplot(rich.treat.plot, aes(x = year, y = mean, color = plot_type)) +
   geom_line(size = 1, show.legend = T) + 
@@ -518,7 +519,7 @@ Turnover gives us an idea of how similar species composition is over time: low t
 Just like turnover in space, turnover can be driven by the introduction of new species or the loss of resident species.
 Here we will calculate the overall turnover, but also assess how this metric is influenced by the introduction of new species versus the disappearance of resident species. 
 
-Total turnover = $\frac{\textrm{species gained + species lost}}{\textrm{total species in both timepoints}}$
+$$\textrm{Total turnover} = \frac{\textrm{species gained + species lost}}{\textrm{total species in both timepoints}}$$
 
 To perform these analyses, we will use the `codyn` package (Hallett et al. 2016), which calculates a number of metrics to analyze community dynamics.
 ```{r}
@@ -627,8 +628,8 @@ rankshift.plot <- ggplot(portal.rankshift, aes(x = year, y = MRS, color = plot_t
 
 plot(rankshift.plot)
 
-# How variable are each groups? Let's calculate the coefficient of variation
-group_by(portal.rankshift, plot_type) %>% summarise(variability = sd(MRS) / mean(MRS))
+# Does one plot type show higher or lower MRS, on average?
+group_by(portal.rankshift, plot_type) %>% summarise(mean(MRS))
 
 
 # The cyclic_shift function is not recognizing portal.species.abunds as the data frame. NW, are you familiar with what this function is doing? -WS
@@ -712,16 +713,50 @@ These figures tell a much different story than the previous ones using just the 
 
 
 
-## 7) SYNCHRONY, or covarying species; perhaps stability, compensatory dynamics, or variance ratio?
-Species may also exhibit synchrony: their changes in abundance are not independent from one another. 
-...
+## 7) STABILITY
+The stability of ecological systems has been at the forefront of ecological research for decades (Ives and Carpenter 2007).
+There are many definitions of stability, and these are beyond the scope of this course (but see Pimm 1984, Grimm et al. 1997).
+In mathematical models, notions of stability often revolve around responses to perturbations and whether these perturbations grow away from or return to a stable equilibrium, but applying these ideas to real datasets is often less straightforward. 
+Another way to think about stability is the lack of variability in some value (e.g., community biomass, population densities, etc.).
+Stability can be analyzed with respect to the individual species that make up a community (i.e., compositional variability), or some measure that integrates across species (i.e., aggregate variability), such as total biomass, total abundance, or richness (Micheli et al. 1999). 
+Understanding how species diversity relates to measures of stability is still a highly active area of research (McCann 2000), but some general trends seem to be that increasing diversity decreases the stability of populations but increases aggregate measures of stability (e.g., biomass) (Tilman 1999).
+Below, we explore some metrics that have been used to analyze ecological stability.
 
 
+### A. Community Stability
+The stability of an aggregate measure of an ecological system can be assessed by measuring its variability.
+One way to characterize variability is the Coefficient of Variation (CV). 
+The CV relativizes the standard deviation of a variable to its mean value because variance scales with the mean.
+By using the CV, we can more easily compare the variability of systems with different mean values.
+We can calculate the CV as follows: 
+$$CV = \frac{\sigma}{\mu}$$
+where $\sigma$ is the standard deviation and $\mu$ is the mean value. 
 
-http://onlinelibrary.wiley.com/doi/10.1111/2041-210X.12188/epdf
-https://cran.r-project.org/web/packages/vrtest/vrtest.pdf
+Higher CV indicates more variability, and lower CV indicates less variability. 
+Therefore, we can measure stability as:
+$$\textrm{Stability} = \frac{1}{CV}$$
+Let's calculate stability within each plot type now.
+```{r}
+portal.stab <- community_stability(df = as.data.frame(portal.species.abunds),
+                    time.var = "year",
+                    abundance.var = "n",
+                    replicate.var = "plot_type")
+pander(portal.stab)
+```
 
-### A. Species synchrony
+### B. Species Synchrony
+One potential mechanism underlying stability is synchrony. 
+Species synchrony is a measure of whether population densities fluctuate independently or not, and if not, how strongly they positively or negatively covary.
+When species exhibit strong synchrony, species densities positively covary. 
+This suggests that species respond similarly to changes in the environment, and has been hypothesized to be a key driver of instability of aggregate community metrics (e.g., biomass)---if all species decline together, a single disturbance can be severely destabilizing.
+When species dispaly strong asynchrony, species densities negatively covary.
+This suggests that species respond differently to changes in the environment, which has been hypothesized to stabilize aggregate community metrics---some species compensate in density for losses in other species, a phenomenon called compensatory dynamics (Gonzalez and Loreau 2009). 
+
+Here, we will calculate two measures of community-wide synchrony that range from $-1$ for perfect asynchrony to $+1$ for perfect synchrony. 
+Loreau and de Mazancourt (2008) describe a synchrony metric that compares aggregate community variance to population-level variance. 
+Gross et al. (2014) present a different metric, which compares average species-level correlations with the aggregate community. 
+See the derivations in the original papers for more details. 
+
 ```{r}
 portal.loreau <- synchrony(df = as.data.frame(portal.species.abunds),
           time.var = "year",
@@ -737,55 +772,54 @@ portal.gross <- synchrony(df = as.data.frame(portal.species.abunds),
           replicate.var = "plot_type",
           metric = "Gross")
 names(portal.gross)[2] <- "gross"
+pander(full_join(portal.loreau, portal.gross))
 ```
+The synchrony values are all positive, but pretty far from 1, suggesting there is probably not strong positive synchrony at these temporal and spatial scales. 
 
-### B. Variance Ratio
-VR = 1 species do not covary, 
-VR > 1 species positively covary
-VR < 1 species negatively covary
-Bootstrapping...CI returned. 
+The field of biodiversity--stability research often test the hypothesis that greater richness relates to greater stability of some aggregate measure or process.
+Let's test this idea here.
+
+```{r}
+# Recall, earlier we calculated richness in each plot type in each year
+portal.richness.year
+
+# This isn't quite what we want though. 
+# First, let's ungroup this and regroup only by plot type. 
+# Then, we will summarise average yearly richness in each plot type
+portal.mean.rich.plot <- portal.richness.year %>% ungroup() %>% 
+  group_by(plot_type) %>% 
+  summarise(mean.rich = mean(richness))
+
+# Let's take a look at how stability metrics relate with mean richness
+portal.div.stab <- full_join(portal.stab, portal.mean.rich.plot)
+plot(portal.div.stab$stability ~ portal.div.stab$mean.rich, type = "l",
+     xlab = "Mean Richness", ylab = "Aggregate Stability")
+
+```
+Our data does not appear to fit this hypothesis using total abundance as the aggregate measure. 
+Perhaps biomass or another aggregate measurement would be stabilized by increases in richness.
+
+### C. Variance Ratio
+Similar to the above tests of community-wide synchrony, here we present another metric that tests for positive or negative species covariance. 
+The ratio of aggregate abundances compared to the sum of variances of individual species can generate three qualitatively different outcomes: 
+*VR = 1 species do not covary, 
+*VR > 1 species positively covary
+*VR < 1 species negatively covary
+In order to assess the significance of this relationship, we will compare the observed variance ratio to a distribution of ratios calculated on a number of randomized null communities. 
 ```{r}
 portal.vr <- variance_ratio(df = as.data.frame(portal.species.abunds),
                time.var = "year",
                species.var = "taxon",
                abundance.var = "n",
                replicate.var = "plot_type",
-               bootnumber = 100,
+               bootnumber = 1000,
                average.replicates = T,
                level = 0.95)
+pander(portal.vr)
 ```
+Here, we notice a variance ratio of ~ 1.3. 
+This value is greater than 1, suggesting positive covariation among species. However, we also note that the confidence intervals (based on null matrix randomization) bracket 1. 
+Based on this observation, it is probably best to remain conservative based on this analysis alone and claim that we have insufficient evidence for significant covariation among species. 
+In general, this agrees with the above synchrony calculations, suggesting we see weak, positive covariation among species that likely respond to environmental variability (e.g., drought, fire) in similar ways. 
 
-### C. Community Stability
-Temporal mean over standard deviation of aggregate species abundances
-```{r}
-portal.stab <- community_stability(df = as.data.frame(portal.species.abunds),
-                    time.var = "year",
-                    abundance.var = "n",
-                    replicate.var = "plot_type")
-
-# Let's take a look at stability metrics across exclosures
-pander(full_join(portal.loreau, portal.gross) %>% 
-  full_join(portal.stab))
-```
-
-
-## 8) Using environmental drivers to explain temporal biodiversity data (univariate, multivariate, both?)
-## loading and plotting precipitation data
-## perhaps take the sum rather than mean of precip below
-```{r, eval=FALSE}
-precip1 <- read.table(file = "./data/Portal_precipitation_19801989.csv", header = T, sep = ",")
-precip2 <- read.table(file = "./data/Portal_precipitation_19892002.csv", header = T, sep = ",")
-
-precip.month <- unite(precip1, col = date, c(Year, Month), sep = ".", remove = F)
-precip.month$date <- as.Date(precip.month$date, "%Y-%m")
-precip.month$date <- as.numeric(precip.month$date)
-
-precip2 <- read.table(file = "./data/Portal_precipitation_19892002.csv", header = T, sep = ",")
-precip2 <- unite(precip2, col = date, c(Year, Month, Day, Hour), sep = "-", remove = F)
-parse_date_time(precip2$date, "%y-%m-%d-%H%M")
-
-monthly.precip <- group_by(precip2, Year, Month) %>%
-  summarise(mean = mean(Precipitation))
-monthly.precip$date <- unite(monthly.precip, col = date, c(Year, Month), sep = ".")
-plot(monthly.precip$date, monthly.precip$mean)
-```
+## REFERENCES
