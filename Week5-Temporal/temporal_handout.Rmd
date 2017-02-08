@@ -196,7 +196,7 @@ Let's give this a try using the `SMA()` function, which is contained in the `TTR
 (Note that this package does not accept a `ts` object)
 Play around with *n* to visualize the effect of the smoothing window.
 
-```{r, smoothlayer1, eval = TRUE} 
+```{r} 
 abund.sm <- SMA(abund$nn, n = 5)
 plot(abund.sm, type = "l", col = "red", ylab = "Rodent Abundance (#/hectare)", 
      xlab = "Sample", las = 1, ylim = c(0, 500))
@@ -347,23 +347,23 @@ ts.plot(abund.ts, pred.arm$pred, lty = c(1,3))
 
 ## 5) REPEATED MEASURES ANALYSIS OF VARIANCE (RM-ANOVA)
 
-When scientists go to the trouble of setting up an experiment, they tend to take more than one measurement on their experimental unit.
+When scientists set up an experiment, they are inclined to take more than a single measurement on a subject (i.e., experimental unit).
 This is true for laboratory and field experiments in ecology and evolution, but is also common in other fields such as medicine and psychology. 
-These studies where researchers take repeated measurements on a subject are sometimes referred to as **longitudinal designs**.
-It is important to emphasize that repeated measurements on a subject are non-independent.
+Studies that take repeated measurements on a subject are referred to as **longitudinal designs**.
+It is important to emphasize that repeated observations on a subject are non-independent.
 Non-independence is a critical assumption of most parametric statistics, like analysis of variance (ANOVA).
-Repeated-measures(RM)-ANOVA explicilty accounts for this non-independence and allows one to test for the main effects of time and treatment along with the time x treatment interaction.  
-In the following section, we will show you how to perform and interpret an RM-ANOVA using data from the Portal Project. 
+RM-ANOVA explicilty accounts for this non-independence and allows one to test for the main effects of time and treatment along with the time *x* treatment interaction.  
+In the following section, we will show you how to perform and interpret an RM-ANOVA using richness data from the Portal Project. 
 
 ### Wrangle data for RM-ANOVA
 
 In the following R chunk, we calculate richness over time from two of the Portal plots. 
-The first treatment is the controls where rodents where free to move in and out of plots. 
+The first treatment is the "Control" where rodents where free to move in and out of plots. 
 The second treatment is the "Rodent Exclosure", which attempted to exclude all rodents. 
 To create the necessary dataframe, we use `dplyr` to construct a time-by-species matrix.
 We use `count()` to sum the number of individuals belonging to each taxon while maintaining the grouping by year, plot_id, and plot_type.
 We use the `spread()` function from `tidyr` on the split dataset to convert parts of a long format dataset to a wide format dataset.
-Last, we calculate richness (i.e., number of taxon per plot per year) for each replciate in the two treatments.  
+Last, we calculate richness (i.e., number of taxon per plot per year) for each replicate in the two treatments.  
 
 ```{r}
 # Construct time-by-species matrix
@@ -410,50 +410,46 @@ rich.plot <- ggplot(rich.treat.plot, aes(x = year, y = mean, color = plot_type))
 plot(rich.plot)
 ```
 
-### Analyze the time series data with RM-ANOVA
+### Perform RM-ANOVA
 
 Based on our plot, it appears that rodent richness changes quite a bit from year to year. 
-The plot also suggests that the enclosure treatment reduced rodent richness (but did not eliminate rodents all together).
+The plot also suggests that the enclosure treatment reduced rodent richness.
 Let's peform a RM-ANOVA to see whether statistics match up with our observations. 
 We will implement RM-ANOVA using the "linear and non-linear mixed-effects models" package in R (i.e., `nlme`).
-Mixed effects refers to the fact that the model contains both fixed and random effects. 
-The fixed effects in our analysis are time and treatment, as these are aspects of our design that were under the researchers' control. 
-However, the repeated measurements witin a certain plot (i.e., subject) is considered a random effect. 
-Importantly, this approach will allow us to properly quantify model error based on the variance of observations within and between subjects.
-The model below uses the `lme()` function to explain variation in richness as a function of treatment (i.e., "plot_type"), time (i.e., year), and a treatment x time interaction.
-Furthermore, the model specifies a few addition features. 
-The random statement indicates that plot_id is a random variable that is nested within a treatment.
-Effectively, what the function is doing is assuming that each plot within a treatment has a different random intercept. 
-In addition, the correlation statement specifies that the correlation structure is an autoregressive process of order 1, which means that an observation at *t* will be most influenced by observations at *t*-1. 
+**Mixed effects** refers to models that contain both fixed and random effects. 
+The fixed effects in our analysis are time and treatment; these are aspects of the design that were under the researchers' control. 
+In contrast, within plot (i.e., subject) variation is considered a random effect. 
+RM-ANOVA quantifies model error based on the variance of observations within and between subjects.
+In the R chunk below, we implement RM-ANOVA with the `lme()` function to test for the effects of treatment (i.e., "plot_type"), time (i.e., year), and a treatment *x* time interaction on rodent richness. 
+The random statement indicates that plot_id is a random variable that will be assinged its own intercept.
+In addition, the correlation statement specifies the the covariance structure that is associted with the repeated measures. 
+Here, we use an autoregressive process of order 1, which means that an observation at *t* will be most influenced by observations at *t*-1.
+Alternate covariance structures to consider are "unstructured" and "compound symmetry". 
 
-```{r}
+```{r, results = 'hide'}
 rich.rm <- lme(richness ~ plot_type * year, random = ~ 1 | plot_id, 
             correlation = corAR1(form = ~ 1 | plot_id),
             data = rich.treat)
 
-# We can use `summary()` to look at the output in detail
-# We can also use `pander()` to make a cleaner looking table of the output
+# Look at detailed output
+summary(rich.rm) 
+
+# Obtain F-test
+anova(rich.rm)
+
+# Make cleaner ANOVA table
 set.caption("RMANOVA for Portal")
 pander(anova(rich.rm))
-```
 
-
-
-corClasses {nlme} for other correlation structures 
-Expand to talk about covariance structure and how this ties in with ARIMA stuff above. 
-Have them do AIC tests with other structures. 
-Perhaps show them how to calculate LS-MEANS?
-
-
-
-
+# Use `lsmeans` package for time-corrected for marginal means
+lsmeans(rich.rm, ~plot_type) 
 ```
 
 ## 6) TEMPORAL BETA DIVERSITY
 
-The structure of an ecological community changes over time. 
-We can conceptualize temporal turnover in much the same way as spatial turnover: how species change in abundance or presence over time. 
-
+As we have learned this semester, \beta-diversity examines the diversity between samples.
+In previous weeks, we have emphasized features of \beta-diversity with regard to the distributions of samples in space.
+Now we will explore temporal dimensions of \beta-diversity, which will examine changes in the abundance or presence-absence of species over time. 
 
 ### A. Richness 
 A simple measure of community change over time is how many species it gains or loses over the observed duration.
@@ -495,11 +491,15 @@ There appears to have been an event that occurred around 1996 that led to a syst
 Although we have just described general trends in richness, we have not yet learned anything about the change in species composition over time (i.e., species turnover).
 Turnover gives us an idea of how similar species composition is over time: low turnover means that the composition and its relative abundances remain relatively stable through time, while high turnover suggests a highly dynamic community structure. 
 Just like turnover in space, turnover can be driven by the introduction of new species or the loss of resident species.
+
+Immigration, competitive exlusion, diseases, invasion, etc.
+
 Here we will calculate the overall turnover, but also assess how this metric is influenced by the introduction of new species versus the disappearance of resident species. 
 
 $$\textrm{Total turnover} = \frac{\textrm{species gained + species lost}}{\textrm{total species in both timepoints}}$$
 
 To perform these analyses, we will use the `codyn` package (Hallett et al. 2016), which calculates a number of metrics to analyze community dynamics.
+
 ```{r}
 # First, we will calculate the species abundances from each site over time
 portal.species.abunds <- group_by(portal, year, plot_type) %>% count(taxon)
@@ -529,6 +529,7 @@ portal.disappearance <- turnover(df = portal.species.abunds,
                             replicate.var = "plot_type",
                             metric = "disappearance")
 ```
+
 Each of these objects now contains a column for the value of the turnover metric, the second year in the pairwise comparison, and the type of plot. 
 If we examine the data structure, note that the only difference between each object the column containing the calculation of the metric. 
 For easier plotting, we'll combine these columns into a single data table
@@ -551,18 +552,18 @@ So, we joined them together using their shared year > plot_id index to create on
 We used a pipe `%>%` to first join total and disappearance values, then piped this joined data table to be the first argument in another join function. 
 Run each of these `full_join()` statements independently to see what it is doing at each step.
 
-Next, to facilitate plotting, we can turn this wide form data table back into a long form. 
+Next, to facilitate plotting, we can turned the wide form data table back into a long form. 
 We did this using the `gather()` function. 
 This function says: in `portal.turnover`, create a new column of keys and call it "metric".
 Create another new column of associated values and call it "turnover". 
-The keys in the metric column will be the old columns we are gathering together (total, appearance, disappearance).
-The values that go in turnover will be the values that were previously in the total, appearance, disappearance columns. 
-
+The keys in the metric column will be (are) the old columns we are gathering together (total, appearance, disappearance).
+The values that go in turnover will be the values that were previously in the total, appearance, disappearance columns.
 
 Take a look at our new data table with the three different turnover metrics calculated for each year and treatment (try `View(portal.turnover)`). 
 
 Let's visualize this.
-```{r, fig.align='center', fig.height=6, fig.width=4}
+
+```{r, fig.align = 'center', fig.height = 6, fig.width = 4}
 turn.plot <- ggplot(
   portal.turnover, aes(x = year, y = turnover, color = metric)) +
   geom_line(size = 1, show.legend = T) + 
@@ -576,15 +577,18 @@ plot(turn.plot)
 
 
 ### C. Rank Shift
+
 While turnover gives a measure of how dynamic a community is over time, it would also be interesting to learn how often dominance (i.e., the most abundant species) changes over time. 
 If turnover is due mostly to gains and losses of rare species, with little change to the dominant members, this is not uncommon. 
 However, if the community sees drastic rearrangements of community dominance (i.e., the most abundant species change ranks frequently) this could suggest something different is going on.
-Mean rank shifts measure the relative change in species rank abundances.  
+Mean rank shifts measure the relative change in species rank abundances.
+
 $$
 MRS = \sum_{i=1}^{n}\left(\left| R_{i, t+1} - R_{i, t} \right|\right)/n
 $$
 
 Here, we calculate MRS, plot it, and characterize its variability.
+
 ```{r}
 # above we calculated abundances of species in each site over time
 portal.species.abunds
@@ -625,9 +629,11 @@ group_by(portal.rankshift, plot_type) %>% summarise(mean(MRS))
 ```
 
 ### D. Rate Change Interval
+
 The temporal lag in community similarity suggests a time duration at which communities become sufficiently dissimilar to one another. 
 For example, in highly dynamic systems with high species replacement and large mean rank shifts, temporal turnover may saturate after a relatively short time interval, say 5 years, after which pairwise dissimilarity values remain sufficiently different. 
 Alternatively, in more stable communities, comparably large pairwise dissimilarities may take tens if not hundreds of years.
+
 ```{r}
 portal.total.abunds <- portal.species.abunds %>% group_by(year, plot_type) %>% count(wt = n)
 portal.change.int1 <- rate_change_interval(portal.species.abunds,
@@ -645,6 +651,7 @@ rate.plot1 <- ggplot(portal.change.int1, aes(interval, distance)) +
   xlab("Time Interval (Years)")
 rate.plot1
 ```
+
 Each plot looks quite different from one another. The control plot tends to keep increasing, while the Krat exclosures resemble one another and seem to saturate. The Spectab exclosure shows relatively little dissimilarity even across the whole 25-year experiment. The rodent exclosures appear to have gone through a long-term fluctuation and seem to more closely resemble each other after 25 years apart than after 10 years apart.
 
 But what is on the y-axis? Use `help(rate_change_interval)` to find out.
@@ -688,8 +695,6 @@ rate.plot2
 ```
 
 These figures tell a much different story than the previous ones using just the Euclidean distances alone. Thus, it remains important to understand the distance metrics you are using and how they are influenced by species abundances.
-
-
 
 ## 7) STABILITY
 The stability of ecological systems has been at the forefront of ecological research for decades (Ives and Carpenter 2007).
@@ -752,6 +757,7 @@ portal.gross <- synchrony(df = as.data.frame(portal.species.abunds),
 names(portal.gross)[2] <- "gross"
 pander(full_join(portal.loreau, portal.gross))
 ```
+
 The synchrony values are all positive, but pretty far from 1, suggesting there is probably not strong positive synchrony at these temporal and spatial scales. 
 
 The field of biodiversity--stability research often test the hypothesis that greater richness relates to greater stability of some aggregate measure or process.
@@ -774,6 +780,7 @@ plot(portal.div.stab$stability ~ portal.div.stab$mean.rich, type = "l",
      xlab = "Mean Richness", ylab = "Aggregate Stability")
 
 ```
+
 Our data does not appear to fit this hypothesis using total abundance as the aggregate measure. 
 Perhaps biomass or another aggregate measurement would be stabilized by increases in richness.
 
@@ -784,6 +791,7 @@ The ratio of aggregate abundances compared to the sum of variances of individual
 *VR > 1 species positively covary
 *VR < 1 species negatively covary
 In order to assess the significance of this relationship, we will compare the observed variance ratio to a distribution of ratios calculated on a number of randomized null communities. 
+
 ```{r}
 portal.vr <- variance_ratio(df = as.data.frame(portal.species.abunds),
                time.var = "year",
@@ -795,6 +803,7 @@ portal.vr <- variance_ratio(df = as.data.frame(portal.species.abunds),
                level = 0.95)
 pander(portal.vr)
 ```
+
 Here, we notice a variance ratio of ~ 1.3. 
 This value is greater than 1, suggesting positive covariation among species. However, we also note that the confidence intervals (based on null matrix randomization) bracket 1. 
 Based on this observation, it is probably best to remain conservative based on this analysis alone and claim that we have insufficient evidence for significant covariation among species. 
