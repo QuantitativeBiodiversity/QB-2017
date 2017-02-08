@@ -10,12 +10,13 @@ geometry: margin=2.54cm
 
 ## OVERVIEW
 
-Biological systems are inherently variable through time.
-While some of this variation is stochastic, ecological systems can change though time because of abiotic (e.g., rising temperature, increasing CO~2~, drought) or biotic conditions (e.g., invasive species, disease). 
-While some biologists focus on processes that occur on contemporary scales (minutes, days, weeks, years), other scientists are interested in what drives patterns of biodiversity in the fossil record over geologic time scales. 
-In this handout, we will first introduce you to a new ecological data structure, the time-by-site-species matrix.
-You will learn how to manage and manipulate this type of data structure using some new R packages. 
-We will then introduce the basics of time series analysis, which will be followed by sections dealing with repeated-measures analysis of variance (RM-ANOVA), temporal beta diversity (i.e., turnover), and synchrony. 
+Biological diversity ~~systems are inherently variable~~ varies through time in response to changes in the biotic and abiotic environment. 
+Rising temperatures and CO~2~, trends in precipitation and drought, and the dynamics of migration and colonization of species are just a few factors that influence biodiversity through time.  
+~~While some of this variation is stochastic, ecological systems can change though time because of abiotic (e.g., rising temperature, increasing CO~2~, drought) or biotic conditions (e.g., invasive species, disease).~~ 
+While some biologists focus on processes that occur on contemporary scales (minutes, days, weeks, years), other scientists are interested in ~~what~~ the forces that drive patterns of biodiversity in the fossil record and over geologic time scales.
+In this handout, we will first introduce you to a new ecological data structure, the ~~time-by-site-species~~ time-by-site-by-species matrix **(1. its a mouthful, 2. you could just say that we'll be adding a temporal dimension to the site-by-species matrix...something the students already know about).**
+You will be introduced to R data handling packages that will help you ~learn how to~ manage and manipulate this ~~type of~~ data structure. ~~using some new R packages.~~ 
+You will then learn ~~introduce~~ the basics of time series analysis, ~~which will be followed by sections dealing with~~ repeated-measures analysis of variance ~~(RM-ANOVA)~~, temporal beta diversity (i.e., turnover), and synchrony (do you simply mean temporal covariation?). Whatever happened to stability, resistence, etc.?
 
 ## 1) SETUP
 
@@ -29,30 +30,36 @@ setwd("~/GitHub/QB-2017/Week5-Temporal/")
 
 ### Install Packages
 
-We will be using several packages in this week's module. 
+~We will be using several packages in this week's module.~ 
+This module will require several R packages.
 Let's load them now. 
 The `require()` function in `R` returns `TRUE` if the package was successfully loaded or `FALSE` if the package failed to load. 
 This `for` loop loads each package and installs the package when `require()` returns `FALSE`.
+
+**You've told them about the function below. Why not tell them what these packages are? HELP THEM FEEL MORE CONNECTED TO WHAT IS GOING ON.**
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
 package.list <- c('vegan', 'tidyr', 'dplyr', 'codyn', 'ggplot2', 
       'cowplot', 'MullerPlot', 'RColorBrewer', 'reshape2', 'lubridate', 
       'TTR', 'xtable', 'multcomp', 'pander', 'png', 'grid', 'tseries', 'nlme', 'forecast')
 for (package in package.list) {
-  if (!require(package, character.only = T, quietly = T)) {
-    install.packages(package)
-    library(package, character.only = T)
+  if (!require(package, character.only = TRUE, quietly = TRUE)) {
+    install.packages(package, repos='http://cran.us.r-project.org')
+    library(package, character.only = TRUE)
   }
 }
 ```
 
 ## 2) LOADING DATA
 
-To learn about topics of temporal biodiversity, we will use the long-term rodent dataset from the Chihuahuan Desert ecosystem near Portal, Arizona.
-Known as the "Portal Project" <http://portal.weecology.org/>, this biodiversity study was initiated in the late 1970s by Jim Brown and colleagues to look at species interactions, specifically competition between rodents and ants for plant seeds.
-Early experiments focused on the exclusion of rodents with fencing and trapping, which led to an increase in the ant population size as well as changes in plant species composition.
-These findings inspired Brown and colleagues to construct an improved experiment that continues today. 
-The Portal Project monitors 24 replicated experimental plots, each 0.25 ha in area (50 X 50 m).
+To learn about topics of temporal ~bio~diversity, we will use the long-term rodent dataset from the Chihuahuan Desert ecosystem near Portal, Arizona.
+Known as the "Portal Project" <http://portal.weecology.org/>, this ~~biodiversity study~~ research site was initiated in 1977 ~~the late 1970s~~ by Jim Brown and colleagues to study ~~look at~~ species interactions, specifically competitive dynamics within and among species of rodents and ants.
+
+~~Early experiments focused on the exclusion of rodents with fencing and trapping, which led to an increase in the ant population size as well as changes in plant species composition.~~ **<- deleted because 1. they also excluded ants via poisoning, 2. the "early" experiments were not conducted at the portal site.**
+
+These findings inspired Brown and colleagues to construct an improved experiment that continues today. **<-- Again, the early studies were not conducted at the Portal site.**
+
+Once every month since 1977, members of The Portal Project monitors 24 replicated experimental plots, each 0.25 ha in area (50 X 50 m).
 In total, 4.8 kilometers of fencing is used to maintain the Portal experiment!
 
 Let's take a look at the data:
@@ -68,9 +75,9 @@ All of this was done in five experimentally replicated treatments (see Figure):
 
 1) Controls - fencing around plots does not exclude rodents (plot_id: 2, 4, 8, 11, 12, 14, 17, 22) 
 
-2) Long-term Krat - long-term exclusion of Kangaroo rats (*Dipodomys merriami*) (plot_id: 3, 15, 19, 21) 
+2) Long-term Krat - long-term exclusion of Kangaroo rats (*Dipodomys spp.* ~~merriami*~~) (plot_id: 3, 15, 19, 21) 
 
-3) Short-term Krat - short-term exclusion of Kangaroo rats (*Dipodomys merriami*) (plot_id: 6, 13, 18, 20) 
+3) Short-term Krat - short-term exclusion of Kangaroo rats (*Dipodomys spp.* ~~merriami*~~)  (plot_id: 6, 13, 18, 20) 
 
 4) Rodent Exclosure - exclusions of all rodents (plot_id: 5, 7, 10, 16, 23, 24) 
 
@@ -83,9 +90,10 @@ grid.raster(portal.img)
 
 ## 3) DATA WRANGLING
 
-The success of the Portal Project is based reflects insightful questions from a creative long-term experiment. 
-In addition to generating a lot of quality information, it was critical for the Portal Project's data to be organized, accessible, and properly managed.  
-One thing you may notice when looking at `portal` is that it has a lot of observations, almost 35,000 (and remember this is only 1977 - 2002).
+~~The success of the Portal Project is ~based~ reflects insightful questions from a creative long-term experiment.~~ 
+~~In addition to generating a lot of quality information, it was critical for the Portal Project's data to be organized, accessible, and properly managed.~~  **<-- These statements don't add valuable context, as is. They should be revised or deleted.**
+
+**Probably a better jumping off point -->**  One thing you may notice when looking at `portal` is that it has a lot of observations, almost 35,000 (and remember this is only 1977 - 2002).
 These data are entered in *long format*, which means that each row represents a unique observation (i.e., a trapped animal). 
 The long format is a convenient way to enter data that reduces the probability of entry errors.
 However, one needs to manipulate the long-format data for visualization and statistical analysis. 
