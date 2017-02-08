@@ -60,130 +60,39 @@ The maintenance of biodiversity is thought to be influenced by **trade-offs** am
 One such trade-off involves the ability of a highly specialized species to perform exceptionally well on a particular resource. 
 In this exercise, we will take a phylogenetic approach to mapping phosphorus resource use onto a phylogenetic tree while testing for specialist-generalist trade-offs. 
 
-## 3) SEQUENCE ALIGNMENT
-### A.  Examining a FASTA-File 
 
-Using nano, open the *p.isolates.fasta* file by typing "nano p.isolates.fasta" at the command line (you need to navigate to that file first). 
-This will open the FASTA file in nano, which is a text editing program. 
-You can use [Ctrl+V] and [Ctrl+Y] to scroll towards the bottom and top of the file, respectively.
-Use these commands to look at the formatting on the FASTA file.
-When you are done, you can close the file by hitting [Ctrl+X].
-Do not save any inadvertent changes to *p.isolates.fasta*.
-
-### B.  Performing an Alignment 
-
-In the R code chunk below, do the following:  
-1. use `muscle` to align the p.isolates.fasta sequences, and  
-2. save the output as p.isolates.afa in the */data* folder.
-
-```{r} 
-
-
-
-```
-
-***Question 1***: Using nano or your favorite text editor, compare the `p.isolates.fasta` file and the `p.isolates.afa` file. 
-Describe the differences that you observe between the files. 
-
-> ***Answer 1***: 
-
-### C.  Visualizing the Alignment
-
-In the R code chunk below, do the following:  
-1. read your alignment file,  
-2. convert the agignment to a DNAbin object,  
-3. select a region of the gene to visualize (try various regions), and  
-4. plot the alignment.
-
-```{r}
-
-
-
-
-
-
-
-
-```
-
-***Question 2***:  Make some observations about the `muscle` alingmnet of the 16S rRNA gene sequences for our bacterial isolates and the outgroup, *Methanosarcina*, which belongs to the archaeal domain of life. 
-Move along the alignment by changing the values in the `window` object. 
-
-a. Approximatley how long were our reads?  
-b. What regions do you think would be most appropriate for phylogenetic inference? Why?  
-
-> ***Answer 2a***:   
-> ***Answer 2b***:  
-
-## 4) MAKING A PHYLOGENETIC TREE
+## 3) VIEWING A PHYLOGENETIC TREE
 
 Once you have aligned your sequences, the next step is to construct a phylogenetic tree.
 Not only is a phylogenetic tree effective for visualizing the evolutionary relationship among taxa, but as you will see later, the information that goes into a phylogenetic tree is needed for downstream analysis. 
 
-### A. Neighbor Joining Trees
 
-In the R code chunk below, do the following:  
-1. calcualte the distance matrix using `model = "raw"`,  
-2. create a Neighbor Joining tree based on these distances,  
-3. define "Methanosarcina" as the outgroup and root the tree, and  
-4. plot the rooted tree. 
+***Question 3***:  
 
-```{r}
+a) How does the maximum likelihood tree compare the to the neighbor-joining tree in the handout? 
+If the plots seem to be inconsistent with one another, explain what it giving rise to the differences.
 
-
-
-
-
-
-
-
-
-```
-
-### B) SUBSTITUTION MODELS OF DNA EVOLUTION 
-
-In the R code chunk below, do the following:  
-1. make a second distance matrix based on the Felsenstein 84 substitution model,  
-2. create a saturation plot to compare the *raw* and *Felsenstein (F84)* substitution models,  
-3. make Neighbor Joining trees for both, and  
-4. create a cophylogenetic plot to compare the topologies of the trees.
-
-```{r}
-
-
-
-
-
-
-
-
-
-
-
-```
-
-In the R code chunk below, do the following:  
-1. pick another substitution model,  
-2. create and distance matrix and tree for this model,  
-2. make a saturation plot that compares that model to the *Felsenstein (F84)* model,  
-3. make a cophylogenetic plot that compares the topologies of both models, and  
-4. be sure to format, add appropriate labels, and customize each plot.
-
-```{r}
-
-
-
-
-
-
-
-
-```
-
-***Question 3***:  Using the saturation plot and cophylogenetic plots from above, describe the effect that the F84 substitution model has on our phylogenetic reconstruction. 
-If the plots seem to be inconsistent with one another, explain what it giving rise to the differences.   
+b) What do the bootstrap values tell you? Which branches have little support?
 
 > ***Answer 3***:   
+
+
+
+```{r}
+
+MyTree <- read.tree("./data/ml_tree/RAxML_bestTree.T1")
+
+layout(matrix(c(1,2), 1, 2), width = c(1, 1))
+par(mar = c(1, 1, 2, 0))
+plot.phylo(MyTree, type = "phylogram", direction = "right", show.tip.label=TRUE,
+           use.edge.length = FALSE, adj = 0.5, cex = 0.6, label.offset = 2, main = "ML")
+
+par(mar = c(1, 0, 2, 1))
+plot.phylo(F84.rooted, type = "phylogram", direction = "left", show.tip.label=TRUE,
+           use.edge.length = FALSE, adj = 0.5, cex = 0.6, label.offset = 2, main = "Nearest neighbor")
+
+```
+
 
 ## 5) INTEGRATING TRAITS AND PHYLOGENY
 ### A. Loading Trait Database

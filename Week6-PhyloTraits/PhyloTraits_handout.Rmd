@@ -266,11 +266,14 @@ plot.phylo(F84.rooted, type = "phylogram", direction = "left", show.tip.label=TR
 ```
 
 
-### C) MAXIMUM LIKELIHOOD TREE
+### C) COMPARING PHYLOGENIES
 
-`phangorn`
+### D) MAXIMUM LIKELIHOOD TREE
+Often a nearest neighbor joined tree is not good enough. While neighbor joining if very fast and has the conveinant property of returning the correct tree for a correct distance matrix, we are rarely in the position where we know the correct distance matrix. Instead a maximum likelihood (ML) tree is often a superior choice, as it is built on the robust statistical procedure of ML (i.e. the process of finding the parameter value that maximizes the likelihood of the data). In addition, ML has the advantage of being the estimation method that is least affected by sampling error, being fairly robust to the assumptions of a particularly model, allows you to compare different tree topologies, and uses all the information in a sequence (as opposed to just distance). 
 
-Because it can take a long time to estimate a maximum likelihood phylogeny in R, we've blocked out the code. Feel free to make your own maximum likelihood phylogeny on your own.  
+However, ML estimation is a computationally-intensive process that can require a lot of time. This is because ML estimation often must consider all topologies of the tree and find the best edge lengths for each topology. Because ML estimation can take a long time, we will not ask you to generate a maximum likelihood tree for your assignment. However, below we have supplied code using functions from the package `phangorn` to generate a ML tree. 
+
+
 
 ```{r}
 # Requires alignment to be read in with as phyDat object
@@ -291,8 +294,24 @@ Because it can take a long time to estimate a maximum likelihood phylogeny in R,
   #control = pml.control(trace = 0))
 ```
 
+We have also included a short script in the folder `bash` under Week6 that will allow you to generate a ML tree on the IU computer cluster Mason using the program RAxML. Generating a ML tree is computationally intensive and not all tree-generating software have R packages, so if you need a ML tree it's often easier to run it on a desktop or a computer cluster using a shell script rather than on your laptop. If you are an IU student, postdoc, or faculty member you can register for an account on Mason. See the IU Mason webpage for more information (https://kb.iu.edu/d/bbhh).
 
-We have also included a short script in the folder `bash` under Week6 that will allow you to generate a maximum likelihood tree on the IU computer cluster Mason using the program RAxML. Generating a maximum likelihood tree is computationally intensive, so if you need a maximum likelihood tree it's often easier to run it on a desktop or a computer cluster rather than your laptop. If you are an IU student, postdoc, or faculty member you can register for an account on Mason. See the IU Mason webpage for more information (https://kb.iu.edu/d/bbhh).
+
+### BOOTSTRAP SUPPORT
+
+Because building a phylogenetic tree is very much a statistical excercise we often want to know how confident we are in the placement of each branch in our phylogeny. For example, say that we make a tree today and tomorrow we run the same code, but get a tree with a node in a different place. How do we know which tree is correct? Since we don't know the real tree we'll use the next best thing. We'll re-sample our own data to determine how reliable the tree is (i.e. bootstrapping). To do this we'll select a subset of columns from our alignment randomly with replacement. Next we will use that sample to construct a new tree and compare its topology to the original tree. Each interior branch of the original tree that is different from the bootstrap tree gets a score of 0 while all other interior branches get a score of 1. This procedure is done a large number of times (typically 100 - 10,000, depending on the size of the tree) and it gives us the **bootstrap value** for each interior branch. A general rule of thumb is to treat bootstrap values 95% or higher as operationally correct. 
+
+Again, because this procedure is computationally intensive you will plot boostrap support values for a tree that has been previously generated. 
+
+```{r}
+ml.bootstrap <- read.tree("./data/ml_tree/RAxML_bipartitions.T1")
+par(mar = c(1,1,2,1) + 0.1)
+plot.phylo(ml.bootstrap, type = "phylogram", direction = "right", show.tip.label=TRUE,
+           use.edge.length = FALSE, cex = 0.6, label.offset = 1, main = "Maximum Likelihood with Support Values")
+add.scale.bar(cex = 0.7)
+nodelabels(ml.bootstrap$node.label, font = 2, bg = "white", frame = "r", cex = 0.5)
+
+```
 
 
 ## 5) INTEGRATING TRAITS AND PHYLOGENY
@@ -634,6 +653,7 @@ eqn <- bquote(italic(z) == .(b1.phy))
 text(0.5, 4.5, eqn, pos = 4)
 
 ```
+
 
 
 
