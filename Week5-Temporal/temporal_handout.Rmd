@@ -23,7 +23,7 @@ You will then learn the basics of time series analysis, repeated-measures analys
 ```{r, results = 'hide'}
 rm(list=ls()) 
 getwd() 
-setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week5-Temporal/") 
+setwd("~/GitHub/QB-2017/Week5-Temporal/") 
 ```
 
 ### Install Packages
@@ -426,7 +426,7 @@ In addition, the correlation statement specifies the covariance structure that i
 Here, we use an autoregressive process of order 1, which means that an observation at time *t* will be most influenced by observations at time *t*-1.
 Alternate covariance structures to consider in and RM-ANOVA are "unstructured" and "compound symmetry". 
 
-```{r, results = 'hide'}
+```{r, results = 'hide', message = FALSE, warning = FALSE}
 rich.rm <- lme(richness ~ plot_type * year, random = ~ 1 | plot_id, 
             correlation = corAR1(form = ~ 1 | plot_id),
             data = rich.treat)
@@ -544,7 +544,7 @@ turn.plot <- ggplot(
 plot(turn.plot)
 ```
 
-### C. Rank Shift
+### B. Rank Shift
 
 Turnover estimates place equal weight on the gain and loss of a species irrespective of its abundance. 
 However, the gain or loss of a common vs. rare species may have important implications for species interactions and ecosystem functioning. 
@@ -594,7 +594,7 @@ group_by(portal.rankshift, plot_type) %>%
     cv = sd(MRS)/mean)
 ```
 
-### D. Rate Change Interval
+### C. Rate Change Interval
 
 How much can communities diverge over time? 
 And how fast does this happen? 
@@ -751,36 +751,63 @@ But in this section, let's see whether portal data are consistent with expectati
 # Recall, earlier we calculated richness in each plot type in each year
 head(rich.all)
 
-# Let's ungroup rich.all and regroup only by plot id 
+# Let's group only by plot id 
 # Then, we we summarise average annual richness in each plot type
-portal.mean.rich.plot <- rich.all %>% ungroup() %>% 
+portal.mean.rich.plot <- rich.all %>% 
   group_by(plot_id) %>% 
   summarise(mean.rich = mean(richness))
 
 # Let's take a look at how stability metrics relate to mean richness
-portal.plot.abunds <- as.data.frame(group_by(portal, year, plot_id) %>% count(taxon))
+portal.plot.abunds <- as.data.frame(
+  group_by(portal, year, plot_id) %>% count(taxon))
 portal.stab.plot <- community_stability(df = portal.plot.abunds,
                     time.var = "year",
                     abundance.var = "n",
                     replicate.var = "plot_id")
 
 # Join richness and stability
-portal.div.stab <- rich.all %>% group_by(plot_id) %>% 
-  summarise(avg.rich = mean(richness)) %>% 
+portal.div.stab <- portal.mean.rich.plot %>% 
   inner_join(portal.stab.plot)
 
-plot(portal.div.stab$stability ~ portal.div.stab$avg.rich,
+plot(portal.div.stab$stability ~ portal.div.stab$mean.rich,
      xlab = "Mean Richness", ylab = "Aggregate Stability")
-
-### Can knit, but getting erros with portal.mean.rich.plot
-### Can we add a lm(stabiltiy ~ richness) and abline to the plot?
+div.stab.lm <- lm(portal.div.stab$stability ~ portal.div.stab$mean.rich)
+pander(summary(div.stab.lm))
+abline(div.stab.lm)
+r2 <-  bquote(italic(R)^2 == .(format(
+  summary(div.stab.lm)$adj.r.square, digits = 3)))
+text(4,3, labels = r2)
 
 ```
 
 ## REFERENCES
 
-Grime, J. P. (1998). Benefits of plant diversity to ecosystems: immediate, filter and founder effects. J. Ecol. 86, 902–910.
+Collins, S. L., K. N. Suding, E. E. Cleland, M. Batty, S. C. Pennings, K. L. Gross, J. B. Grace et al. 2008. Rank clocks and plant community dynamics. Ecology 89:3534-3541.
 
-Collins https://www.ncbi.nlm.nih.gov/pubmed/19137958
+de Mazancourt, C., F. Isbell, A. Larocque, F. Berendse, E. De Luca, J. B. Grace, B. Haegeman et al. 2013. Predicting ecosystem stability from community composition and biodiversity. Ecology Letters 16:617-625.
 
-Leitao et al. 2016 http://rspb.royalsocietypublishing.org/content/283/1828/20160084
+Gonzalez, A., and M. Loreau. 2009. The causes and consequences of compensatory dynamics in ecological communities. Annual Review of Ecology, Evolution, and Systematics 40:393-414.
+
+Grime, J. P. 1998. Benefits of plant diversity to ecosystems: immediate, filter and founder effects. Journal of Ecology 86:902-910.
+
+Grimm, V., and C. Wissel. 1997. Babel, or the ecological stability discussions: An inventory and analysis of terminology and a guide for avoiding confusion. Oecologia 109:323-334.
+
+Gross, K., B. J. Cardinale, J. W. Fox, A. Gonzalez, M. Loreau, H. W. Polley, P. B. Reich et al. 2014. Species richness and the temporal stability of biomass production: a new analysis of recent biodiversity experiments. The American Naturalist 183:1-12.
+
+Hallett, L. M., S. K. Jones, A. A. M. MacDonald, M. B. Jones, D. F. B. Flynn, J. Ripplinger, P. Slaughter et al. 2016. codyn: An r package of community dynamics metrics. Methods in Ecology and Evolution 7:1146-1151.
+
+Ives, A. R., and S. R. Carpenter. 2007. Stability and diversity of ecosystems. Science 317:58-62.
+
+Legendre, P., and E. D. Gallagher. 2001. Ecologically meaningful transformations for ordination of species data. Oecologia 129:271-280.
+
+Leitão, R. P., J. Zuanon, S. Villéger, S. E. Williams, C. Baraloto, C. Fortunel, F. P. Mendonça et al. 2016. Rare species contribute disproportionately to the functional structure of species assemblages. Proceedings of the Royal Society B: Biological Sciences 283.
+
+Loreau, M., and C. de Mazancourt. 2008. Species synchrony and its drivers: neutral and nonneutral community dynamics in fluctuating environments. The American Naturalist 172:E48-E66.
+
+McCann, K. S. 2000. The diversity-stability debate. Nature 405:228-233.
+
+Micheli, F., K. L. Cottingham, J. Bascompte, O. N. Bjørnstad, G. L. Eckert, J. M. Fischer, T. H. Keitt et al. 1999. The dual nature of community variability. Oikos 85:161-169.
+
+Pimm, S. L. 1984. The complexity and stability of ecosystems. Nature 307:321-326.
+
+Tilman, D. 1999. The ecological consequences of changes in biodiversity: a search for general principles. Ecology 80:1455-1474.
