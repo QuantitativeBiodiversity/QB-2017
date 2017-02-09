@@ -383,8 +383,6 @@ names(rich.all)[4] <- "richness"
 # Pull out two of the five Portal treatments
 rich.treat <- rich.all[which(rich.all$plot_type == 
       "Control" | rich.all$plot_type == "Rodent Exclosure"), ]
-
-
 ```
 
 ### Plot data
@@ -408,7 +406,8 @@ rich.plot <- ggplot(rich.treat.plot, aes(x = year, y = mean, color = plot_type))
   geom_errorbar(aes(ymin = mean - sem, ymax = mean + sem), width = .1) +
   xlim(1977, 2002) + 
   xlab("Year") + 
-  ylab("Richness")
+  ylab("Richness")+
+  scale_color_grey()
 
 plot(rich.plot)
 ```
@@ -543,7 +542,8 @@ turn.plot <- ggplot(
   xlim(1977, 2002) + 
   xlab("Year") + 
   ylab("Turnover") + 
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom") + 
+  scale_color_grey()
 plot(turn.plot)
 ```
 
@@ -586,7 +586,8 @@ rankshift.plot <- ggplot(portal.rankshift, aes(x = year, y = MRS, color = plot_t
   geom_line(size = 1) + 
   xlim(1977, 2002) + 
   xlab("Year") + 
-  ylab("Mean Rank Shift")
+  ylab("Mean Rank Shift") + 
+  scale_color_grey()
 
 plot(rankshift.plot)
 
@@ -615,36 +616,34 @@ The Hellinger transformation is the square root of the relative abundances: $y'{
 
 ```{r}
 # In order to calculate relative abundances, we need total abundances
-# First, let's count the total abundances
-total.abunds <- portal.species.abunds %>% 
-  group_by(year, plot_type) %>% 
-  count(wt = n)  # The wt sums the values of n within a year
-total.abunds # We now have a column nn that is the site total abund.
+# Let's add a column for total abundances
+# We will relativize species abundances across the whole dataset so 
+# the transformed distances are preserved
+portal.species.abunds$tot.abund <- rep(sum(portal.species.abunds$n),
+                                       length(portal.species.abunds$n))
 
-# Now, let's join these total counts with the counts for each species
-portal.hellinger.transf <- inner_join(
-  portal.species.abunds, total.abunds, by = c("year", "plot_type")) %>% 
-  mutate(hellinger.transf = sqrt(n / nn))
+# Now, apply Hellinger transformation 
+portal.hellinger.transf <- portal.species.abunds %>%
+  mutate(hellinger.transf = sqrt(n / tot.abund))
 
 # The mutate function creates a new column "hellinger.transf" 
 # by taking the square root of species relative abundance
-portal.hellinger.transf
 
 # We can use this new column as our "abundance" vector
-portal.change.int2 <- rate_change_interval(portal.hellinger.transf,
+portal.change.int <- rate_change_interval(portal.hellinger.transf,
                      time.var = "year",
                      species.var = "taxon",
                      abundance.var = "hellinger.transf", 
                      replicate.var = "plot_type")
 
-rate.plot2 <- ggplot(portal.change.int2, aes(interval, distance)) + 
+rate.plot <- ggplot(portal.change.int, aes(interval, distance)) +
   geom_point() + 
   facet_wrap(~plot_type) +
   theme(strip.text.x = element_text(size = 7)) +
   stat_smooth(method = "loess", se = F, size = 1) + 
   ylab("Hellinger Distance") + 
   xlab("Time Interval (Years)")
-rate.plot2
+rate.plot
 ```
 
 
@@ -720,20 +719,23 @@ The synchrony values are all positive, but pretty far from 1, suggesting there i
 
 ### C. Variance Ratio
 
-Similar to concepts of community-wide synchrony, here we present another metric, the variance ratio (VR). 
-The VR allows us to test for positive or negative species covariance. 
-The ratio of aggregate abundances compared to the sum of variances of individual species can generate three qualitatively different VR outcomes: 
-When VR = 1 species do not covary; when VR > 1, species positively covary; when VR < 1 species negatively covary.
-In order to test for significance, we will compare the observed variance ratio to a distribution of ratios calculated from randomized null communities. 
+Similar to concepts of community-wide synchrony, here we present another metric, the variance ratio (VR) (Schluter 1984). 
+The VR allows us to test for positive or negative species covariance and is often used to detect compensatory dynamics. 
+VR is the ratio of the variance in aggregate abundances to the sum of variances of individual species. 
+Let's look at the numerator first (Var(N)). 
+When there is no or little variation in total number of individuals over time, the numerator is close to zero. 
+This suggests that no matter how individual species fluctuate, their fluctuations compensate for one another, resulting in a relatively stable total abundance. 
+This is an indication of negative covariance (asynchrony) in species abundances.
+Alternatively, when species positively covary (i.e., they are synchronous), their individual fluctuations become amplified when looking at the total abundance (because there is no compensation). 
+Consequently, the numerator becomes much larger than the denominator.
+Thus, we can summarise this as follows: when VR = 1 species do not covary; when VR > 1, species positively covary; and when VR < 1 species negatively covary.
+To test for significance, we will compare the observed variance ratio to a distribution of ratios calculated from randomized null communities. 
 
 ```{r}
 portal.vr <- variance_ratio(df = as.data.frame(portal.species.abunds),
-               time.var = "year",
-               species.var = "taxon",
-               abundance.var = "n",
-               replicate.var = "plot_type",
-               bootnumber = 1000,
-               average.replicates = T,
+               time.var = "year", species.var = "taxon",
+               abundance.var = "n", replicate.var = "plot_type",
+               bootnumber = 1000, average.replicates = T,
                level = 0.95)
 pander(portal.vr)
 ```
@@ -750,11 +752,9 @@ It is generally thought thought that more diverse ecosytems are more stable.
 Often these ideas are tested experimentally where species richness is directly manipulated. 
 But in this section, let's see whether portal data are consistent with expectation from biodiversity-stability theory. 
 
-```{r}
+```{r, fig.align="center", fig.height=3.75, fig.width=5.5}
 # Recall, earlier we calculated richness in each plot type in each year
-head(rich.all)
-
-# Let's group only by plot id 
+# Let's group only by plot_id 
 # Then, we we summarise average annual richness in each plot type
 portal.mean.rich.plot <- rich.all %>% 
   group_by(plot_id) %>% 
@@ -772,14 +772,26 @@ portal.stab.plot <- community_stability(df = portal.plot.abunds,
 portal.div.stab <- portal.mean.rich.plot %>% 
   inner_join(portal.stab.plot)
 
+# Plot the relationship
+par(mar = c(5,5,1,1))
 plot(portal.div.stab$stability ~ portal.div.stab$mean.rich,
-     xlab = "Mean Richness", ylab = "Aggregate Stability")
+     xlab = "", ylab = "", yaxt = "n", xaxt = "n",
+     xlim = c(2,10), ylim = c(1,4))
+axis(side = 1, cex.axis = 1.2, lwd.ticks = 2, las = 1)
+axis(side = 2, cex.axis = 1.2, lwd.ticks = 2, las = 1)
+axis(side = 3, lwd.ticks = 2, las = 1, labels = F)
+axis(side = 4, lwd.ticks = 2, las = 1, labels = F)
+box(lwd = 2)
+mtext("Mean Richness", side = 1, line = 3, cex = 1.5)
+mtext("Aggregate Stability", side = 2, line = 3.5, cex = 1.5)
+mtext(expression(paste("(CV"^"-1"," Total Abundance)")), 
+      side = 2, line = 2.25, cex = .8)
+
 div.stab.lm <- lm(portal.div.stab$stability ~ portal.div.stab$mean.rich)
-pander(summary(div.stab.lm))
 abline(div.stab.lm)
 r2 <-  bquote(italic(R)^2 == .(format(
   summary(div.stab.lm)$adj.r.square, digits = 3)))
-text(4,3, labels = r2)
+text(3.25,3.75, cex = 1.5, labels = r2)
 
 ```
 
@@ -812,5 +824,7 @@ McCann, K. S. 2000. The diversity-stability debate. Nature 405:228-233.
 Micheli, F., K. L. Cottingham, J. Bascompte, O. N. Bjørnstad, G. L. Eckert, J. M. Fischer, T. H. Keitt et al. 1999. The dual nature of community variability. Oikos 85:161-169.
 
 Pimm, S. L. 1984. The complexity and stability of ecosystems. Nature 307:321-326.
+
+Schluter, D. 1984. A variance ratio test for detecting species associations, with some applications. Ecology 65:998-1005.
 
 Tilman, D. 1999. The ecological consequences of changes in biodiversity: a search for general principles. Ecology 80:1455-1474.
