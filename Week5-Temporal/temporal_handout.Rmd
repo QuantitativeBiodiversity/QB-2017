@@ -69,11 +69,8 @@ All of this was done in five experimentally replicated treatments (see Figure be
 1) Controls - fencing around plots does not exclude rodents (plot_id: 2, 4, 8, 11, 12, 14, 17, 22) 
 
 2) Long-term Krat - long-term exclusion of Kangaroo rats (*Dipodomys* spp.) (plot_id: 3, 15, 19, 21) 
-
 3) Short-term Krat - short-term exclusion of Kangaroo rats (*Dipodomys* spp.)  (plot_id: 6, 13, 18, 20) 
-
-4) Rodent Exclosure - exclusions of all rodents (plot_id: 5, 7, 10, 16, 23, 24) 
-
+4) Rodent Exclosure - exclusion of all rodents (plot_id: 5, 7, 10, 16, 23, 24) 
 5) Spectab exclosure - exclusion of Banner-tailed kangaroo rat (*Dipodomys spectabilis*) (plot_id: 1, 9) 
 
 ```{r, fig.width = 8, fig.height = 3.75, echo = FALSE, fig.align = 'center', echo = FALSE}
@@ -90,7 +87,7 @@ However, manipulating long-format data for visualization and statistical analysi
 For example, many R packages and functions require you to organize your data in **wide format** where different sampling time points would be represented in columns.
 
 In the following sections, we will demonstrate how to manipulate the `portal` data set to carry out different types of analyses using functions from the `dplyr` and `tidyr` packages. 
-These packages were especially designed for transforming, subsetting, and summarizing tabular data.
+These packages were especially designed for transforming, subsetting, and summarizing tabular data (i.e., data within tables).
 The functions contained in these two packages -- as well as other functions in the R base package like `apply()` and `aggregate()` -- are preferred for manipulating data in R because they are faster and more efficient than other control-flow statements (e.g., loops) that are commonly used in other programming languages. 
 
 First, let's use the `unite()` function from the `tidyr` package to create new columns that contain information in other columns.
@@ -106,8 +103,8 @@ portal <- unite(portal, col = taxon, c(genus, species), sep = "_", remove = FALS
 
 Now, we are going to use `dplyr` to create a **time-by-species matrix**. 
 To do this, we are going to use a new operator referred to as a "pipe" (`%>%`). 
-Pipes allow output from one function to be used as input for another function in the same line of code.
-When using pipes, the output from the function to the left becomes the first argument of the function on the right. 
+Pipes allow output from one function to be used as input for another function, all in the same line of code.
+When using pipes, the output from the function to the left becomes the input for the function on the right. 
 
 In the following R chunk, we will build a time-by-species matrix. 
 First, we will use a `dplyr` function called `group_by()`, which splits the dataset up according the variable(s) supplied.
@@ -144,10 +141,11 @@ time.by.species <- as.data.frame(time.by.species)
 ## 4) TIME SERIES ANALYSIS - A PRIMER
 
 In this section, we introduce some basic concepts and tools used in time series analysis.
-One goal of time series analysis is to detect and decompose trends in temporal data that are independent from other sources of variability (e.g., seasonality, cycles, and error).
-Another goal of time series analysis is to make **forecasts** about a system into the future. 
+One goal of time series analysis is to detect and decompose trends in temporal data.
+Ideally, these trends should be independent from other sources of variability (e.g., seasonality, cycles, and sampling error).
+Another goal of time series analysis is to make **forecasts** about a system, that is, predictions of future behavior. 
 We will demonstrate some of these tools using the abundance of rodents for a single site in the Portal Project.
-Throughout the year, total rodent abundance may fluctuate widely in response to multiple stimuli, one of which is likely precipitation.
+Throughout the year, total rodent abundance may fluctuate widely in response to environmental change, e.g., precipitation.
 Because the Chihuahuan Desert sits in a rain shadow created by the Sierra Madre Mountains, the Portal site is an arid ecosystem with rain falling mostly during the months of June through October.
 This variability in precipitation provides an opportunity for us to detect a signal of this **seasonality** using time series analysis while also testing for long-term trends and forecasting rodent densities into the future.
 
@@ -175,8 +173,9 @@ group_by(time.by.spec.2, year, season)
 ```
 
 Now we are going to use the `filter()` function in `dplyr` to pick a plot. 
-Next, we calucalte rodent abundance per hectare (0.25 ha * 4 = 1 ha) for each season within a year. 
-Then, we created a create a time series object that identifies the start time and seasonality of our sampling, which is determined by the frequency argument.
+Next, we calculate rodent abundance per hectare (0.25 ha * 4 = 1 ha) for each season within a year. 
+Then, we created a create a time series object (.ts) that identifies the start time and seasonality of our sampling, which is determined by the frequency argument.
+Time series objects (.ts) are vectors or matrices which represent data that has been sampled at equispaced points in time.
 
 ```{r, fig.align = "center", fig.height = 3.75, fig.width = 4.5}
 abund <- filter(time.by.spec.2, plot_id == 2) %>% 
@@ -196,10 +195,10 @@ plot.ts(abund.ts, type = "l", ylab = "Rodent Abundance (#/hectare)",
 One technique that is commonly used, mostly for visualizing trends in a time series is smoothing. 
 Smoothing techniques attempt to remove noise, and are used to help detect signal in a dataset.
 The simplest form of smoothing is the **simple moving average**. 
-Simple moving average calculates an unweighted arithmetic mean of your observations across a window of past *n* observations.  
+Simple moving average calculates an unweighted arithmetic mean of your observations across a window of the past *n* observations.  
 In the following R chunk, we use the `SMA()` function contained in the `TTR` package.
 (Note that this package does not accept a `ts` object.)
-Play around with *n* to visualize the effect of the smoothing window.
+Change the value of *n* to visualize the effect of the smoothing window.
 
 ```{r, fig.align="center", fig.height=3.75, fig.width=4.5} 
 abund.sm <- SMA(abund$nn, n = 5)
@@ -229,8 +228,8 @@ legend(0, 475, col = c("black", "red"), lty = c(1,1),
 
 ### Decomposition of a time series
 
-A time series can be broken down into different "categories", which can provide insight into what is contributing to patterns. 
-The common categories of a time series decomposition are the trend, seasonality, cycle, and residual error.
+A time series can be broken down into different "categories", which can provide insight into factors contributing to temporal patterns. 
+The common categories of a time series decomposition are the trend (i.e., increasing or decreasing value in the series), seasonality (repeating short-term cycles), and residual error (i.e., statistical noise due to stochastic changes or sampling error).
 As mentioned above, we subsampled the `portal` data set so that it included seasonal variation in precipitation. 
 In the following R chunk, we will use the `decompose()` function to look at different decomposition categories.
 If seasonal trends are a nuisance in your study, there are ways to remove them, as done in the code below. 
@@ -246,12 +245,15 @@ plot(abund.comp)
 abund.adj <- abund.ts - abund.comp$seasonal 
 ```
 
-###  Auto-regressive moving average (ARMA) models
+###  Autoregressive moving average (ARMA) models
 
-Auto-regressive moving average (ARMA) models are commonly used to model time series. 
+Autoregressive is a stochastic process used in statistical analysis, in which future values are estimated based on a weighted sum of past values. 
+An autoregressive process operates under the premise that past values have an effect on current values. 
+
+Autoregressive moving average (ARMA) models are commonly used to model time series. 
 ARMA approaches can identify trends in data and help to make forecasts about future observations. 
 As such, ARMA is often used in biology and the environmental sciences, but also in business and economics.
-In this section we walk through the basic ways to implement ARMA in R. 
+In this section we will walk through the basic steps of implementing ARMA in R. 
 
 The autoregressive component of an ARMA model uses regression to obtain *coefficients* that predict current observations using previous or "lagged" observations from a time series, which can be described with the following equation:
 
@@ -259,6 +261,7 @@ $$Y_{t} = {c + \sum\limits_{i=1}^{p} {\phi_i} {Y_{t-i}} + {\epsilon_t} }$$
 
 where $Y_{t}$ is an observation at time $t$, $c$ is a constant, ${\epsilon}$ is the error term, and ${\phi}$ is the fitted parameter associated with the autoregressive order (or lag) $p$. 
 
+In this way, the data is regressed on previous data points, hence, "autoregressive"
 The moving average component of an ARMA model should not be confused with the moving average techniques that were described in the section above on smoothing.
 Rather, the moving average component of an ARMA model uses multiple regression to recover *error terms* of the current and prior observations, which can be described with the following equation:  
 
@@ -293,7 +296,7 @@ adf.diff$p.value
 #plot.ts(abund.ts.diff, ylab = "Rodent Abundance (#/hectare)", xlab = "Time (year)", las = 1)
 ```
 
-The next step in the ARMA pipline is to look at the lags in our time series using the **autocorrelation function (ACF)**.
+The next step in the ARMA pipeline is to look at the lags in our time series using the **autocorrelation function (ACF)**.
 These plots help us visualize structure in our data, while informing the parameterization of our ARMA models.
 Specifically, the ACF tells us about the lags of the forecast errors and thus provides information for the moving average (MA) component of the model. 
 The ACF simply looks at the correlation between lagged intervals in the time series.
