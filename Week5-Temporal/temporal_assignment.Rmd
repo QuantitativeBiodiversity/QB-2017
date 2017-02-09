@@ -77,81 +77,128 @@ In the R code chunk below, do the following:
 1. Create a site-by-species matrix for any year of your choosing.
 2. Create a vector of plot_type for sites in the site-by-species matrix.
 3. Calculate alpha diversity across the sites for that year.
-4. Using the hypothesis testing tools you learned in the beta-diversity module, test the hypothesis that species abundances across sites vary as a factor of treatment type (i.e., plot_type). 
+4. Create a PCoA ordination of your site-by-species matrix 
+5. Using the hypothesis testing tools you learned in the beta-diversity module, test the hypothesis that species abundances across sites vary as a factor of treatment type (i.e., plot_type). 
 
 ```{r}
 
 ```
 
-***Question ***: Does richness differ among 
+***Question 2***: Describe how different biodiversity estimates vary among sites.
 
-> ***Answer ***:
+a. Does richness vary among sites?
+b. Do species abundances across sites vary as a factor of treatment type
 
+> ***Answer 2a***:
+> ***Answer 2b***:
 
 
 
 ## 4) TIME SERIES ANALYSIS
 In the R code chunk below, do the following:  
 
-1. 
-2. 
+1. Create a time-by-species matrix that includes year, month, and plot_id (for a particular treatment)
+2. Examine per-hectare rodent abundance using simple moving average smoothing.
+3. Test whether your data meets the assumption of stationarity 
+4. If it does not, examine and plot time lags using the partial autocorrelation function (PACF) of the ARMA model
+5. Use your PACF results to arrive at your full ARMA model
 
 ```{r}
 
 
 ```
 
-***Question ***:
+***Question 3***: Describe the results from your time series analysis.
 
-> ***Answer ***:
+a. Does the inverse of Simpson's diversity vary among sites?
+b. Do species abundances across sites vary as a factor of treatment type?
+c. Does your data meet the assumption of stationarity? If not, what does this violation imply?
+d. What does the ACF function do and how does it relate to the ARMA model? How does this differ from the autocorrelation function (ACF)?
+e. What results can you conclude from your full ARMA model?
+
+
+> ***Answer 3a***:
+> ***Answer 3b***:
+> ***Answer 3c***:
+> ***Answer 3d***:
+> ***Answer 3e***:
 
 
 
-## 5) TURNOVER
+## 5) REPEATED MEASURES ANALYSIS OF VARIANCE (RM-ANOVA)
 In the R code chunk below, do the following:  
 
-1. 
-2. 
+1. Create an appropriate data frame for RM-ANOVA.
+2. Calculate Simpson's diversity and plot it as a function of year for the control and rodent plots.
+3. Perform RM-ANOVA and construct a F-test
 
 ```{r}
 
 
 ```
 
-***Question ***:
+***Question 4***: Describe the results from your RM-ANOVA.
 
-> ***Answer ***:
+a. In your own words describe what a RM-ANOVA test is doing
+b. Is there a noticeable trend in the inverse of Simpson's diversity over time?
+c. What does the result of your F-test tell you? 
+
+> ***Answer 4a***:
+> ***Answer 4b***:
+> ***Answer 4c***:
+
+## 6) TEMPORAL BETA DIVERSITY
+
+1. Calculate and plot turnover 
+
+```{r}
 
 
-## 6) STABILITY
+```
+
+***Question 5***:
+
+a. How does temporal beta diversity relate to spatial beta diversity?
+b. What does a change in the rank shift tell you about the community?
+c. Interpret the results in the plot of Hellinger distance over time.
+
+> ***Answer 5a***:
+> ***Answer 5b***:
+> ***Answer 5c***:
+
+
+
+## 7) STABILITY
 In the R code chunk below, do the following:  
 
-1. 
-2. 
+1. Calculate stability for each plot type.
+2. Analyze and plot the relationship between average stability and the inverse of Simpson's diversity.
 
 ```{r}
 
 
 ```
 
-***Question ***:
+***Question 6***:
 
-> ***Answer ***:
+a. Which plot type has the highest stability? What does this tell you about the coefficient of variation.
+b. In your own words, describe the concept of synchrony
+c. Interpret the results from the biodiversity-stability relationship.
+
+> ***Answer 6a***:
+> ***Answer 6b***:
+> ***Answer 6c***:
+
 
 
 
 ## SYNTHESIS
-In the R code chunk below, do the following:  
 
-1. 
-2. 
+***Question 7***: Answer the following questions.
 
-```{r}
+a. How does temporal diversity relate to spatial diversity in the biological sense?
+b. What are the differences between temporal and spatial autocorrelation? What do you have to take into account for each type of analysis?
 
-
-```
-
-***Question ***:
-
-> ***Answer ***:
+> ***Answer 7a***:
+> ***Answer 7b***:
 
