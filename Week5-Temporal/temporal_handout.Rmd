@@ -38,7 +38,8 @@ This `for` loop loads each package and installs the package when `require()` ret
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
 package.list <- c('vegan', 'tidyr', 'dplyr', 'codyn', 'ggplot2', 
       'cowplot', 'MullerPlot', 'RColorBrewer', 'reshape2', 'lubridate', 
-      'TTR', 'xtable', 'multcomp', 'pander', 'png', 'grid', 'tseries', 'nlme', 'forecast')
+      'TTR', 'xtable', 'multcomp', 'pander', 'png', 'grid', 'tseries', 'nlme', 
+      'forecast', 'lsmeans')
 for (package in package.list) {
   if (!require(package, character.only = TRUE, quietly = TRUE)) {
     install.packages(package, repos='http://cran.us.r-project.org')
@@ -133,7 +134,7 @@ And if we want the species data from plot 5 for all years, we could use the foll
 dplyr::filter(time.by.species, plot_id == 5) # return plot5 time-by-species
 ```
 
-Last, let's convert the `tidyr` object to a dataframe so it can be used with functions from other packages: 
+Last, let's convert the `tidyr` object to a data frame so it can be used with functions from other packages: 
 
 ```{r}
 time.by.species <- as.data.frame(time.by.species)
@@ -360,7 +361,7 @@ In the following section, we will show you how to perform and interpret an RM-AN
 In the following R chunk, we calculate richness over time from two of the Portal plots. 
 The first treatment is the "Control" where rodents where free to move in and out of plots. 
 The second treatment is the "Rodent Exclosure", which attempted to exclude all rodents. 
-To create the necessary dataframe, we use `dplyr` to construct a time-by-species matrix.
+To create the necessary data frame, we use `dplyr` to construct a time-by-species matrix.
 We use `count()` to sum the number of individuals belonging to each taxon while maintaining the grouping by year, plot_id, and plot_type.
 We use the `spread()` function from `tidyr` on the split dataset to convert parts of a long format dataset to a wide format dataset.
 Last, we calculate richness (i.e., number of taxon per plot per year) for each replicate in the two treatments.  
@@ -373,7 +374,7 @@ time.by.species <- group_by(portal, year, plot_id,
 # Calculate observed richness from time-by-species matrix
 richness <- as.data.frame(rowSums(time.by.species[,-c(1,3)] > 0)) 
 
-# Create dataframe with experimental design and richness data
+# Create data frame with experimental design and richness data
 rich.all <- data.frame(time.by.species[,1:3,], richness)
 
 # Pull out two of the five Portal treatments
@@ -447,67 +448,36 @@ lsmeans(rich.rm, ~plot_type)
 
 ## 6) TEMPORAL BETA DIVERSITY
 
-As we have learned this semester, \beta-diversity examines the diversity between samples.
-In previous weeks, we have emphasized features of \beta-diversity with regard to the distributions of samples in space.
-Now we will explore temporal dimensions of \beta-diversity, which will examine changes in the abundance or presence-absence of species over time. 
+As we have learned this semester, $\beta$-diversity examines biodiversity between samples.
+In previous weeks, we have emphasized features of $\beta$-diversity that relate to the distribution of species and samples in space.
+Now we will explore temporal dimensions of $\beta$-diversity, which will examine changes in the abundance or presence-absence of species over time. 
+Specifially, we introduce concepts and measures of turnover, rank shift, and rank change interval. 
 
-### A. Richness 
-A simple measure of community change over time is how many species it gains or loses over the observed duration.
-In the Chihuahan Desert, disturbances such as drought may influence which species are found in the experimental plots over time. 
-In addition, some species may simply be transients that happened to be censused one year, but not in others.
-The treatment design of the plots at the Portal site may influence which species are found in each group of sites. 
-Before we proceed, we can generate a few hypotheses: 
-* The control plots will have higher richness than the exclosure plots because many species are excluded from the exclosures.
-* Alternatively, the kangaroo rat exclosure treatments may have moderately high diversity if the kangaroo rat tends to competitively displace other small mammals.
-* Likewise, we can draw additional hypotheses about the exclosure of banner-tailed kangaroo rats (Spectab), and the exclosure of all rodents. 
+Let us revisit the figure of annual rodent richness over time.
+RM-ANOVA revealed that exclosure led to 70% reduction in rodent richness. 
+Although there was no significant effect of time in the RM-ANOVA model, rodent richness fluctuates with discernable peaks in 1982, 1987, 1992, 1997, and 2002.
+Interestingly, the interannual trends in richness are similar across treatments. 
+We will investigate these patterns in the context of temporal biodivesity in the following sections.  
 
+### A. Turnover
 
-First, we can calculate the richness in each plot, in each year. 
-```{r}
-portal.richness.year <- group_by(portal, year, plot_type) %>% 
-  count(taxon) %>% 
-  summarise(richness = n())
-```
-
-Now, let's plot these on the same graph to visualize
-```{r, fig.align='center', fig.width=6, fig.height=4}
-rich.plot <- ggplot(
-  portal.richness.year, aes(x = year, y = richness, color = plot_type)) +  
-  geom_line(size = 1, show.legend = T) + 
-  xlim(1977, 2002) + 
-  xlab("Year") + 
-  ylab("Richness") + 
-  theme(legend.position = "bottom")
-
-plot(rich.plot)
-```
-
-It looks like the Control plots tend to have the highest richness, and had the highest peak richness.
-It is also worth noting that the Krat exclosures and rodent exclosures remained relatively similar, but that the Spectab exclosure consistently had low richness.
-There appears to have been an event that occurred around 1996 that led to a systematic crash in richness in all treatments, most severely in the exclosure treatments. 
-
-
-### B. Turnover
-Although we have just described general trends in richness, we have not yet learned anything about the change in species composition over time (i.e., species turnover).
-Turnover gives us an idea of how similar species composition is over time: low turnover means that the composition and its relative abundances remain relatively stable through time, while high turnover suggests a highly dynamic community structure. 
-Just like turnover in space, turnover can be driven by the introduction of new species or the loss of resident species.
-
-Immigration, competitive exlusion, diseases, invasion, etc.
-
-Here we will calculate the overall turnover, but also assess how this metric is influenced by the introduction of new species versus the disappearance of resident species. 
+The temporal pattern of annual richness could be explained in part by changes in species composition over time (i.e., species turnover).
+Turnover quantifies the similarity of species composition over time. 
+Low turnover means that composition is relatively stable through time, while high turnover relfects dynamic community structure.
+Turnover can be driven by the introduction and establishment of new speccies or the loss of a resident species. 
+These gains and losses of species can reflect a suite of eco-evolutionary processes including natural immigration, invasion by exotic species, disease outbreaks, and competitive exclusion. 
+Here, we calculate the overall turnover with the follwing simple equation:
 
 $$\textrm{Total turnover} = \frac{\textrm{species gained + species lost}}{\textrm{total species in both timepoints}}$$
 
-To perform these analyses, we will use the `codyn` package (Hallett et al. 2016), which calculates a number of metrics to analyze community dynamics.
+In the following R chunks, we use the `codyn` package (Hallett et al. 2016), which calculates a number of metrics to analyze community dynamics.
 
 ```{r}
-# First, we will calculate the species abundances from each site over time
+# First, calculate the species abundances from each site over time
 portal.species.abunds <- group_by(portal, year, plot_type) %>% count(taxon)
 
-# This data.table now contains a new column `n` that represents the species counts
 
-
-# Here, we calculate turnover 
+# Calculate total turnover 
 portal.total <- turnover(df = portal.species.abunds, 
                             time.var = "year", 
                             species.var = "taxon", 
@@ -515,6 +485,7 @@ portal.total <- turnover(df = portal.species.abunds,
                             replicate.var = "plot_type",
                             metric = "total")
 
+# Calculate species gained
 portal.appearance <- turnover(df = portal.species.abunds, 
                             time.var = "year", 
                             species.var = "taxon", 
@@ -522,6 +493,7 @@ portal.appearance <- turnover(df = portal.species.abunds,
                             replicate.var = "plot_type",
                             metric = "appearance")
 
+# Calculate species lost
 portal.disappearance <- turnover(df = portal.species.abunds, 
                             time.var = "year", 
                             species.var = "taxon", 
@@ -530,38 +502,37 @@ portal.disappearance <- turnover(df = portal.species.abunds,
                             metric = "disappearance")
 ```
 
-Each of these objects now contains a column for the value of the turnover metric, the second year in the pairwise comparison, and the type of plot. 
-If we examine the data structure, note that the only difference between each object the column containing the calculation of the metric. 
-For easier plotting, we'll combine these columns into a single data table
+Each of these objects contains a column for the value of the turnover metric (total, appearance, disappearance), the second year in the pairwise comparison, and the type of plot (i.e., treatment). 
+For easier plotting, let's combine these turnover metrics into a single data table:
 
 ```{r}
-# Let's join the columns by the shared year & plot type columns
+# Use `join()` from `dply` to join the columns by shared year & plot type columns
 portal.turnover <- full_join(portal.total, portal.disappearance) %>% 
   full_join(portal.appearance)
 
-# Here, let's turn this back into long-form using gather
+# Use `gather()` from `tidyr` to convert back to long-form
 portal.turnover <- gather(portal.turnover, key = metric, value = turnover, 
        total, appearance, disappearance)
 ```
 
-In the above code chunk, we did a lot of data wrangling using only a couple lines of code. 
-Think about what we just did. 
+In the R code chunk above, we did a lot of data wrangling using only a couple lines of code. 
+Take a moment to reflect on what we just did. 
 We had three separate data frames containing different turnover metrics. 
 But those metrics referred to the same plots and years. 
-So, we joined them together using their shared year > plot_id index to create one data table.
-We used a pipe `%>%` to first join total and disappearance values, then piped this joined data table to be the first argument in another join function. 
-Run each of these `full_join()` statements independently to see what it is doing at each step.
+So, we joined them together using their shared year and plot_type index to create a single data-table.
+We used a pipe `%>%` to first join total and disappearance values, then piped this joined data-table to be the first argument in another join function. 
+Try running each of these `full_join()` statements separately to see what is happening at each step.
 
-Next, to facilitate plotting, we can turned the wide form data table back into a long form. 
+Next, we turned the wide-form data table back into a long-form table to facilitate plotting. 
 We did this using the `gather()` function. 
-This function says: in `portal.turnover`, create a new column of keys and call it "metric".
-Create another new column of associated values and call it "turnover". 
-The keys in the metric column will be (are) the old columns we are gathering together (total, appearance, disappearance).
-The values that go in turnover will be the values that were previously in the total, appearance, disappearance columns.
+Essentialy, this function takes `portal.turnover`and creates a new column of keys and calls it "metric".
+It then creates another new column of associated values and calls it "turnover". 
+The keys in the metric column are the old columns we gathered together (i.e., total, appearance, disappearance).
+The values that go in turnover are the values that were previously in the total, appearance, disappearance columns.
 
 Take a look at our new data table with the three different turnover metrics calculated for each year and treatment (try `View(portal.turnover)`). 
 
-Let's visualize this.
+Now, let's use `ggplot` to visualize the turnover metrics in all five of the Portal treatments over the entire annual time series.
 
 ```{r, fig.align = 'center', fig.height = 6, fig.width = 4}
 turn.plot <- ggplot(
@@ -575,23 +546,25 @@ turn.plot <- ggplot(
 plot(turn.plot)
 ```
 
-
 ### C. Rank Shift
 
-While turnover gives a measure of how dynamic a community is over time, it would also be interesting to learn how often dominance (i.e., the most abundant species) changes over time. 
-If turnover is due mostly to gains and losses of rare species, with little change to the dominant members, this is not uncommon. 
-However, if the community sees drastic rearrangements of community dominance (i.e., the most abundant species change ranks frequently) this could suggest something different is going on.
-Mean rank shifts measure the relative change in species rank abundances.
+Turnover estimates place equal weight on the gain and loss of a species irrespective of its abundance. 
+However, the gain or loss of a common vs. rare species may have important implications for species interactions and ecosystem functioning. 
+For example, the "mass ratio theory" (Grime 1998) states that species should contribute to community processes in proportion to their abundance. 
+However, more recent studies suggest that rare species contribute disproportinately to community processes (Leitao et al. 2016).
+In this section, we introduce a $\beta$-diversity metric called **mean rank shift (MRS)** (Collins et al. 2008) that allows us to calculate the shift in ranks using the following equation:
 
 $$
 MRS = \sum_{i=1}^{n}\left(\left| R_{i, t+1} - R_{i, t} \right|\right)/n
 $$
 
-Here, we calculate MRS, plot it, and characterize its variability.
+where {R_i} is the rank of a species found in samples at time *t* and time *t + 1*.
+MRS then sums the absolute value of the rank changes for *n* species that are shared between samples. 
+Thus, the higher the MRS index, the more change there is in the commonness and rarity of taxa.
+In the following R chunk, we calculate MRS from `portal.rankshift` which is the abundance of species in each site over time (see above). 
+We then plot MRS and characterize its variability.
 
 ```{r}
-# above we calculated abundances of species in each site over time
-portal.species.abunds
 portal.rankshift <- rank_shift(
   df = as.data.frame(portal.species.abunds), 
   time.var = "year",
@@ -599,9 +572,10 @@ portal.rankshift <- rank_shift(
   abundance.var = "n",
   replicate.var = "plot_type")
 
-# here, we will replace the year range with a single value to plot
+# Replace the year range with a single value to plot
 portal.rankshift$year <- as.numeric(substr(portal.rankshift$year_pair, 6, 9))
 
+# Create ggplot
 rankshift.plot <- ggplot(portal.rankshift, aes(x = year, y = MRS, color = plot_type)) + 
   geom_line(size = 1) + 
   xlim(1977, 2002) + 
@@ -612,27 +586,16 @@ plot(rankshift.plot)
 
 # Does one plot type show higher or lower MRS, on average?
 group_by(portal.rankshift, plot_type) %>% summarise(mean(MRS))
-
-
-# The cyclic_shift function is not recognizing portal.species.abunds as the data frame. NW, are you familiar with what this function is doing? -WS
-
-#cyclic_shift(df = as.data.frame(portal.species.abunds), 
-#  time.var = "year",
-#  species.var = "taxon",
-#  abundance.var = "n",
-#  replicate.var = "plot_type",
-#  FUN = rank_shift(),
-#  bootnumber = 10)
-
-
-
 ```
 
 ### D. Rate Change Interval
 
-The temporal lag in community similarity suggests a time duration at which communities become sufficiently dissimilar to one another. 
-For example, in highly dynamic systems with high species replacement and large mean rank shifts, temporal turnover may saturate after a relatively short time interval, say 5 years, after which pairwise dissimilarity values remain sufficiently different. 
-Alternatively, in more stable communities, comparably large pairwise dissimilarities may take tens if not hundreds of years.
+How different can communities become over time? 
+And how fast does this happen? 
+These are important questions for basic science, but are also important for topics in restoration ecology where legacy effects often impede management practicies. 
+For example, in highly dynamic systems, turnover may saturate after a relatively short period of time while in more stable communities, 
+it may take decades or centuries for communities to reach their maximum dissimilarity.
+In the following section, we use the `codyn` package to calcualte the **rate change interval** for species abundances in the Portal site and plot this information using `ggplot`.
 
 ```{r}
 portal.total.abunds <- portal.species.abunds %>% group_by(year, plot_type) %>% count(wt = n)
@@ -810,3 +773,9 @@ Based on this observation, it is probably best to remain conservative based on t
 In general, this agrees with the above synchrony calculations, suggesting we see weak, positive covariation among species that likely respond to environmental variability (e.g., drought, fire) in similar ways. 
 
 ## REFERENCES
+
+Grime, J. P. (1998). Benefits of plant diversity to ecosystems: immediate, filter and founder effects. J. Ecol. 86, 902–910.
+
+Collins https://www.ncbi.nlm.nih.gov/pubmed/19137958
+
+Leitao et al. 2016 http://rspb.royalsocietypublishing.org/content/283/1828/20160084
