@@ -61,290 +61,97 @@ In the R code chunk below, do the following:
 
 ```
 
-***Question 1***:  Describe some of the attributes of the `doubs` dataset.  
+***Question 1***:  Describe some of the attributes of the `portal` dataset.  
 
-a.  How many objects are in `doubs`?
-b.  How many fish species are there in the `doubs` dataset?
-c.  How many sites are in the `doubs` dataset?
+a.  How many plots are in `portal`?
+b.  How many rodent species are there in the `portal` dataset?
 
 > ***Answer 1a***:  
 > ***Answer 1b***:  
-> ***Answer 1c***:  
 
-### Visualizing the Doubs River Dataset
 
-***Question 2***: Answer the following questions based on the spatial patterns of richness (i.e., $\alpha$-diversity) and Brown Trout (*Salmo trutta*) abundance in the Doubs River.  
-
-a.  How does fish richness vary along the sampled reach of the Doubs River?
-b.  How does Brown Trout (*Salmo trutta*) abundance vary along the sampled reach of the Doubs River?
-c.  What do these patterns say about the limitations of using richness when examining patterns of biodiversity?
-
-> ***Answer 2a***:  
-> ***Answer 2b***:  
-> ***Answer 2c***:  
-
-## 3) QUANTIFYING BETA-DIVERSITY
+## 3) WRANGLING THE PORTAL DATASET
 
 In the R code chunk below, do the following:  
 
-1. write a function (`beta.w()`) to calculate Whittaker's $\beta$-diversity (i.e., $\beta_{w}$) that accepts a site-by-species matrix with optional arguments to specify pairwise turnover between two sites, and
-2. use this function to analyze various aspects of $\beta$-diversity in the Doubs River.  
+1. Create a site-by-species matrix for any year of your choosing.
+2. Create a vector of plot_type for sites in the site-by-species matrix.
+3. Calculate alpha diversity across the sites for that year.
+4. Using the hypothesis testing tools you learned in the beta-diversity module, test the hypothesis that species abundances across sites vary as a factor of treatment type (i.e., plot_type). 
 
 ```{r}
 
-
-
-
-
-
-
-
-
-
 ```
 
-***Question 3***: Using your `beta.w()` function above, answer the following questions:
+***Question ***: Does richness differ among 
 
-a.  Describe how local richness ($\alpha$) and turnover ($\beta$) contribute to regional ($\gamma$) fish diversity in the Doubs.
-b.  Is the fish assemblage at site 1 more similar to the one at site 2 or site 10?
-c.  Using your understanding of the equation $\beta_{w} = \gamma/\alpha$, how would your interpretation of $\beta$ change if we instead defined beta additively (i.e., $\beta = \gamma - \alpha$)?
+> ***Answer ***:
 
-> ***Answer 3a***:  
-> ***Answer 3b***:  
-> ***Answer 3c***:  
 
-### The Resemblance Matrix
-In order to quantify $\beta$-diversity for more than two samples, we need to introduce a new primary ecological data structure: the **Resemblance Matrix**. 
 
-***Question 4***: How do incidence- and abundance-based metrics differ in their treatment of rare species?
 
-> ***Answer 4***:  
-
+## 4) TIME SERIES ANALYSIS
 In the R code chunk below, do the following:  
 
-1. make a new object, `fish`, containing the fish abundance data for the Doubs River, 
-2. remove any sites where no fish were observed (i.e., rows with sum of zero),
-3. construct a resemblance matrix based on Sørensen's Similarity ("fish.ds"), and
-4. construct a resemblance matrix based on Bray-Curtis Distance ("fish.db").  
+1. 
+2. 
 
 ```{r}
 
 
-
-
-
-
-
-
 ```
 
-***Question 5***: Using the distance matrices from above, answer the following questions:
+***Question ***:
 
-a. Does the resemblance matrix (`fish.db`) represent similarity or dissimilarity? What information in the resemblance matrix led you to arrive at your answer? 
-b. Compare the resemblance matrices (`fish.db` or `fish.ds`) you just created. How does the choice of the Sørensen or Bray-Curtis distance influence your interpretation of site (dis)similarity?
+> ***Answer ***:
 
-> ***Answer 5a***:  
-> ***Answer 5b***:
 
-## 4) VISUALIZING BETA-DIVERSITY
 
-### A. Heatmaps
-
+## 5) TURNOVER
 In the R code chunk below, do the following:  
 
-1. define a color palette,
-2. define the order of sites in the Doubs River, and
-3. use the `levelplot()` function to create a heatmap of fish abundances in the Doubs River.
+1. 
+2. 
 
 ```{r}
 
 
-
-
-
-
-
-
-
-
 ```
 
-### B.  Cluster Analysis
+***Question ***:
 
+> ***Answer ***:
+
+
+## 6) STABILITY
 In the R code chunk below, do the following:  
 
-1. perform a cluster analysis using Ward's Clustering, and
-2. plot your cluster analysis (use either `hclust` or `heatmap.2`). 
-
-```{r} 
-
-
-
-
-
-
-
-
-
-```
-
-***Question 6***: Based on cluster analyses and the introductory plots that we generated after loading the data, develop an ecological hypothesis for fish diversity the `doubs` data set? 
-
-> ***Answer 6***: 
-
-### C.  Ordination
-
-### Principal Coordinates Analysis (PCoA)
-
-In the R code chunk below, do the following:  
-
-1. perform a Principal Coordinates Analysis to visualize beta-diversity
-2. calculate the variation explained by the first three axes in your ordination
-3. plot the PCoA ordination,
-4. label the sites as points using the Doubs River site number, and
-5. identify influential species and add species coordinates to PCoA plot.
+1. 
+2. 
 
 ```{r}
 
 
-
-
-
-
-
-
-
 ```
 
-In the R code chunk below, do the following:  
+***Question ***:
 
-1. identify influential species based on correlations along each PCoA axis (use a cutoff of 0.70), and
-2. use a permutation test (999 permutations) to test the correlations of each species along each axis.
+> ***Answer ***:
 
-```{r}
 
-
-
-
-
-
-```
-
-***Question 7***: Address the following questions about the ordination results of the `doubs` data set:
-
-a.  Describe the grouping of sites in the Doubs River based on fish community composition.
-b.  Generate a hypothesis about which fish species are potential indicators of river quality.
-
-> ***Answer 7a***:  
-> ***Answer 7b***:   
-
-
-## 5) HYPOTHESIS TESTING
-
-### A.  Multivariate Procedures for Categorical Designs
-Earlier work done in the Doubs River suggested that the river has four distinct regions of habitat quality: the first region (sites 1-14) of "high quality"; the second (sites 15 - 19) and fourth (sites 26 - 30) of "moderate quality"; and the third  (sites 20 - 25) of "low quality".
-
-In the code chunk below, test the hypothesis that fish community composition varies with river quality.
-
-1. create a factor vector that categorizes habitat quality in the Doubs River,
-2. use the multivariate analyses for categorical predictors to describe how fish community structure relates to habitat quality.
-
-```{r}
-
-
-
-
-
-
-
-
-
-```
-
-***Question 8***: Based on the PERMANOVA, IndVal, and phi coefficient analyses, what did you learn about the relationship between habitat quality and the fish species composition?
-
-> ***Answer 8***: 
-
-
-### B.  Multivariate Procedures for Continuous Designs
-
-### i.  Mantel Test
-In the R code chunk below, do the following:   
-
-1. create distance matrices for both fish communities and environmental factors, and
-2. use a Mantel test to determine if these matrices are correlated, and test the hypothesis that fish assemblages are correlated with stream environmental variables.
-
-```{r}
-
-
-
-
-
-```
-
-***Question 9***: What do the results from our Mantel test suggest about fish diversity and stream environmental conditions? How does this relate to your hypothesis about stream quality influencing fish communities?
-
-> ***Answer 9***:  
-
-### ii.  Constrained Ordination
-In the R code chunk below, do the following:  
-
-1. create an environmental matrix of the water chemistry data included in the `doubs` dataset using forward and reverse selection of variables,
-2. conduct a redundancy analysis on the fish assemblages of the Doubs River,
-3. use a permutation test to determine the significance of the constrained analysis,
-4. use a permutation test to determine the correlation of each environmental factor on the constrained axes,
-5. calculate the explained variation on the first and second constrained axes,
-6. plot the constrained ordination results including labeled points for each site, and
-7. add vectors that demonstrate the influence of each environmental factor the constrained ordination.   
-
-```{r}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```
-
-***Question 10***: Based on the constrained ordination, what are the environmental variables (or groups of correlated variables) that seem to be contributing to variation in fish community structure?
-
-> ***Answer 10***: 
-
-### iii. Variation Partitioning
-In the code chunk below,   
-
-1. Create a matrix model of the selected environmental variables,
-2. Create a matrix model of the selected PCNM axes,
-3. Perform constrained and partial constrained ordinations using the spatial and environmental models you just created,
-4. Test the significance of each of your constrained ordinations using permutation tests,
-5. Partition the variation among sites into the relative importance of space, environment, spatially structured environment, and residuals,
-6. Plot the variation partitioning output to visualize it.  
-```{r}
-
-
-
-
-
-
-
-```
-
-***Question 11***: Interpret the variation partitioning results.   
-
-> ***Answer 11***: 
 
 ## SYNTHESIS
-Load the dataset you are using for your project. Perform an ordination to visualize your dataset.  Using this ordination, develop some hypotheses relevant to $\beta$-diversity and identify the appropriate tools you would use to test them.
+In the R code chunk below, do the following:  
+
+1. 
+2. 
+
+```{r}
+
+
+```
+
+***Question ***:
+
+> ***Answer ***:
+
