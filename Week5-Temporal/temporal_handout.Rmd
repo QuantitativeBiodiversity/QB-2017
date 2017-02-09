@@ -11,11 +11,10 @@ geometry: margin=2.54cm
 ## OVERVIEW
 
 Biological diversity varies through time in response to changes in the biotic and abiotic environment. 
-Rising temperatures and CO~2~, trends in precipitation and drought, and the dynamics of migration and colonization of species are just a few factors that influence biodiversity through time.  
+Rising temperatures and CO~2~, trends in precipitation and drought, and the dynamics of migration and colonization of species are just a few factors that influence biodiversity through time.
 While some biologists focus on processes that occur on contemporary scales (minutes, days, weeks, years), other scientists are interested in the forces that drive patterns of biodiversity in the fossil record and over geologic time scales.
-In this handout, we will be adding a temporal dimension to the site-by-species matrix.
-You will be introduced to R data handling packages that will help you manage and manipulate this data structure. 
-You will then learn the basics of time series analysis, repeated-measures analysis of variance, temporal beta diversity (i.e., turnover), as well as features relating to community stability. 
+In this handout, we will strengthen our "data wrangling" skills and add a temporal dimension to the site-by-species matrix.
+You will then learn the basics of time series analysis, repeated-measures analysis of variance, temporal beta diversity (e.g., turnover), while touching on topics related to community stability. 
 
 ## 1) SETUP
 
@@ -24,13 +23,13 @@ You will then learn the basics of time series analysis, repeated-measures analys
 ```{r, results = 'hide'}
 rm(list=ls()) 
 getwd() 
-setwd("~/GitHub/QB-2017/Week5-Temporal/") 
+setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week5-Temporal/") 
 ```
 
 ### Install Packages
 
 This module will require several R packages.
-We will describe them in greater details in the sections below.
+We will describe the packages in greater details in the sections below.
 For now, let's just load them. 
 The `require()` function in `R` returns `TRUE` if the package was successfully loaded or `FALSE` if the package failed to load. 
 This `for` loop loads each package and installs the package when `require()` returns `FALSE`.
@@ -51,8 +50,8 @@ for (package in package.list) {
 ## 2) LOADING DATA
 
 To learn about topics of temporal diversity, we will use the long-term rodent dataset from the Chihuahuan Desert ecosystem near Portal, Arizona.
-Known as the "Portal Project" <http://portal.weecology.org/>, this research site was initiated in 1977 by Jim Brown and colleagues to study species interactions, specifically competitive dynamics within and among species of rodents and ants.
-Once every month since its inception, members of The Portal Project monitor 24 experimental plots, each 0.25 ha in area (50 X 50 m).
+Known as the "Portal Project" (<http://portal.weecology.org/>), this research site was initiated in 1977 by Jim Brown and colleagues to study species interactions, specifically competitive dynamics within and among species of rodents and ants.
+Once every month since its inception, members of the Portal Project monitor 24 experimental plots, each 0.25 ha in area (50 X 50 m).
 In total, 4.8 kilometers of fencing is used to maintain the Portal experiment!
 
 Let's take a look at the data:
@@ -65,7 +64,7 @@ Take a few minutes to explore the structure of this dataset.
 The version of the data that we are working with spans from 1977 - 2002. 
 During this period, individual rodents were captured from plots ("plot_id"), identified to species ("species_id"), which led to the creation of a "record_id" with an associated date (day, month, and year).
 In addition, the sex, size ("hindfoot_length" and "weight") and taxonomic identity ("genus" and "species") of animals were recorded. 
-All of this was done in five experimentally replicated treatments (see Figure): 
+All of this was done in five experimentally replicated treatments (see Figure below): 
 
 1) Controls - fencing around plots does not exclude rodents (plot_id: 2, 4, 8, 11, 12, 14, 17, 22) 
 
@@ -87,12 +86,12 @@ grid.raster(portal.img)
 One thing you may notice when looking at `portal` is that it has a lot of observations, almost 35,000 (and remember this is only 1977 - 2002).
 These data are entered in **long format**, which means that each row represents a unique observation (i.e., a trapped animal). 
 The long format is a convenient way to enter data that reduces the probability of entry errors.
-However, manipulating long-format data for visualization and statistical analysis is often a challenge. 
+However, manipulating long-format data for visualization and statistical analysis requires some manipulation. 
 For example, many R packages and functions require you to organize your data in **wide format** where different sampling time points would be represented in columns.
 
 In the following sections, we will demonstrate how to manipulate the `portal` data set to carry out different types of analyses using functions from the `dplyr` and `tidyr` packages. 
 These packages were especially designed for transforming, subsetting, and summarizing tabular data.
-The functions contained in these two packages (and others like `apply()` and `aggregate()`) are preferred for manipulating data in R because they are faster and more efficient than other control-flow statements (e.g., loops) that are commonly used in other programming languages. 
+The functions contained in these two packages -- as well as other functions in the R base package like `apply()` and `aggregate()` -- are preferred for manipulating data in R because they are faster and more efficient than other control-flow statements (e.g., loops) that are commonly used in other programming languages. 
 
 First, let's use the `unite()` function from the `tidyr` package to create new columns that contain information in other columns.
 The "remove = FALSE" statement retains the original data vectors. 
@@ -105,7 +104,7 @@ portal <- unite(portal, col = date, c(year, month, day), sep = "-", remove = FAL
 portal <- unite(portal, col = taxon, c(genus, species), sep = "_", remove = FALSE)
 ```
 
-Now, we are going to use `dplyr` to create a time-by-species matrix. 
+Now, we are going to use `dplyr` to create a **time-by-species matrix**. 
 To do this, we are going to use a new operator referred to as a "pipe" (`%>%`). 
 Pipes allow output from one function to be used as input for another function in the same line of code.
 When using pipes, the output from the function to the left becomes the first argument of the function on the right. 
@@ -127,13 +126,13 @@ From this data structure, we can retrieve different different types of informati
 For example, if we want the site-by-species matrix for 1984 we can use the following code:
 
 ```{r, results='hide'}
-dplyr::filter(time.by.species, year == 1984) # return 1984 site-by-species
+dplyr::filter(time.by.species, year == 1984) 
 ```
 
-And if we want the species data from plot 5 for all years, we could use the following code: 
+And if we want the species data from plot 5 for all years, we use the following code: 
 
 ```{r, results='hide'}
-dplyr::filter(time.by.species, plot_id == 5) # return plot5 time-by-species
+dplyr::filter(time.by.species, plot_id == 5) 
 ```
 
 Last, let's convert the `tidyr` object to a data frame so it can be used with functions from other packages: 
@@ -155,15 +154,12 @@ This variability in precipitation provides an opportunity for us to detect a sig
 ### Data wrangling
 
 In the following R chunk, we manipulate `portal` using some of the tools introduced above from the `dplyr` and `tidyr` packages.
-Again, we use `count()` to sum the number of individuals belonging to each taxon while maintaining the grouping by year, month, and plot_id.
+We use `count()` to sum the number of individuals belonging to each rodent taxon while maintaining the grouping by year, month, and plot_id.
 We retain month in this case so we can create a categorical variable called "season". 
 
 ```{r, results='hide'}
 # Create a time-by-species matrix that includes year, month, and plot_id
-# time.by.spec.2 <- group_by(portal, year, month, plot_id) %>% count(taxon) 
-# Before we were using all taxa, not just rodents
-
-time.by.spec.2 <- filter(portal, taxa=="Rodent") %>%    # Select only rodents
+time.by.spec.2 <- filter(portal, taxa=="Rodent") %>%    
   group_by(year, month, plot_id) %>%                       
   count(taxon)
 
@@ -182,7 +178,7 @@ Now we are going to use the `filter()` function in `dplyr` to pick a plot.
 Next, we calucalte rodent abundance per hectare (0.25 ha * 4 = 1 ha) for each season within a year. 
 Then, we created a create a time series object that identifies the start time and seasonality of our sampling, which is determined by the frequency argument.
 
-```{r, fig.align="center", fig.height=3.75, fig.width=4.5}
+```{r, fig.align = "center", fig.height = 3.75, fig.width = 4.5}
 abund <- filter(time.by.spec.2, plot_id == 2) %>% 
   group_by(year, season) %>% 
   count(wt = n)
@@ -198,11 +194,11 @@ plot.ts(abund.ts, type = "l", ylab = "Rodent Abundance (#/hectare)",
 ### Smoothing
 
 One technique that is commonly used, mostly for visualizing trends in a time series is smoothing. 
-Smoothing techniques attempt to remove noise from a data set, and are used to help detect signal in a dataset.
+Smoothing techniques attempt to remove noise, and are used to help detect signal in a dataset.
 The simplest form of smoothing is the **simple moving average**. 
 Simple moving average calculates an unweighted arithmetic mean of your observations across a window of past *n* observations.  
-Let's give this a try using the `SMA()` function, which is contained in the `TTR` package.
-(Note that this package does not accept a `ts` object)
+In the following R chunk, we use the `SMA()` function contained in the `TTR` package.
+(Note that this package does not accept a `ts` object.)
 Play around with *n* to visualize the effect of the smoothing window.
 
 ```{r, fig.align="center", fig.height=3.75, fig.width=4.5} 
@@ -222,7 +218,7 @@ The beta argument when set to FALSE performs exponential smoothing, while the ga
 In the output, you will get an alpha parameter, which ranges from 0 to 1. 
 Values closer to 1 indicate that the smoothing is influenced by current observations, while values closer to 0 indicate that more weight is placed on past observations. 
 
-```{r, fig.align="center", fig.height=3.75, fig.width=4.5}
+```{r, fig.align = "center", fig.height = 3.75, fig.width = 4.5}
 abund.hw <- HoltWinters(abund$nn, beta = FALSE, gamma = FALSE)
 # abund.hw$fitted
 plot(abund.hw, xlab = "Time (year)", ylim = c(0, 500),
@@ -233,13 +229,13 @@ legend(0, 475, col = c("black", "red"), lty = c(1,1),
 
 ### Decomposition of a time series
 
-A time series can be broken down into different "categories" to gain insight into what is giving rise to patterns. 
-The common categories of a time series decomposition are the trend, seasonal, cycle, and residual error.
+A time series can be broken down into different "categories", which can provide insight into what is contributing to patterns. 
+The common categories of a time series decomposition are the trend, seasonality, cycle, and residual error.
 As mentioned above, we subsampled the `portal` data set so that it included seasonal variation in precipitation. 
-In the following section we will use the `decompose()` function to look at different decomposition categories.
-If seasonal trends are a nuisance in your study, there are ways to remove them, as done in the chunk below. 
+In the following R chunk, we will use the `decompose()` function to look at different decomposition categories.
+If seasonal trends are a nuisance in your study, there are ways to remove them, as done in the code below. 
 
-```{r, fig.align="center"}
+```{r, fig.align = "center"}
 # moving average decomposition
 abund.comp <- decompose(abund.ts) 
 
@@ -248,19 +244,11 @@ plot(abund.comp)
 
 # remove seasonality
 abund.adj <- abund.ts - abund.comp$seasonal 
-
-# Turn this into a question
-# # compare plots of seasonality corrected and uncorrected time series
-# plot.ts(abund.adj, ylab = "Rodent Abundance (#/hectrare)",
-#         xlab = "Time (year)", las = 1, col = "red", ylim = c(0, 500))
-# lines(abund.ts, col = "black")
-# legend(1977, 475, col = c("black", "red"), lty = c(1,1),
-#        c("uncorrected", "corrected"), bty = "n", cex = 1)
 ```
 
 ###  Auto-regressive moving average (ARMA) models
 
-Auto-regressive moving average (ARMA) models are commonly used to model a time series. 
+Auto-regressive moving average (ARMA) models are commonly used to model time series. 
 ARMA approaches can identify trends in data and help to make forecasts about future observations. 
 As such, ARMA is often used in biology and the environmental sciences, but also in business and economics.
 In this section we walk through the basic ways to implement ARMA in R. 
@@ -281,12 +269,12 @@ The full ARMA model can then be expressed as follows
 
 $$Y_{t} = {c + \sum\limits_{i=1}^{p} {\phi_i} {Y_{t-i}} + {\epsilon_t} } + {\mu} + {\epsilon_t} + \sum\limits_{i=1}^{q} {\theta_i}{\epsilon_{t-1}}$$
 
-#### Assumptions of ARMA models: stationarity
+#### Assumptions of stationarity
 
-If the mean, variance, or covariance in a time series is affected by time, then we are likely to be violating the assumption of **stationary**. 
+If the mean, variance, or covariance in a time series is affected by time, then we are likely to be violating the assumption of **stationarity**. 
 If the assumption of stationarity is not met, corrective measures should be taken, which could involve transforming or differencing the data. 
-In the following R chunk, we use the `adf.test()` function in the `tseries` package, which implements the Augmented Dickey-Fuller Test.  
-This statistic tests the stationarity of a time series where the null hypothesis is that the time series is non-stationary. 
+In the following R chunk, we use the `adf.test()` function in the `tseries` package, which implements the Augmented Dickey-Fuller Test.
+This statistic tests the null hypothesis that the time series is non-stationary. 
 Thus, we will conclude that a time series is stationary if the p-value < 0.05.
 
 ```{r}
@@ -296,7 +284,7 @@ adf.raw$p.value
 
 The Dickey-Fuller test indicates that our time series does not meet the assumption of stationarity.
 Let's try differencing the time series using the `diff()` function, which will create a new time series where *Y~d~* = *Y~t~* - *Y~t-1~*.
-We will then re-run the Dickey-Fuller test and take a look at a plot of the differenced data. 
+After re-running the Dickey-Fuller test, we can see that the differencing helped us meet the assumptions of stationarity. 
 
 ```{r}
 abund.ts.diff <- diff(abund.ts)
@@ -306,34 +294,34 @@ adf.diff$p.value
 ```
 
 The next step in the ARMA pipline is to look at the lags in our time series using the **autocorrelation function (ACF)**.
-These plots help us visualize structure in our data, but also help inform the parameterization of our ARMA models.
-Specifically, the ACF tells us about the lags of the forecast errors and thus provides information for the MA component of the model. 
+These plots help us visualize structure in our data, while informing the parameterization of our ARMA models.
+Specifically, the ACF tells us about the lags of the forecast errors and thus provides information for the moving average (MA) component of the model. 
 The ACF simply looks at the correlation between lagged intervals in the time series.
 When lag = 0, ACF will always equal 1. 
 After that, we expect the ACF to decline with increasing time lag.
-If we see that there is a significant correlation at a given lag, this information can be used to parameterize our AMRA models. 
+If we see that there is a significant correlation at a given lag (i.e., when a correlation exceeds the horizontal dashed lines), this information can be used to parameterize our AMRA models. 
 For example, in the non-differenced time series we see that there is a significant positive correlation at lag = 2.
 Recall, the frequency of our data divides the year up into rainy and non-rainy season. 
 So the lag = 2 correlation could be reflecting autocorrelation of error terms on an annual cycle. 
 
-```{r}
+```{r, fig.align = "center", fig.height = 3.75, fig.width = 4.5}
 acf(abund.ts) 
 ```
 
-We will also look at the time series using the **partial autocorrelation function (PACF)**. 
+We also look at the time series using the **partial autocorrelation function (PACF)**. 
 PACF calculates correlations between two series after correcting for correlation that might exist with another lagged series. 
-In contrast to the ACF, significant partial correlation coefficients tell us about lags that can be addressed with the autoregressive component of the ARMA model.
+In contrast to the ACF, significant partial correlation coefficients tell us about lags that can be addressed with the autoregressive (AR) component of the ARMA model.
 In the following PACF, we can see that there is a significant partial correlation at lag = 2 and lag = 5. 
 
-```{r}
+```{r, fig.align = "center", fig.height = 3.75, fig.width = 4.5}
 pacf(abund.ts) 
 ```
 
-Now, we will try to arrive at our final ARMA model. 
-Actually, because we found that differencing helped us meet the assumption of stationarity, we are going to use an auto-regressive *integrated* moving average (ARIMA) model. 
-ARIMA models accept parameters (*p*, *d*, and *q*) that describe the number of autoregressive lags (inferred from PACF), differencing, and order of the moving-averge model (inferred from ACF), respectively. 
+With this information in hand, let's try to arrive at our final ARMA model. 
+Because we found that differencing helped us meet the assumption of stationarity, we are actually going to use an auto-regressive *integrated* moving average (ARIMA) model. 
+ARIMA models accept parameters *p*, *d*, and *q*, which describe the number of autoregressive lags (inferred from PACF), differencing, and order of the moving-averge model (inferred from ACF), respectively. 
 We are going to use the function `auto.arima` from the `forecast` package to identify the best ARIMA model based on information criteria (AIC, AICc, and BIC).
-This function is particularly useful because we have some complexities related to the effect of seasonality on our parameters.
+This function is particularly useful because we have some complexities related to the effects of seasonality.
 After identifying the ARIMA model, we can look at the diagnostics using `tsdiag` and then make forecasts about rodent densities into the future using the `predict()` function from the `arima` package. 
 
 ```{r}
@@ -344,32 +332,32 @@ abund.arm <- arima((abund.ts), c(0, 0, 1), seasonal = list(order = c(2, 1, 0),
 
 Let's look at some diagnostic plots for the ARIMA model
 
-```{r, fig.align="center", fig.height=6, fig.width=4}
+```{r, fig.align = "center", fig.height = 6, fig.width = 4}
 tsdiag(abund.arm)
 ```
 
 Finally, let's use predictions from the model to forecast future rodent abundances in the study plot:
 
-```{r}
+```{r, fig.align = "center", fig.height = 3.75, fig.width = 4.5}
 pred.arm <- predict(abund.arm, n.ahead = 20)
 ts.plot(abund.ts, pred.arm$pred, lty = c(1,3))
 ```
 
 ## 5) REPEATED MEASURES ANALYSIS OF VARIANCE (RM-ANOVA)
 
-When scientists set up an experiment, they are inclined to take more than a single measurement on a subject (i.e., experimental unit).
-This is true for laboratory and field experiments in ecology and evolution, but is also common in other fields such as medicine and psychology. 
+When scientists go to the trouble to set up an elaborate experiment, there is a natural tendency to take more than a single measurement on a subject (i.e., experimental unit).
+This is true for laboratory and field stuides in ecology and evolution, but is also common in other fields such as medicine, psychology, and the social sciences. 
 Studies that take repeated measurements on a subject are referred to as **longitudinal designs**.
 It is important to emphasize that repeated observations on a subject are non-independent.
 Independence is a critical assumption of most parametric statistics, like analysis of variance (ANOVA).
-RM-ANOVA explicitly accounts for this non-independence and allows one to test for the main effects of time and treatment along with the time *x* treatment interaction.  
-In the following section, we will show you how to perform and interpret an RM-ANOVA using richness data from the Portal Project. 
+RM-ANOVA explicitly accounts for this non-independence and allows one to test for the main effects of time and treatment along with the time x treatment interaction.  
+In the following section, we perform and interpret an RM-ANOVA using richness data from the Portal Project. 
 
 ### Wrangle data for RM-ANOVA
 
 In the following R chunk, we calculate richness over time from two of the Portal plots. 
-The first treatment is the "Control" where rodents where free to move in and out of plots. 
-The second treatment is the "Rodent Exclosure", which attempted to exclude all rodents. 
+The first treatment is the "Control" where rodents are free to move in and out of plots. 
+The second treatment is the "Rodent Exclosure", which attempts to exclude all rodents. 
 To create the necessary data frame, we use `dplyr` to construct a time-by-species matrix.
 We use `count()` to sum the number of individuals belonging to each taxon while maintaining the grouping by year, plot_id, and plot_type.
 We use the `spread()` function from `tidyr` on the split dataset to convert parts of a long format dataset to a wide format dataset.
@@ -398,13 +386,13 @@ rich.treat <- rich.all[which(rich.all$plot_type ==
 
 ### Plot data
 
-While the base package in R can make beautiful plots and has a tremendous flexibility, it can also require a lot of effort to generate figures. 
+While the base package in R can make beautiful plots and has tremendous flexibility, it can also require a lot of effort to generate figures. 
 Another, way to make figures in R is with the package `ggplot`.
-As you will see below, with relatively few lines of code, we can make a nice-looking figure with `ggplot` showing the effects of rodent exlcosure on mammal richness.
+As you will see, with relatively few lines of code, we can make a nice-looking figure with `ggplot` showing the effects of rodent exlcosure on rodent richness.
 But first, we need to caculate some summary statistics for the plotting.
 Again, we use the `group_by` function from `dplyr` along with pipes to retrieve the mean and standard error of the mean (SEM) using the `summarise` function.
 
-```{r}
+```{r, fig.align = "center", fig.height = 3.75, fig.width = 6}
 rich.treat.plot <- group_by(rich.treat, plot_type, year) %>%
   summarise(
     mean = mean(richness),   # avg. richness per group
@@ -435,8 +423,8 @@ RM-ANOVA quantifies model error based on the variance of observations within and
 In the R chunk below, we implement RM-ANOVA with the `lme()` function to test for the effects of treatment (i.e., "plot_type"), time (i.e., year), and a treatment *x* time interaction on rodent richness. 
 The random statement indicates that plot_id is a random variable that will be assinged its own intercept.
 In addition, the correlation statement specifies the covariance structure that is associated with the repeated measures. 
-Here, we use an autoregressive process of order 1, which means that an observation at *t* will be most influenced by observations at *t*-1.
-Alternate covariance structures to consider are "unstructured" and "compound symmetry". 
+Here, we use an autoregressive process of order 1, which means that an observation at time *t* will be most influenced by observations at time *t*-1.
+Alternate covariance structures to consider in and RM-ANOVA are "unstructured" and "compound symmetry". 
 
 ```{r, results = 'hide'}
 rich.rm <- lme(richness ~ plot_type * year, random = ~ 1 | plot_id, 
@@ -453,18 +441,18 @@ anova(rich.rm)
 set.caption("RMANOVA for Portal")
 pander(anova(rich.rm))
 
-# Use `lsmeans` package for time-corrected for marginal means
+# Use `lsmeans` package for time-corrected marginal means
 lsmeans(rich.rm, ~plot_type) 
 ```
 
 ## 6) TEMPORAL BETA DIVERSITY
 
-As we have learned this semester, $\beta$-diversity examines biodiversity between samples.
+As we have learned this semester, $\beta$-diversity examines biodiversity among samples.
 In previous weeks, we have emphasized features of $\beta$-diversity that relate to the distribution of species and samples in space.
-Now we will explore temporal dimensions of $\beta$-diversity, which will examine changes in the abundance or presence-absence of species over time. 
+Now we will explore temporal dimensions of $\beta$-diversity by examining changes in the abundance or presence-absence of species over time. 
 Specifically, we introduce concepts and measures of turnover, rank shift, and rank change interval. 
 
-Let us revisit the figure of annual rodent richness over time.
+Let's revisit the figure of annual rodent richness over time.
 RM-ANOVA revealed that exclosure led to 70% reduction in rodent richness. 
 Although there was no significant effect of time in the RM-ANOVA model, rodent richness fluctuates with discernable peaks in 1982, 1987, 1992, 1997, and 2002.
 Interestingly, the interannual trends in richness are similar across treatments. 
@@ -473,15 +461,14 @@ We will investigate these patterns in the context of temporal biodivesity in the
 ### A. Turnover
 
 The temporal pattern of annual richness could be explained in part by changes in species composition over time (i.e., species turnover).
-Turnover quantifies the similarity of species composition over time. 
 Low turnover means that composition is relatively stable through time, while high turnover reflects dynamic community structure.
 Turnover can be driven by the introduction and establishment of new species or the loss of a resident species.
 These gains and losses of species can reflect a suite of eco-evolutionary processes including natural immigration, invasion by exotic species, disease outbreaks, and competitive exclusion. 
-Here, we calculate the overall turnover with the follwing simple equation:
+Here, we calculate the overall turnover with a simple equation:
 
 $$\textrm{Total turnover} = \frac{\textrm{species gained + species lost}}{\textrm{total species in both timepoints}}$$
 
-In the following R chunks, we use the `codyn` package (Hallett et al. 2016), which calculates a number of metrics to analyze community dynamics.
+In the following R chunks, we use the `codyn` package (Hallett et al. 2016), which calculates a number of metrics to analyze community dynamics, including turnover.
 
 ```{r}
 # First, calculate the species abundances from each site over time
@@ -527,7 +514,7 @@ portal.turnover <- gather(portal.turnover, key = metric, value = turnover,
 ```
 
 In the R code chunk above, we did a lot of data wrangling using only a couple lines of code. 
-Take a moment to reflect on what we just did. 
+Take a moment to reflect on this.
 We had three separate data frames containing different turnover metrics. 
 But those metrics referred to the same plots and years. 
 So, we joined them together using their shared year and plot_type index to create a single data-table.
@@ -541,7 +528,7 @@ It then creates another new column of associated values and calls it "turnover".
 The keys in the metric column are the old columns we gathered together (i.e., total, appearance, disappearance).
 The values that go in turnover are the values that were previously in the total, appearance, disappearance columns.
 
-Take a look at our new data table with the three different turnover metrics calculated for each year and treatment (try `View(portal.turnover)`). 
+Take a look at our new data table with the three different turnover metrics calculated for each year and treatment. Try this using `View(portal.turnover)`. 
 
 Now, let's use `ggplot` to visualize the turnover metrics in all five of the Portal treatments over the entire annual time series.
 
@@ -609,16 +596,16 @@ group_by(portal.rankshift, plot_type) %>%
 
 ### D. Rate Change Interval
 
-How different can communities become over time? 
+How much can communities diverge over time? 
 And how fast does this happen? 
-These are important questions for basic science, but are also important for topics in restoration ecology where legacy effects often impede management practices. 
+These are important basic questions, but are also important for restoration where legacy effects often impede management practices. 
 For example, in highly dynamic systems, turnover may quickly saturate at a high level, while in more stable communities, it may take decades or centuries for communities to reach a similar level of dissimilarity, if they ever do.
 In the following section, we use the `codyn` package to calcualte the **rate change interval** for species abundances in the Portal site and plot this information using `ggplot`.
 
 If we take a look at `help(rate_change_interval)`, we see that this function calculates the Euclidean distance between two communities. 
-Remember from our discussion of beta-diversity, that Euclidean distances are not appropriate for calculating community dissimilarity because the distance between sites that share no species in common may be shorter than between sites that share species but in different abundances! 
-So, we need to transform these data with an appropriate transformation before making strong inferences about what is going on in our dataset. 
-Recall that one of the appropriate transformations is the Hellinger transformation, advocated by Legendre and Gallagher (2001). 
+Remember from our discussion of $\beta$-diversity, that Euclidean distances are not appropriate for calculating community dissimilarity because the distance between sites that share no species in common may be shorter than between sites that share species but in different abundances! 
+So, we need to appropriately transform the data before drawing any conclusions. 
+Recall that one attractive transformation is the Hellinger transformation (see Legendre and Gallagher 2001). 
 The Euclidean distance calculated on the Hellinger-transformed species abundances generates the Hellinger distance.
 
 The Hellinger transformation is the square root of the relative abundances: $y'{ij} = \sqrt{\frac{y{ij}}{y_{i+}}}$
@@ -659,16 +646,17 @@ rate.plot2
 
 
 ## 7) STABILITY
+
 The stability of ecological systems has been at the forefront of ecological research for decades (Ives and Carpenter 2007).
 There are many definitions of stability, and these are beyond the scope of this course (but see Pimm 1984, Grimm et al. 1997).
 In mathematical models, notions of stability often revolve around responses to perturbations and whether these perturbations grow away from or return to a stable equilibrium, but applying these ideas to real datasets is often less straightforward. 
 Another way to think about stability is the lack of variability in some value (e.g., community biomass, population densities, etc.).
 Stability can be analyzed with respect to the individual species that make up a community (i.e., compositional variability), or some measure that integrates across species (i.e., aggregate variability), such as total biomass, total abundance, or richness (Micheli et al. 1999). 
 Understanding how species diversity relates to measures of stability is still a highly active area of research (McCann 2000), but some general trends seem to be that increasing diversity decreases the stability of populations but increases aggregate measures of stability (e.g., biomass) (Tilman 1999).
-Below, we explore some metrics that have been used to analyze ecological stability.
-
+Below, we explore some metrics that have been used to analyze empirical data to address questions related to ecological stability.
 
 ### A. Community Stability
+
 The stability of an aggregate measure of an ecological system can be assessed by measuring its variability.
 One way to characterize variability is the Coefficient of Variation (CV). 
 The CV relativizes the standard deviation of a variable to its mean value because variance scales with the mean.
@@ -678,9 +666,10 @@ $$CV = \frac{\sigma}{\mu}$$
 where $\sigma$ is the standard deviation and $\mu$ is the mean value. 
 
 Higher CV indicates more variability, and lower CV indicates less variability. 
-Therefore, we can measure stability as:
+Therefore, we can measure stability as the inverse of CV:
 $$\textrm{Stability} = \frac{1}{CV}$$
 Let's calculate stability within each plot type now.
+
 ```{r}
 portal.stab <- community_stability(df = as.data.frame(portal.species.abunds),
                     time.var = "year",
@@ -693,14 +682,16 @@ pander(portal.stab)
 One potential mechanism underlying stability is synchrony. 
 Species synchrony is a measure of whether population densities fluctuate independently or not, and if not, how strongly they positively or negatively covary.
 When species exhibit strong synchrony, species densities positively covary. 
-This suggests that species respond similarly to changes in the environment, and has been hypothesized to be a key driver of instability of aggregate community metrics (e.g., biomass)---if all species decline together, a single disturbance can be severely destabilizing.
+This suggests that species respond similarly to changes in the environment, and has been hypothesized to be a key driver of instability.
+For example, if all species decline together, a single disturbance event could be severely destabilizing.
 When species dispaly strong asynchrony, species densities negatively covary.
-This suggests that species respond differently to changes in the environment, which has been hypothesized to stabilize aggregate community metrics---some species compensate in density for losses in other species, a phenomenon called compensatory dynamics (Gonzalez and Loreau 2009). 
+This suggests that species respond differently to changes in the environment, which has been hypothesized to stabilize aggregate community metrics.
+In this case, some species can compensate in density for the losses of other species, a phenomenon called compensatory dynamics (Gonzalez and Loreau 2009). 
 
 Here, we will calculate two measures of community-wide synchrony that range from $-1$ for perfect asynchrony to $+1$ for perfect synchrony. 
 Loreau and de Mazancourt (2008) describe a synchrony metric that compares aggregate community variance to population-level variance. 
 Gross et al. (2014) present a different metric, which compares average species-level correlations with the aggregate community. 
-See the derivations in the original papers for more details. 
+See the derivations in the original papers for more detail. 
 
 ```{r}
 portal.loreau <- synchrony(df = as.data.frame(portal.species.abunds),
@@ -710,6 +701,7 @@ portal.loreau <- synchrony(df = as.data.frame(portal.species.abunds),
           replicate.var = "plot_type",
           metric = "Loreau")
 names(portal.loreau)[2] <- "loreau"
+
 portal.gross <- synchrony(df = as.data.frame(portal.species.abunds),
           time.var = "year",
           species.var = "taxon",
@@ -717,25 +709,55 @@ portal.gross <- synchrony(df = as.data.frame(portal.species.abunds),
           replicate.var = "plot_type",
           metric = "Gross")
 names(portal.gross)[2] <- "gross"
+
 pander(full_join(portal.loreau, portal.gross))
 ```
 
 The synchrony values are all positive, but pretty far from 1, suggesting there is probably not strong positive synchrony at these temporal and spatial scales. 
 
-The field of biodiversity--stability research often test the hypothesis that greater richness relates to greater stability of some aggregate measure or process.
-Let's test this idea here.
+### C. Variance Ratio
+
+Similar to concepts of community-wide synchrony, here we present another metric, the variance ratio (VR). 
+The VR allows us to test for positive or negative species covariance. 
+The ratio of aggregate abundances compared to the sum of variances of individual species can generate three qualitatively different VR outcomes: 
+When VR = 1 species do not covary; when VR > 1, species positively covary; when VR < 1 species negatively covary.
+In order to test for significance, we will compare the observed variance ratio to a distribution of ratios calculated from randomized null communities. 
+
+```{r}
+portal.vr <- variance_ratio(df = as.data.frame(portal.species.abunds),
+               time.var = "year",
+               species.var = "taxon",
+               abundance.var = "n",
+               replicate.var = "plot_type",
+               bootnumber = 1000,
+               average.replicates = T,
+               level = 0.95)
+pander(portal.vr)
+```
+
+From the Portal data, we calcuate a VR of ~ 1.3. 
+This value is greater than 1, suggesting positive covariation among species. 
+However, we also note that the confidence intervals (based on null matrix randomization) bracket 1. 
+In general, this result agrees with the synchrony calculations, suggesting there is weak, positive covariation among species that may respond to environmental variability (e.g., drought, fire) in similar ways. 
+
+### D. Biodiversity-Stabilty Relationships
+
+As suggested above, species diversity may affect the functioning and stabilty of community properties.
+It is generally thought thought that more diverse ecosytems are more stable. 
+Often these ideas are tested experimentally where species richness is directly manipulated. 
+But in this section, let's see whether portal data are consistent with expectation from biodiversity-stability theory. 
 
 ```{r}
 # Recall, earlier we calculated richness in each plot type in each year
 head(rich.all)
 
-# First, let's ungroup this and regroup only by plot id 
-# Then, we will summarise average yearly richness in each plot type
+# Let's ungroup rich.all and regroup only by plot id 
+# Then, we we summarise average annual richness in each plot type
 portal.mean.rich.plot <- rich.all %>% ungroup() %>% 
   group_by(plot_id) %>% 
   summarise(mean.rich = mean(richness))
 
-# Let's take a look at how stability metrics relate with mean richness
+# Let's take a look at how stability metrics relate to mean richness
 portal.plot.abunds <- as.data.frame(group_by(portal, year, plot_id) %>% count(taxon))
 portal.stab.plot <- community_stability(df = portal.plot.abunds,
                     time.var = "year",
@@ -750,33 +772,10 @@ portal.div.stab <- rich.all %>% group_by(plot_id) %>%
 plot(portal.div.stab$stability ~ portal.div.stab$avg.rich,
      xlab = "Mean Richness", ylab = "Aggregate Stability")
 
+### Can knit, but getting erros with portal.mean.rich.plot
+### Can we add a lm(stabiltiy ~ richness) and abline to the plot?
+
 ```
-
-
-### C. Variance Ratio
-Similar to the above tests of community-wide synchrony, here we present another metric that tests for positive or negative species covariance. 
-The ratio of aggregate abundances compared to the sum of variances of individual species can generate three qualitatively different outcomes: 
-*VR = 1 species do not covary, 
-*VR > 1 species positively covary
-*VR < 1 species negatively covary
-In order to assess the significance of this relationship, we will compare the observed variance ratio to a distribution of ratios calculated on a number of randomized null communities. 
-
-```{r}
-portal.vr <- variance_ratio(df = as.data.frame(portal.species.abunds),
-               time.var = "year",
-               species.var = "taxon",
-               abundance.var = "n",
-               replicate.var = "plot_type",
-               bootnumber = 1000,
-               average.replicates = T,
-               level = 0.95)
-pander(portal.vr)
-```
-
-Here, we notice a variance ratio of ~ 1.3. 
-This value is greater than 1, suggesting positive covariation among species. However, we also note that the confidence intervals (based on null matrix randomization) bracket 1. 
-Based on this observation, it is probably best to remain conservative based on this analysis alone and claim that we have insufficient evidence for significant covariation among species. 
-In general, this agrees with the above synchrony calculations, suggesting we see weak, positive covariation among species that likely respond to environmental variability (e.g., drought, fire) in similar ways. 
 
 ## REFERENCES
 
