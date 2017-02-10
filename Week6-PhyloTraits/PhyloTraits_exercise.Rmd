@@ -61,6 +61,11 @@ One such trade-off involves the ability of a highly specialized species to perfo
 In this exercise, we will take a phylogenetic approach to mapping phosphorus resource use onto a phylogenetic tree while testing for specialist-generalist trade-offs. 
 
 
+## MAKING A TREE
+
+Question: Why don't you want to use the raw distance matrix when making a tree?
+
+
 ## 3) VIEWING A PHYLOGENETIC TREE
 
 Once you have aligned your sequences, the next step is to construct a phylogenetic tree.
