@@ -69,7 +69,6 @@ b.  How many rodent species are there in the `portal` dataset?
 > ***Answer 1a***:  
 > ***Answer 1b***:  
 
-
 ## 3) WRANGLING THE PORTAL DATASET
 
 In the R code chunk below, do the following:  
@@ -77,7 +76,7 @@ In the R code chunk below, do the following:
 1. Create a site-by-species matrix for any year of your choosing.
 2. Create a vector of plot_type for sites in the site-by-species matrix.
 3. Analyze alpha diversity (e.g., Shannon/Simpson) across the sites for that year.
-4. Create a PCoA ordination of your site-by-species matrix 
+4. Create a PCoA ordination of your site-by-species matrix.
 5. Using the hypothesis testing tools you learned in the beta-diversity module, test the hypothesis that species abundances across sites vary as a factor of treatment type (i.e., plot_type). 
 
 ```{r}
@@ -86,23 +85,21 @@ In the R code chunk below, do the following:
 
 ***Question 2***: Describe how different biodiversity estimates vary among sites.
 
-a. Does richness vary among sites? Does this correspond to treatment type?
+a. Does diversity vary among sites? Does this correspond to treatment type?
 b. Is treatment type a significant predictor of site dissimilarity?
 
-> ***Answer 2a***:
+> ***Answer 2a***: 
 > ***Answer 2b***:
-
-
 
 ## 4) TIME SERIES ANALYSIS
 In the R code chunk below, do the following:  
 
-1. Create a time-by-species matrix that includes year, month, and plot_id (for a particular treatment)
+1. Create a time-by-species matrix that includes year, month, and plot_id for a site other than plot_id 2.
 2. Examine per-hectare rodent abundance using simple moving average smoothing.
-3. Test whether your data meets the assumption of stationarity 
-4. If it does not, try differencing the time series
-5. Examine and plot time lags using the partial autocorrelation function (PACF) of the ARMA model
-6. Use your PACF results to arrive at your full ARMA model
+3. Test whether your data meets the assumption of stationarity.
+4. If it does not meet this asumption, explore wasy to make your data stationary.
+5. Examine and plot time lags using the partial autocorrelation function (PACF) and autocorrelation function (ACR).
+6. Use the tools outlined in the Handout to create an ARMA model.
 
 ```{r}
 
@@ -112,21 +109,18 @@ In the R code chunk below, do the following:
 
 a. Does your data meet the assumption of stationarity? If not, what does this violation imply?
 b. What does the ACF function do and how does it relate to the ARMA model? How does this differ from the autocorrelation function (ACF)?
-c. What results can you conclude from your full ARMA model?
-
+c. What results can you conclude from your full ARMA model along with other methods outlined in the time series setcion of the Handout?
 
 > ***Answer 3a***:
 > ***Answer 3b***:
 > ***Answer 3c***:
 
-
-
 ## 5) REPEATED MEASURES ANALYSIS OF VARIANCE (RM-ANOVA)
 In the R code chunk below, do the following:  
 
 1. Create an appropriate data frame for RM-ANOVA (e.g., yearly species abundance values within plots).
-2. Calculate inverse of Simpson's diversity for each year, and plot it as a function of year for the control and rodent plots.
-3. Perform RM-ANOVA and construct a F-test
+2. Calculate the inverse of Simpson's diversity for each year, and plot it as a function of year for the Control and Rodent Exclosure plots.
+3. Perform an RM-ANOVA and construct a F-test using the AR(1), compound symmetery, and unstructured covariance structures.
 
 ```{r}
 
@@ -138,6 +132,7 @@ In the R code chunk below, do the following:
 a. In your own words describe what a RM-ANOVA test is doing
 b. Is there a noticeable trend in the inverse of Simpson's diversity over time?
 c. What does the result of your F-test tell you? 
+d. Of the three RM-ANOVA models with different covariance structures, which one is best? How does this affect the interpretation of your data?  
 
 > ***Answer 4a***:
 > ***Answer 4b***:
@@ -160,12 +155,12 @@ In the R code chunk below, do the following:
 ***Question 5***:
 
 a. How does temporal turnover relate to spatial turnover?
-b. Which group appears to be the most variable? Least?
+b. Which taxonomic group appears to be the most variable? Which group appears to be the least variable?
 
 ### Mean Rank Shift
 In the code chunk below, do the following:
 
-1. Choose two plot_types or two plot_ids and compare the mean rank shift between them.
+1. Choose two plot_types or two plot_ids and compare the mean rank shift (MRS) between them.
 2. Plot MRS for each through time. 
 
 ```{r}
@@ -176,7 +171,6 @@ In the code chunk below, do the following:
 
 a. What does a change in the rank shift tell you about the community?
 b. Interpret the analysis and figure you just made.
-
 
 > ***Answer 6a***:
 > ***Answer 6b***:
@@ -202,9 +196,9 @@ b. Interpret the overall results. Develop a hypothesis based on the different re
 ## 7) STABILITY
 In the R code chunk below, do the following:  
 
-1. Calculate stability and synchrony for each plot type.
-2. Test for a biodiversity-stability relationship by reggressing community stability on mean richness. 
-3. Compare this relationship to the relationship between community stability and mean inverse Simpson's diversity.
+1. Calculate stability (i.e., 1/CV) and synchrony for each plot type.
+2. Test for a biodiversity-stability relationship by regressing community stability on mean richness. 
+3. Test for a biodiversity-stability relationship by regressing community stability on mean inverse Simpson's diversity.
 
 ```{r}
 
@@ -214,6 +208,11 @@ In the R code chunk below, do the following:
 ***Question 8***:
 
 a. Which plot type has the highest stability? How is stability measured with this function? How does this relate to the coefficient of variation?
+
+## When we say "Calculate stability (i.e., 1/CV) and synchrony for each plot type.", it's not entirely clear what biological variable we are suggesting they work with, presumably total abundance
+
+## I'm a litle confused by wording of question 8a. "How is stability measured with this function? How does this relate to the coefficient of variation?" Maybe I'm overthinking it. 
+
 b. In your own words, describe the concept of synchrony
 c. Interpret the results from the biodiversity-stability relationships you analyzed.
 
@@ -221,11 +220,9 @@ c. Interpret the results from the biodiversity-stability relationships you analy
 > ***Answer 8b***:
 > ***Answer 8c***:
 
-
-
-
 ## SYNTHESIS
-Compare and contrast the core concepts from temporal and spatial diversity (e.g., autocorrelation, scale, variability, etc.).  Identify a few of the major challenges associated with studying biodiversity through time and across space.  
+Compare and contrast the core concepts from temporal and spatial diversity (e.g., autocorrelation, scale, variability, etc.).
+Identify a few of the major challenges associated with studying biodiversity through time and across space.  
 
 > ***Answer***:
 
