@@ -196,7 +196,7 @@ b. Interpret the overall results. Develop a hypothesis based on the different re
 ## 7) STABILITY
 In the R code chunk below, do the following:  
 
-1. Calculate stability (i.e., 1/CV) and synchrony for each plot type.
+1. Using total abundance as your focal variable, calculate stability (i.e., 1/CV) and synchrony for each plot type.
 2. Test for a biodiversity-stability relationship by regressing community stability on mean richness. 
 3. Test for a biodiversity-stability relationship by regressing community stability on mean inverse Simpson's diversity.
 
@@ -207,11 +207,7 @@ In the R code chunk below, do the following:
 
 ***Question 8***:
 
-a. Which plot type has the highest stability? How is stability measured with this function? How does this relate to the coefficient of variation?
-
-## When we say "Calculate stability (i.e., 1/CV) and synchrony for each plot type.", it's not entirely clear what biological variable we are suggesting they work with, presumably total abundance
-
-## I'm a litle confused by wording of question 8a. "How is stability measured with this function? How does this relate to the coefficient of variation?" Maybe I'm overthinking it. 
+a. Which plot type has the highest stability in total abundance? How is stability of total abundance measured with the function you learned? How does this measure of stability relate to the coefficient of variation?
 
 b. In your own words, describe the concept of synchrony
 c. Interpret the results from the biodiversity-stability relationships you analyzed.
