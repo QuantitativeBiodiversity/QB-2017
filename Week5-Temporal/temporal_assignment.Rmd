@@ -24,7 +24,7 @@ After completing this exercise you will know how to:
 Space for your answer is provided in this document and indicated by the ">" character.
 If you need a second paragraph be sure to start the first line with ">".
 5. Before you leave the classroom, **push** this file to your GitHub repo.
-6. When you are done wit the Assignment, **Knit** the text and code into a html file.
+6. When you are done with the Assignment, **Knit** the text and code into a html file.
 7. After Knitting, please submit the completed Assignment by creating a **pull request** via GitHub.
 Your pull request should include this file *temporal_assignment.Rmd* and the html output of `Knitr` (*temporal_assignment.html*).
 
@@ -37,8 +37,8 @@ In the R code chunk below, provide the code to:
 
 1. clear your R environment,
 2. print your current working directory,
-3. set your working directory to your "*/Week5-Temporal*" folder, and
-4. load the `vegan` R package (be sure to install if needed).  
+3. set your working directory to your "*/Week5-Temporal*" folder, and 
+4. load any packages you need to complete the assignment.
 
 ```{r}
 
@@ -76,7 +76,7 @@ In the R code chunk below, do the following:
 
 1. Create a site-by-species matrix for any year of your choosing.
 2. Create a vector of plot_type for sites in the site-by-species matrix.
-3. Calculate alpha diversity across the sites for that year.
+3. Analyze alpha diversity (e.g., Shannon/Simpson) across the sites for that year.
 4. Create a PCoA ordination of your site-by-species matrix 
 5. Using the hypothesis testing tools you learned in the beta-diversity module, test the hypothesis that species abundances across sites vary as a factor of treatment type (i.e., plot_type). 
 
@@ -86,8 +86,8 @@ In the R code chunk below, do the following:
 
 ***Question 2***: Describe how different biodiversity estimates vary among sites.
 
-a. Does richness vary among sites?
-b. Do species abundances across sites vary as a factor of treatment type
+a. Does richness vary among sites? Does this correspond to treatment type?
+b. Is treatment type a significant predictor of site dissimilarity?
 
 > ***Answer 2a***:
 > ***Answer 2b***:
@@ -100,36 +100,32 @@ In the R code chunk below, do the following:
 1. Create a time-by-species matrix that includes year, month, and plot_id (for a particular treatment)
 2. Examine per-hectare rodent abundance using simple moving average smoothing.
 3. Test whether your data meets the assumption of stationarity 
-4. If it does not, examine and plot time lags using the partial autocorrelation function (PACF) of the ARMA model
-5. Use your PACF results to arrive at your full ARMA model
+4. If it does not, try differencing the time series
+5. Examine and plot time lags using the partial autocorrelation function (PACF) of the ARMA model
+6. Use your PACF results to arrive at your full ARMA model
 
 ```{r}
-
 
 ```
 
 ***Question 3***: Describe the results from your time series analysis.
 
-a. Does the inverse of Simpson's diversity vary among sites?
-b. Do species abundances across sites vary as a factor of treatment type?
-c. Does your data meet the assumption of stationarity? If not, what does this violation imply?
-d. What does the ACF function do and how does it relate to the ARMA model? How does this differ from the autocorrelation function (ACF)?
-e. What results can you conclude from your full ARMA model?
+a. Does your data meet the assumption of stationarity? If not, what does this violation imply?
+b. What does the ACF function do and how does it relate to the ARMA model? How does this differ from the autocorrelation function (ACF)?
+c. What results can you conclude from your full ARMA model?
 
 
 > ***Answer 3a***:
 > ***Answer 3b***:
 > ***Answer 3c***:
-> ***Answer 3d***:
-> ***Answer 3e***:
 
 
 
 ## 5) REPEATED MEASURES ANALYSIS OF VARIANCE (RM-ANOVA)
 In the R code chunk below, do the following:  
 
-1. Create an appropriate data frame for RM-ANOVA.
-2. Calculate Simpson's diversity and plot it as a function of year for the control and rodent plots.
+1. Create an appropriate data frame for RM-ANOVA (e.g., yearly species abundance values within plots).
+2. Calculate inverse of Simpson's diversity for each year, and plot it as a function of year for the control and rodent plots.
 3. Perform RM-ANOVA and construct a F-test
 
 ```{r}
@@ -149,7 +145,12 @@ c. What does the result of your F-test tell you?
 
 ## 6) TEMPORAL BETA DIVERSITY
 
-1. Calculate and plot turnover 
+### Turnover
+In the R code chunk below, do the following:
+
+1. Calculate species abundances for each taxonomic group (the `taxa` column).
+2. Calculate total turnover and turnover due to the gain/loss of species for each group.
+3. Visualize turnover within each group
 
 ```{r}
 
@@ -158,47 +159,73 @@ c. What does the result of your F-test tell you?
 
 ***Question 5***:
 
-a. How does temporal beta diversity relate to spatial beta diversity?
-b. What does a change in the rank shift tell you about the community?
-c. Interpret the results in the plot of Hellinger distance over time.
+a. How does temporal turnover relate to spatial turnover?
+b. Which group appears to be the most variable? Least?
 
-> ***Answer 5a***:
-> ***Answer 5b***:
-> ***Answer 5c***:
+### Mean Rank Shift
+In the code chunk below, do the following:
+
+1. Choose two plot_types or two plot_ids and compare the mean rank shift between them.
+2. Plot MRS for each through time. 
+
+```{r}
+
+```
+
+***Question 6***:
+
+a. What does a change in the rank shift tell you about the community?
+b. Interpret the analysis and figure you just made.
 
 
+> ***Answer 6a***:
+> ***Answer 6b***:
+
+### Rate Change Interval
+In the R code chunk below, do the following:
+
+1. Calculate the rate change interval using the Hellinger distance.
+2. Plot the results.
+
+```{r}
+
+```
+
+***Question 7***: 
+
+a. What does it mean to calculate a distance metric across varying time intervals?
+b. Interpret the overall results. Develop a hypothesis based on the different responses of each treatment.
+
+> ***Answer 7a***:
+> ***Answer 7b***:
 
 ## 7) STABILITY
 In the R code chunk below, do the following:  
 
-1. Calculate stability for each plot type.
-2. Analyze and plot the relationship between average stability and the inverse of Simpson's diversity.
+1. Calculate stability and synchrony for each plot type.
+2. Test for a biodiversity-stability relationship by reggressing community stability on mean richness. 
+3. Compare this relationship to the relationship between community stability and mean inverse Simpson's diversity.
 
 ```{r}
 
 
 ```
 
-***Question 6***:
+***Question 8***:
 
-a. Which plot type has the highest stability? What does this tell you about the coefficient of variation.
+a. Which plot type has the highest stability? How is stability measured with this function? How does this relate to the coefficient of variation?
 b. In your own words, describe the concept of synchrony
-c. Interpret the results from the biodiversity-stability relationship.
+c. Interpret the results from the biodiversity-stability relationships you analyzed.
 
-> ***Answer 6a***:
-> ***Answer 6b***:
-> ***Answer 6c***:
+> ***Answer 8a***:
+> ***Answer 8b***:
+> ***Answer 8c***:
 
 
 
 
 ## SYNTHESIS
+Compare and contrast the core concepts from temporal and spatial diversity (e.g., autocorrelation, scale, variability, etc.).  Identify a few of the major challenges associated with studying biodiversity through time and across space.  
 
-***Question 7***: Answer the following questions.
-
-a. How does temporal diversity relate to spatial diversity in the biological sense?
-b. What are the differences between temporal and spatial autocorrelation? What do you have to take into account for each type of analysis?
-
-> ***Answer 7a***:
-> ***Answer 7b***:
+> ***Answer***:
 
