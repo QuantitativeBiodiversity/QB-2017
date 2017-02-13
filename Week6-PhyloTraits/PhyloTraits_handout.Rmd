@@ -10,12 +10,9 @@ geometry: margin=2.54cm
 
 ## OVERVIEW
 
-Up to this point, Quantitative Biodiversity has focused on quantifying aspects of taxonomic diversity.
-This has included patterns and concepts of commonness and rarity, and diversity across space and time.
-Measures of taxonomic diversity, however, overlook the evolutionary relatedness of taxa and the traits that they possess.
-In this module we introduce the basic concepts and tools of phylogenetics to gain evolutionary insight into patterns and processes of biodiversity.
-You will learn how to align sequences and make phylogenetic trees using different evolutionary models. 
-We will then map functional traits onto phylogenetic trees and peform tests to determine and correct for phylogenetic signal in a dataset. 
+Up to this point, Quantitative Biodiversity has focused entirely on quantifying aspects of taxonomic diversity. This has included patterns and concepts of commonness and rarity, and diversity across space and time. However, measures of taxonomic diversity overlook the evolutionary relatedness of taxa and the traits that they possess. Since evolution can be broadly defined as descent with modification, it is likely that recently diverged taxa have a greater degree of similarity in their traits relative to taxa that diverged a long time in the past. 
+
+To think about about how taxa are related and how that relates to ecologically-relevant traits we will have to construct evolutionary trees (i.e. phylogenies), the fundamental data structure that allows us to statistically examine the evolutionary differences among and between taxa. By building your tree you will be able to gain evolutionary insight into patterns and processes of biodiversity.
 
 After completing this exercise you will be able to:
 
@@ -35,7 +32,6 @@ setwd("~/GitHub/QB-2017/Week6-PhyloTraits")
 ### B. Load Packages 
 Several R packages have been developed for conducting phylogenetic analyses (http://goo.gl/DtU16j).
 We will describe the packages in greater details in the sections below.
-For now, let's just load them. 
 The `require()` function in `R` returns `TRUE` if the package was successfully loaded or `FALSE` if the package failed to load. 
 This `for` loop loads each package and installs the package when `require()` returns `FALSE`.
 
@@ -57,7 +53,7 @@ We will use a data set that contains information on 39 strains of freshwater bac
 The bacteria were isolated from two very different lakes.
 One of the lakes has extremeley low concentrations of nutrients (i.e., oligotrophic) while the other lake is adjacent to a bird sanctuary and receives very high inputs of nutrients (i.e., eutrophic).
 We extracted the DNA from all of the isolates and amplified the 16S rRNA gene, which is a commonly used "marker" for examining the phylogeny of bacteria.
-In terms of functional traits, for each strain, we measured growth characteristics, including the maximum growth rate $\u$max, lag time, and yield, on 18 different phosphorus sources.
+In terms of functional traits, for each strain, we measured growth characteristics, including the maximum growth rate $\mu_{max}$, lag time, and yield, on 18 different phosphorus sources.
 Here, we will take a phylogenetic approach to mapping phosphorus resource use onto a phylogenetic tree while testing for specialist-generalist trade-offs.
 
 ## 3) SEQUENCE ALIGNMENT 
@@ -76,8 +72,8 @@ We will read in a FASTA-formatted file into the `muscle` alignment function.
 FASTA is a very common text-based format that is used across platforms and disciplines. 
 Let's take a second to look at the *p.isolates.fasta* file. 
 Open the terminal and change directory to the data folder. 
-You can then type "nano p.isolates.fasta" at the command line. 
-This will open the FASTA file in nano, which is a text editing program. 
+You can then type `nano p.isolates.fasta` at the command line. 
+This will open the FASTA file in `nano`, which is a text editing program. 
 You can use [Ctrl+V] and [Ctrl+Y] to scroll towards the bottom and top of the file, respectively.
 When you are done, you can close the file by hitting [Ctrl+X].
 Do not save any inadvertent changes to *p.isolates.fasta*.
@@ -85,10 +81,7 @@ Do not save any inadvertent changes to *p.isolates.fasta*.
 ### B.  Performing an Alignment 
 Now, let's align our sequences. 
 
-~ ## this is oddly stated ## You will often find some function that you want to use that you either can't find in R or code up yourself. However, you can still run all your code in R, you just have to specify what language you'll be using. Here we will be using the `muscle` program in the command language interpreter Bash~.
-
-Bash is the language that you are using on the lab Macs. 
-Using Bash, we'll call the program `muscle`, read in our FASTA file, and create a FASTA-aligned output file (with an .afa extension).  
+Not every program is available as an R package and will need to be run in the terminal. However, you can still run all your code in R, you just have to specify what language you'll be using. Here we will be using the `muscle` program in the command language interpreter `Bash`, the language that you are using on the lab Macs.  Using Bash, we'll call the program `muscle`, read in our FASTA file, and create a FASTA-aligned output file (with an .afa extension).  
 
 ```{bash, results = 'hide', eval = FALSE}
 muscle -in ./data/p.isolates.fasta -out ./data/p.isolates.afa
@@ -169,7 +162,8 @@ seq.dist.raw <- dist.dna(p.DNAbin, model = "raw", pairwise.deletion = FALSE)
 ```
 
 After calculating the distances between our sequences, we are now ready to make a neighbor joining tree using the `bionj` function in `ape`. 
-In the process, we will identify an outgroup sequence (*Methanosarcina*) that we will use to root the tree. 
+In the process, we will use *Methanosarcina* as a reference to determine the evolutionary relationship among the members of our tree (i.e. an **outgroup**). By using an outgroup we have a point of comparison for the rest of our taxa (i.e. the **ingroup**), also known as **rooting** the tree. Ideally you want the outgroup to be a taxon that you know all of your taxa diverged from farther back in the past than when they diverged from each other.
+
 At this point, we can plot our tree.
 
 ```{r, tidy=TRUE, tidy.opts=list(width.cutoff=60)}
@@ -190,10 +184,8 @@ add.scale.bar(cex = 0.7)
 ```
 
 ### B) SUBSTITUTION MODELS OF DNA EVOLUTION 
-Phylogenetic analyses require assumptions about the rates of DNA evolution. 
-Various models have been developed to estimate the rates that nucleotides change over time. 
-These models are important for inferring relatedness of genes and taxa.
-In the following table, we describe a few of the more commonly used models.  
+
+You now have a distance matrix that represents the shared evolutionary history of your taxa. However, these are raw estimates of phylogenetic distance and they do not account for the fact that multiple substitutions may have occured at the same site over time, something that is likely common if you are dealing with taxa that diverged hundreds of millions of years ago. In addition, raw distance measures do not take into account substitution biases for one particular nucleotide. Various models have been developed to account for multiple substitutions and estimate the rates that nucleotides change over time. In the following table, we describe a few of the more commonly used models that correct for multiple substitutions as well as the probability of one nucleotide transitioning to a different nucleotide. We will then correct the raw distances of your matrix.
 
 \begin{center}
 \hyphenpenalty 10000
@@ -275,7 +267,7 @@ plot.phylo(F84.rooted, type = "phylogram", direction = "left", show.tip.label=TR
 
 ### C) QUANTIFYING PHYLOGENETIC SIMILARITY
 
-Sometimes we will want to quantify the difference between two phylogenies rather than plotting them side-by-side. The package `ape` includes two ways to calculate this difference: 1) the branch length score (BLS) (Kuhner and Felsenstein, 1994) and the symmetric difference (Robinson and Foulds 1981). The symmetric difference is simply the number of partitions that are in one tree and not the other. This is a very simple calculation, but it is extremely sensitive to differences between the trees. The branch length score between trees $T$ and ${T}'$ can be described as $BLS(T,{T}') = \sum_{i=1}^{N}(t_{i}- {t_{i}}')^{2}$, where $t_{i}$ is the branch length if the $i$th partition is in both trees and is zero if it isn't. This function should look familiar, since it is just the squared Euclidean distance between two trees. The history, appropriateness, and limitations of these methods are nicely discussed in chapter 30 of Felsenstein (2004).
+Sometimes we will want to quantify the difference between two phylogenies rather than simply plotting them side-by-side. The package `ape` includes two ways to calculate this difference: 1) the branch length score (BLS) (Kuhner and Felsenstein, 1994) and the symmetric difference (Robinson and Foulds 1981). The symmetric difference is simply the number of partitions that are in one tree and not the other. This is a very simple calculation, but it is extremely sensitive to differences between the trees. The branch length score between trees $T$ and ${T}'$ can be described as $BLS(T,{T}') = \sum_{i=1}^{N}(t_{i}- {t_{i}}')^{2}$, where $t_{i}$ is the branch length if the $i$th partition is in both trees and is zero if it isn't. This function should look familiar, since it is just the squared Euclidean distance between two trees. The history, appropriateness, and limitations of these methods are nicely discussed in chapter 30 of Felsenstein (2004).
 
 Here we'll calculate branch length score between the raw tree and the tree calculated with F84 distances.
 
@@ -288,10 +280,9 @@ dist.topo(raw.rooted, F84.rooted, method = "score")
 
 
 ### D) MAXIMUM LIKELIHOOD TREE
-Often a nearest neighbor joined tree is not good enough. While neighbor joining if very fast and has the convenient property of returning the correct tree for a correct distance matrix, we are rarely in the position where we know the correct distance matrix. Instead a maximum likelihood (ML) tree is often a superior choice, as it is built on the robust statistical procedure of ML (i.e. the process of finding the parameter value that maximizes the likelihood of the data). In addition, ML has the advantage of being the estimation method that is least affected by sampling error, being fairly robust to the assumptions of a particularly model, allows you to compare different tree topologies, and uses all the information in a sequence (as opposed to just distance). 
+Often a nearest neighbor joined tree is not good enough. While neighbor joining if very fast and has the convenient property of returning the correct tree for a correct distance matrix, we are rarely in the position where we know the correct distance matrix. Instead a maximum likelihood (ML) tree is often a superior choice, as it is built on the robust statistical procedure of ML (i.e. the process of finding the parameter value that maximizes the likelihood of the data). In addition, ML has the advantage of being the estimation method that is least affected by sampling error, is fairly robust to the assumptions of a particularly model, allows you to compare different tree topologies, and uses all the information in a sequence (as opposed to just distance). 
 
-However, ML estimation is a computationally intensive process that can require a lot of time. This is because ML estimation often must consider all topologies of the tree and find the best edge lengths for each topology. Because ML estimation can take a long time, we will not ask you to generate a maximum likelihood tree for your assignment. However, below we have supplied code using functions from the package `phangorn` to generate a ML tree. 
-
+However, ML estimation is a computationally intensive process that can require a lot of time. This is because ML estimation often must consider all different ways that you can make a tree (i.e. the topology of the tree) and find the best edge lengths for each topology. Because ML estimation can take a long time, we will not ask you to generate a maximum likelihood tree for your assignment. However, below we have supplied code using functions from the package `phangorn` to generate a ML tree. 
 
 
 ```{r, eval = FALSE}
@@ -313,8 +304,6 @@ bs = bootstrap.pml(fitJC, bs=100, optNni=TRUE,
   control = pml.control(trace = 0))
 ```
 
-We have also included a short script in the folder `bash` under Week6 that will allow you to generate a ML tree on the IU computer cluster Mason using the program RAxML. Generating a ML tree is computationally intensive and not all tree-generating software have R packages, so if you need a ML tree it's often easier to run it on a desktop or a computer cluster using a shell script rather than on your laptop. If you are an IU student, postdoc, or faculty member you can register for an account on Mason. See the IU Mason webpage for more information (https://kb.iu.edu/d/bbhh).
-
 
 ### E) BOOTSTRAP SUPPORT
 
@@ -331,6 +320,12 @@ add.scale.bar(cex = 0.7)
 nodelabels(ml.bootstrap$node.label, font = 2, bg = "white", frame = "r", cex = 0.5)
 
 ```
+
+### F) A NOTE ON MAKING YOUR OWN TREES.
+
+R is useful for a lot of things, but it's not optimized for phylogeny reconstruction and may be extremely slow. If you need to make a phylogeny for your own research and it is larger than a handful of taxa you will have to work with packages that don't easily run in an R environment. One of the packages that you will want to check out is the Randomized Axelerated Maximum Likelihood (RAxML) package for generating maximum likelihood trees with bootstrap support (http://sco.h-its.org/exelixis/web/software/raxml/index.html). If you're dealing with communities with a large number of taxa (ex. 16S rRNA amplicon data from microbial communities), programs like RAxML may be too slow. Here you can use the program FastTree to generate approximately-maximum-likelihood phylogenetic trees, sacrificing exactness for speed (http://www.microbesonline.org/fasttree/). 
+
+To help you with your future tree-building efforts we have included a short script under the folder `Week6-PhyloTraits/bash/` that will allow you to generate a ML tree on the IU computer cluster Mason using the program RAxML. Generating a ML tree is computationally intensive and not all tree-generating software have R packages, so if you need a ML tree it's often easier to run it on a desktop or a computer cluster using a shell script rather than on your laptop. If you are an IU student, postdoc, or faculty member you can register for an account on Mason. See the IU Mason webpage for more information (https://kb.iu.edu/d/bbhh).
 
 
 ## 5) INTEGRATING TRAITS AND PHYLOGENY
@@ -444,8 +439,8 @@ table.phylo4d(x.nb, treetype = "phylo", symbol = "colors", show.node = TRUE,
 An emerging goal of biodiversity research is to understand the effect traits have on the performance of species under different environmental conditions, but also how traits can affect ecosystem functioning. 
 Before attempting to establish relationships among traits, however, it is important to understand the role evolution plays in the distribution of traits. 
 Owing to shared ancestry, we expect species traits to be non-independent with respect to evolutionary history. 
-Therefore, it is important that we test for the presence of this **phylogenetic signal** before drawing conclusions about patterns among traits. 
-In addition, these patterns of phylogenetic signal provide insight into ecological and evolutionary processes giving rise to the **clustering** or **overdispersion** of traits, which are sometimes associated with environmental filtering and competitive repulsion, respectively.
+Therefore, it is important that we test for the presence of this **phylogenetic signal** before drawing conclusions about patterns among traits over a phylogeny. 
+In addition, these patterns of phylogenetic signal provide insight into ecological and evolutionary processes giving rise to the **clustering** or **overdispersion** of traits, which may be associated with environmental filtering and competitive repulsion, respectively.
 In the following sections, we introduce some methods for testing hypotheses about the distribution of traits with respect to phylogeny. 
 
 ### A) Phylogenetic Signal: Pagel's Lambda 
@@ -526,7 +521,7 @@ signal.nb <- phylosignal(nb, nj.rooted)
 Another way to calculate the phylogenetic signal of a trait is to use a formal test of dispersion. 
 In ecology, dispersion is commonly used to measure of how things (e.g., traits or species) are distributed in space.
 However, we can use similar approaches to determine how well traits are distributed across a phylogenetic tree.
-Fritz & Purvis (2010) derived a measure of dispersion (*D*) for categorical traits (http://goo.gl/SUrm5j). 
+Fritz and Purvis (2010) derived a measure of dispersion (*D*) for categorical traits (http://goo.gl/SUrm5j). 
 In our case study, we can use *D* to determine if the ability of a bacterial isolate to grow on a specific phosphorus resource is overdispersed or clustered. 
 Here, we will calculate *D* using the `phylo.d()` function in the `caper` package. 
 
@@ -589,6 +584,8 @@ Often you will want to determine what stochastic model of evolution best describ
 \end{center}
 
 
+As a side note, often measures of phylogenetic signal build off of the simple stochastic models we just examined. For example, Pagel's $\lambda$ is just the simple Brownian motion model with the internal edges of the phylogeny shortened by $\lambda$, reducing the correlations between taxa. 
+
 
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 # Brownian motion = BM
@@ -624,19 +621,14 @@ dev.off()
 ![Density plot of the difference in log-likelihood values ($\delta$)](figs/H_test.png)
 
 
-Because the Brownian motion and Ornstein-Uhlenbeck models are nested, the proportion of simulated values larger than our observed $\delta$ for the simpler model provides an approximation for the P-value (i.e. the probability that a difference at least as large would be seen under the null model). 
+Because the Brownian motion and Ornstein-Uhlenbeck models are nested, the proportion of simulated values larger than our observed $\delta$ for the simpler model provides an approximation for the P-value (i.e. the probability that a difference at least as large would be seen under the null model). Using a traditional alpha of 0.05, we can determine whether we should reject the null hypothesis that Brownian motion (i.e. our simpler model) adequately describes the evolution of niche breadth.  
 
 ```{r, eval = FALSE}
 length(dists$BM[dists$BM > out$lr]) / length(dists$BM)
 ```
 
-So our P-value is below the traditional alpha of 0.05, implying that we should reject the null hypothesis that Brownian motion (i.e. our simpler model) adequately describes the evolution of niche breadth.  
-
-
-As a side note, often measures of phylogenetic signal build off of these simple stochastic models. For example, Pagel's $\lambda$ is just the simple Brownian motion model with the internal edges of the phylogeny shortened by $\lambda$, reducing the correlations between taxa. 
 
 ## 7) PHYLOGENETIC REGRESSION ANALYSIS
-
 
 You will often want to examine the relationship between two variables. The simplest way to do this is by performing a simple linear regression, a method that you learned in Week 1. However, as outlined above, your samples violate the assumption of independence for regression analysis due to their shared evolutionary history. The way around this issue is to perform a phylogenetic regression. The main difference between the two is that in a simple linear regression the residual errors $\varepsilon$, given an independent variable ($X$), are assumed to be independent and identically distributed random variables that follow a normal distribution with a mean of $0$ and a variance of $\sigma^{2}$ : $\varepsilon \mid X \sim N(0, \sigma^{2} I_{n})$. However, in a phylogenetic regression the variance of the residual errors are described by a covariance matrix ($V$)  that takes into account the branch lengths of the underlying phylogeny: $\varepsilon \mid X \sim N(0, V)$. It is also important to take into account the phylogenetic signal in the residual error when $V$ is estimated, not just the evolutionary history described by the phylogeny. If phylogenetic signal is not taken into account your phylogenetic regression can have poor statistical performance (Revell, 2010).
 
@@ -698,8 +690,6 @@ Bartoszek, K., J. Pienaar, P. Mostad, S. Andersson, and T.F. Hansen. 2012. A phy
 
 Butler, M., and A. A. King. 2004. Phylogenetic comparative analysis: a modeling approach for adaptive evolution. American Naturalist 164:683–695.
 
-Revell, L. J. 2010. Phylogenetic signal and linear regression on species data. Methods in Ecology and Evolution 1:319–329. 
-
 Capellini, I., C. Venditti, and R. Barton. 2010. Phylogeny and metabolic scaling in mammals. Ecology 91:2783–2793
 
 Cadotte, M. W., and T.J. Davies. 2016. Phylogenies in Ecology: A Guide to Concepts and Methods. Princeton.
@@ -708,13 +698,15 @@ Felsenstein, J. 1985. Phylogenies and the comparative method. The American Natur
 
 Felsenstein, J. 2004. Inferring Phylogenies. Sinauer.
 
+Fritz, S. A. and A. Purvis. 2010. Selectivity in mammalian extinction risk and threat types: a new measure of phylogenetic signal strength in binary traits. Conserv. Biol. 24:1042–1051
+
 Goldman, N. 1993. Statistical tests of models of DNA substitution. Journal of Molecular Evolution 36:182–198.
 
 Grafen, A. 1989. The Phylogenetic Regression. Phil. Trans. R. Soc. Lond. B. 326:119-157
 
 Hall, P. and S. Wilson. 1991. Two guidelines for bootstrap hypothesis testing. Biometrics. 47:757–762. 
 
-Hansen, T. F., and K. Bartoszek. 2012. Interpreting the evolutionary regression: The interplay between observational and biological errors in phylogenetic comparative studies. Systematic Biology 61:413–425. 
+Hansen, T. F., and K. Bartoszek. 2012. Interpreting the evolutionary regression: The interplay between observational and biological errors in phylogenetic comparative studies. Systematic Biology 61:413–425.
 
 Hansen T. F., and E. P. Martins. 1996. Translating between microevolutionary process and macroevolutionary patterns: the correlation structure of interspecific data. Evolution 50:1404–1417.
 
@@ -732,11 +724,10 @@ Pagel, M. 1999. Inferring the historical patterns of biological evolution. Natur
 
 Paradis, E. 2012. Analysis of Phylogenetics and Evolution with R. Springer.
 
-Revell, L., Harmon, L., & Collar, D. (2008). Phylogenetic Signal, Evolutionary Process, and Rate. Systematic Biology, 57(4), 591–601. http://doi.org/10.1080/10635150802302427
-
-Revell, L. J. 2010. Phylogenetic signal and linear regression on species data. Methods in Ecology and Evolution 1:319–329.
-
+Revell, L., L. Harmon, and D. Collar. 2008. Phylogenetic Signal, Evolutionary Process, and Rate. Systematic Biology  57:591–601. 
 
 Revell, L.J. and D. C. Collar. 2009. Phylogenetic analysis of the evolutionary correlation using likelihood. Evolution 63:1090–1100.
+
+Revell, L. J. 2010. Phylogenetic signal and linear regression on species data. Methods in Ecology and Evolution 1:319–329.
 
 Robinson, D. R. and L. R. Foulds. 1981. Comparison of phylogenetic trees. Mathematical Biosciences 53: 131–147.
