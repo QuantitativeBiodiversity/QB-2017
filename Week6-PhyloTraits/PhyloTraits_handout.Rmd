@@ -9,15 +9,27 @@ geometry: margin=2.54cm
 ---
 
 ## OVERVIEW
-Up to this point, we have been focusing on patterns taxonomic diversity in Quantitative Biodiversity. 
-Although taxonomic diversity is an important dimension of biodiversity, it does not consider the evolutionary history or relatedness of species. 
-The goal of this exercise is to introduce basic concepts of phylogenetic diversity. 
+** The following builds on what the students have learned, rather than opposes it.**
+So far, we have focused on quantifying aspects of taxonomic diversity.
+This has included patterns and concepts of commonness and rarity, and diversity across space and time.
+In this module will consider the evolutionary relatedness of taxa by introducing basic concepts of phylogenetic diversity.
 
-After completing this exercise you will know how to:
+**There needs to be more to the overview. Something like the following:**
+Phylogenetics is the study of evolutionary relationships and it relies heavily on the concept of phylogenetic trees.
+Phylogenetic trees are models or hypotheses for how species and higher level taxa are related. 
+Phylogentic trees are represented with branching diagrams that follow rules such as parsimony, branching, and rootedness.
+You will be introduced to these rules and other concepts below, as you learn to to test for the signal of phylogenetic relatedness.
 
-1.  create phylogenetic trees
-2.  map traits onto phylogenetic trees
-3.  test for phylogenetic signal of traits on a phylogenetic tree
+
+**THE STUDENTS ARE THROWN INTO PHYLOGENETIC ANALYSIS WITHOUT ACTUALLY INTRODUCING THEM TO BASIC CONCEPTS, RULES, ETC.
+IF WE'VE GONE TO THE EXTENT TO EXPLAIN WHAT SPECIES RICHNESS IS, YOU SHOULD DEFINITELY EXPLAIN THE BASICS OF A PHYLOGENETIC TREE.
+AT LEAST, FOR CONTEXT. AT MOST, BECAUSE I CAN THINK OF 4 STUDENTS AND 2 CO-INSTRUCTORS WHO DON'T REALLY KNOW OR PROBABLY CAN'T RECALL THE PROPERTIES AND PRINCIPLES OF PHYLOGENIES** --- how's about them all caps ;)
+
+After completing this exercise you will be able to:
+
+1.  create phylogenetic trees to (explore, visualize, ?) evolutionary relationships
+2.  map traits onto phylogenetic trees to (visualize, understand, ?) 
+3.  test for phylogenetic signal within trait distributions and trait-based patterns?
 
 ## 1) SETUP
 ### A. Retrieve and Set Your Working Directory
@@ -29,14 +41,20 @@ setwd("~/GitHub/QB-2017/Week6-PhyloTraits")
 ```
 
 ### B. Load Packages 
-There are many contributed R packages that have been developed for conducting phylogenetic analyses (http://goo.gl/DtU16j). 
-We will rely heavily on the `ape` (http://goo.gl/nExs0), which performs a wide range of phylogenetic analyses. 
-We will supplement this with other packages for some specialized tasks such as reading of aligned sequences (`seqinr`), and testing for phylogenetic signal (`geiger`).
+Several R packages have been developed for conducting phylogenetic analyses (http://goo.gl/DtU16j). 
+We will rely heavily on the `ape` package (http://goo.gl/nExs0), which performs a wide range of phylogenetic analyses. 
+We will also use `seqinr` for aligning sequences and `geiger` for testing for phylogenetic signal.
 We will also align sequences using the program `muscle` through the terminal.
-You may also want to check out the `phangorn` package (http://goo.gl/iWU6Vt), which is good for conducting maximum likelihood analyses in R. It is also worth looking into the Randomized Axelerated Maximum Likelihood (RAxML) package for generating maximum likelihood values with bootstrap support (http://sco.h-its.org/exelixis/web/software/raxml/index.html). For large numbers of taxa programs like RAxML may be too slow. Here you can use the program FastTree to generate approximately-maximum-likelihood phylogenetic trees, sacrificing exactness for speed. However, both RAxML and FastTree will have to be run in the terminal.
 
-After the initial installation of these packages using the `install.packages()` function, let's load the packages and their dependencies with the `require()` function:
+**The students will see the following as a laundry list of packages for complicated things they don't know and aren't given any relevance for, i.e., how they relate to phylogenetics. Perhaps, explain the packages when they're introduced below.**
+You may also want to check out the `phangorn` package (http://goo.gl/iWU6Vt), which is good for conducting maximum likelihood analyses in R. It is also worth looking into the Randomized Axelerated Maximum Likelihood (RAxML) package for generating maximum likelihood values with bootstrap support (http://sco.h-its.org/exelixis/web/software/raxml/index.html). <-- Every time a student's head explodes, an angel gets it wings.
 
+For large numbers of taxa, programs like RAxML may be too slow. Here you can use the program FastTree to generate approximately-maximum-likelihood phylogenetic trees, sacrificing exactness for speed. However, both RAxML and FastTree will have to be run in the terminal. **<-- Perhaps better included when the packages are actually being used.**
+
+**Suggested -->** We will describe the packages in greater details in the sections below.
+For now, let's just load them. 
+The `require()` function in `R` returns `TRUE` if the package was successfully loaded or `FALSE` if the package failed to load. 
+This `for` loop loads each package and installs the package when `require()` returns `FALSE`.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE, tidy=TRUE, tidy.opts=list(width.cutoff=60)} 
 package.list <- c('ape', 'seqinr', 'phylobase', 'adephylo', 'geiger', 'picante', 'stats', 'RColorBrewer', 'caper', 'phylolm', 'pmc', 'ggplot2', 'tidyr', 'dplyr', 'phangorn') 
@@ -50,19 +68,18 @@ for (package in package.list) {
 
 ## 2) DESCRIPTION OF DATA
 
-The maintenance of biodiversity is thought to be influenced by **trade-offs** among species in certain functional traits. 
-One such trade-off involves the ability of a highly specialized species to perform exceptionally well on a particular resource. 
-This strategy may be advantageous if the specialist lives in an environment where its preferred resource is found in a relatively high and constant supply. 
-However, the specialist strategy may not be optimal if the species finds itself in an environment where resource conditions are more variable.
-Under these conditions, it may be beneficial if a species is capable of using a wider range of resources, even though there may be a fitness cost associated with being a generalist. 
-We set out to test this hypothesized trade-off in aquatic bacteria by assessing generalist and specialist strategies on different forms of phosphorus, a resource which commonly limits growth and reproduction of organisms inhabiting freshwater ecosystems.
-We isolated 39 strains of bacteria from two lakes. 
-After identifying these bacteria based on their 16S rRNA gene sequences, we measured their growth on 18 different forms of phosphorus. 
-In this exercise, we will take a phylogenetic approach to mapping phosphorus resource use onto a phylogenetic tree while testing for specialist-generalist trade-offs. 
+**I CUT AND SCRAMBLED THE ORDERING FOR MORE LINEAR ORGANIZATION**
+In this week's module, we will explore phylogenetic relatedness in regards to ecological traits.
+We will use a dataset that is well-suited for this purpose, that is, molecular surveys and environmental data from two lakes in ...
+...We isolated 39 strains of bacteria from two lakes.
+Originally, these data were gathered to explore (check w/ Jay)... after identifying these bacteria based on their 16S rRNA gene sequences, we measured their growth on 18 different forms of phosphorus. 
+Here, we will take a phylogenetic approach to mapping phosphorus resource use onto a phylogenetic tree while testing for specialist-generalist trade-offs.
 
-## 3) SEQUENCE ALIGNMENT
+**EVERYTHING below reads like a to-do list. No reasons given. No context given. No ideas presented. Nothing defined. The following directions are, basically, best suited for people who already understand phylogenetics and who know why to do and how to do these analyses.**
 
-After generating or retrieving sequence data, the first step of a phylogenetic analysis is to perform an alignment. 
+## 3) SEQUENCE ALIGNMENT 
+
+**To do:** After generating or retrieving sequence data, the first step of a phylogenetic analysis is to perform an alignment. 
 This can be done with nucleotides (DNA or RNA sequences) or proteins (amino acid sequences). 
 There are various methods for aligning sequences, but the basic premise is to use an algorithm to arrange sequences relative to one another based on conserved regions so that downstream phylogenetic analyses can be performed.
 In R, there are at least two packages that can be used for aligning sequences: `ape` and `muscle`. 
@@ -71,7 +88,7 @@ However, these functions require that other programs be installed on your comput
 Therefore, for this exercise, we are going to use the `muscle` package in R because it will align sequences in a "stand alone" fashion without the need for installing additional software. 
 
 ### A.  Examining a FASTA-File 
-We will read in a FASTA-formatted file into the `muscle` alignment function.
+**To do:** We will read in a FASTA-formatted file into the `muscle` alignment function.
 This is a very common text-based format that is used across platforms and disciplines. 
 Let's take a second to look at the *p.isolates.fasta* file. 
 Open the terminal and change directory to the data folder. 
@@ -82,7 +99,7 @@ When you are done, you can close the file by hitting [Ctrl+X].
 Do not save any inadvertent changes to *p.isolates.fasta*.
 
 ### B.  Performing an Alignment 
-Now, let's align our sequences. You'll often find some function that you want to use that you either can't find in R or code up yourself. However, you can still run all your code in R, you just have to specify what language you'll be using. Here we will be using the `muscle` program in the command language interpreter Bash. Bash is the language that you're using on the lab Macs. Using Bash, we'll call the program `muscle`, read in our FASTA file, and create a FASTA-aligned output file (with an .afa extension).  
+**To do:** Now, let's align our sequences. You'll often find some function that you want to use that you either can't find in R or code up yourself. However, you can still run all your code in R, you just have to specify what language you'll be using. Here we will be using the `muscle` program in the command language interpreter Bash. Bash is the language that you're using on the lab Macs. Using Bash, we'll call the program `muscle`, read in our FASTA file, and create a FASTA-aligned output file (with an .afa extension).  
 
 ```{bash, results = 'hide', eval = FALSE}
 muscle -in ./data/p.isolates.fasta -out ./data/p.isolates.afa
@@ -90,7 +107,7 @@ muscle -in ./data/p.isolates.fasta -out ./data/p.isolates.afa
 
 
 ### C.  Visualizing the Alignment
-It is good practice to view your sequences after alignment. 
+**To do:** It is good practice to view your sequences after alignment. 
 This may not be practical for large databases, but in our example, the alignment only contains sequences for 39 bacterial species plus a distantly related reference sequence that we will use as an **outgroup**. 
 To visualize our alignment, first, we will read in the FASTA-aligned file using the `read.alignment` function in the `seqinr` package. 
 Then, using the `ape` package, we will convert the alignment file it into a DNAbin object, which is a bit-level coding scheme that allows R to store and manipulate sequence data.
@@ -116,7 +133,7 @@ image.DNAbin(window, cex.lab = 0.50)
 
 ## 4) MAKING A PHYLOGENETIC TREE
 
-Once you have aligned your sequences, the next step is to construct a phylogenetic tree.
+**To do:** Once you have aligned your sequences, the next step is to construct a phylogenetic tree.
 Not only is a phylogenetic tree effective for visualizing the evolutionary relationship among taxa, but as you will see later, the information that goes into a phylogenetic tree is needed for downstream analysis. 
 
 We could spend an entire semester discussing the theory and practice behind making phylogenetic trees.
