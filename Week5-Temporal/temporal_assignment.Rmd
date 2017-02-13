@@ -108,7 +108,8 @@ In the R code chunk below, do the following:
 ***Question 3***: Describe the results from your time series analysis.
 
 a. Does your data meet the assumption of stationarity? If not, what does this violation imply?
-b. What does the ACF function do and how does it relate to the ARMA model? How does this differ from the autocorrelation function (ACF)?
+b. What does the ACF function do and how does it relate to the ARMA model? 
+How does this differ from the partial autocorrelation function (PACF)?
 c. What results can you conclude from your full ARMA model along with other methods outlined in the time series setcion of the Handout?
 
 > ***Answer 3a***:
