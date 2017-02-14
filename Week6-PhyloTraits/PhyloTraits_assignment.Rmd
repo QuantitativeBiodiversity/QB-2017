@@ -8,14 +8,14 @@ geometry: margin=2.54cm
 
 ## OVERVIEW
 Up to this point, we have been focusing on patterns taxonomic diversity in Quantitative Biodiversity. 
-Although taxonomic diversity is an important dimension of biodiversity, it does not consider the evolutionary history or relatedness of species. 
+Although taxonomic diversity is an important dimension of biodiversity, it is often necessary to consider the evolutionary history or relatedness of species. 
 The goal of this exercise is to introduce basic concepts of phylogenetic diversity. 
 
-After completing this exercise you will know how to:
+After completing this exercise you will be able to:
 
-1.  create phylogenetic trees
-2.  map traits onto phylogenetic trees
-3.  test for phylogenetic signal of traits on a phylogenetic tree
+1.  create phylogenetic trees to view evolutionary relationships from sequence data
+2.  map functional traits onto phylogenetic trees to visualize the distribution of traits with respect to evolutionary history
+3.  test for phylogenetic signal within trait distributions and trait-based patterns of biodiversity
 
 ## Directions:
 1. Change "Student Name" on line 3 (above) with your name.
@@ -30,6 +30,7 @@ If you need a second paragraph be sure to start the first line with ">".
 8. After Knitting, please submit the completed exercise by creating a **pull request** via GitHub.
 Your pull request should include this file *PhyloTraits_exercise.Rmd* and the PDF output of `Knitr` (*PhyloTraits_exercise.pdf*).
 
+
 ## 1) SETUP
 
 Typically, the first thing you will do in either an R script or an RMarkdown file is setup your environment. 
@@ -38,7 +39,7 @@ This includes things such as setting the working directory and loading any packa
 In the R code chunk below, provide the code to:  
 1. clear your R environment,  
 2. print your current working directory,  
-3. set your working directory to your "*/PhyloTraits*" folder, and  
+3. set your working directory to your "*/Week6-PhyloTraits*" folder, and  
 4. load all of the required R packages (be sure to install if needed).  
 
 ```{r}
@@ -61,42 +62,138 @@ One such trade-off involves the ability of a highly specialized species to perfo
 In this exercise, we will take a phylogenetic approach to mapping phosphorus resource use onto a phylogenetic tree while testing for specialist-generalist trade-offs. 
 
 
-## MAKING A TREE
-
-Question: Why don't you want to use the raw distance matrix when making a tree?
+## 3) SEQUENCE ALIGNMENT
 
 
-## 3) VIEWING A PHYLOGENETIC TREE
+***Question 1***: Using nano or your favorite text editor, compare the `p.isolates.fasta` file and the `p.isolates.afa` file. 
+Describe the differences that you observe between the files. 
+
+> ***Answer 1***: 
+
+In the R code chunk below, do the following:
+1. read your alignment file,
+2. convert the agignment to a DNAbin object,
+3. select a region of the gene to visualize (try various regions), and
+4. plot the alignment using a grid to visualize rows of sequences.
+
+
+```{r}
+
+
+```
+
+
+***Question 2***:  Make some observations about the `muscle` alingmnet of the 16S rRNA gene sequences for our bacterial isolates and the outgroup, *Methanosarcina*, which belongs to the archaeal domain of life. 
+Move along the alignment by changing the values in the `window` object. 
+
+a. Approximatley how long were our reads?  
+b. What regions do you think would be most appropriate for phylogenetic inference? Why?  
+
+> ***Answer 2a***:   
+> ***Answer 2b***:  
+
+
+## 4) MAKING A PHYLOGENETIC TREE
 
 Once you have aligned your sequences, the next step is to construct a phylogenetic tree.
 Not only is a phylogenetic tree effective for visualizing the evolutionary relationship among taxa, but as you will see later, the information that goes into a phylogenetic tree is needed for downstream analysis. 
 
 
-***Question 3***:  
+### A. Neighbor Joining Trees
 
-a) How does the maximum likelihood tree compare the to the neighbor-joining tree in the handout? 
+In the R code chunk below, do the following:  
+1. calcualte the distance matrix using `model = "raw"`,  
+2. create a Neighbor Joining tree based on these distances,  
+3. define "Methanosarcina" as the outgroup and root the tree, and  
+4. plot the rooted tree. 
+
+```{r}
+
+
+
+
+
+
+```
+
+***Question 3***: What are the advantages and disadvantages of making a neighbor joining tree? 
+
+
+> ***Answer 3***:  
+ 
+
+
+### B) SUBSTITUTION MODELS OF DNA EVOLUTION 
+
+In the R code chunk below, do the following:  
+1. make a second distance matrix based on the Felsenstein 84 substitution model,  
+2. create a saturation plot to compare the *raw* and *Felsenstein (F84)* substitution models,  
+3. make Neighbor Joining trees for both, and  
+4. create a cophylogenetic plot to compare the topologies of the trees.
+
+```{r}
+
+
+
+
+
+
+
+
+
+
+
+```
+
+
+In the R code chunk below, do the following:  
+1. pick another substitution model,  
+2. create and distance matrix and tree for this model,  
+2. make a saturation plot that compares that model to the *Felsenstein (F84)* model,  
+3. make a cophylogenetic plot that compares the topologies of both models, and  
+4. be sure to format, add appropriate labels, and customize each plot.
+
+```{r}
+
+```
+
+
+***Question 4***:  
+
+a. Describe the substitution model that you chose. What assumptions does it make? How does it compare to the F84 model?
+b. Using the saturation plot and cophylogenetic plots from above, describe the effect that the substitution model you chose has on your phylogenetic reconstruction. 
 If the plots seem to be inconsistent with one another, explain what it giving rise to the differences.
+c. How does the effect of your model compare to the *F84* model? What does this tell you about the substitution rates of nucleotide transitions?
 
-b) What do the bootstrap values tell you? Which branches have little support?
 
-> ***Answer 3***:   
+> ***Answer 4a***:   
+> ***Answer 4b***:   
 
+### C) ANALYZING A MAXIMUM LIKELIHOOD TREE
+
+In the R code chunk below, do the following:  
+1. Read in the maximum likelihood phylogenetic tree used in the handout.
+2. Plot bootstrap support values onto the tree
 
 
 ```{r}
 
-MyTree <- read.tree("./data/ml_tree/RAxML_bestTree.T1")
-
-layout(matrix(c(1,2), 1, 2), width = c(1, 1))
-par(mar = c(1, 1, 2, 0))
-plot.phylo(MyTree, type = "phylogram", direction = "right", show.tip.label=TRUE,
-           use.edge.length = FALSE, adj = 0.5, cex = 0.6, label.offset = 2, main = "ML")
-
-par(mar = c(1, 0, 2, 1))
-plot.phylo(F84.rooted, type = "phylogram", direction = "left", show.tip.label=TRUE,
-           use.edge.length = FALSE, adj = 0.5, cex = 0.6, label.offset = 2, main = "Nearest neighbor")
-
 ```
+
+***Question 5***:  
+
+a) How does the maximum likelihood tree compare the to the neighbor-joining tree in the handout? 
+If the plots seem to be inconsistent with one another, explain what it giving rise to the differences.
+
+b) Why do we bootstrap our tree?
+
+c) What do the bootstrap values tell you? Which branches have very low support? Should we trust these branches?
+
+> ***Answer 5a***:   
+> ***Answer 5b***:   
+> ***Answer 5c***:   
+
+
 
 
 ## 5) INTEGRATING TRAITS AND PHYLOGENY
@@ -173,9 +270,9 @@ In the R code chunk below, do the following:
 
 ```
 
-***Question 4***:  Based on the distribution of traits on the neighbor joining tree that we created, what might you predict about the degree of specialization of bacteria on diverse phosphorus resources?  
+***Question 6***:  Based on the distribution of traits on the neighbor joining tree that we created, what might you predict about the degree of specialization of bacteria on diverse phosphorus resources?  
 
-> ***Answer 4***:   
+> ***Answer 6***:   
 
 
 ## 6) HYPOTHESIS TESTING
@@ -205,15 +302,13 @@ In the R code chunk below, do the following:
 
 ```
 
-***Question 5***:  There are two important outputs from the `fitContinuous()` function that can help you interpret the phylogenetic signal in trait data sets. 
-First, compare the lambda values of the untransformed tree to the transformed (lambda = 0).
-Second, compare the Akaike information criterion (AIC) scores of the two models. 
-Differences in AIC scores provide maximum likelihood inference regarding the quality of model fit to a given data set. 
-Models with lower AIC values are better. 
-However, if the difference in AIC values between two models ($\Delta$ AIC) isn't greater than at least 2, then then the models are considered equivalent. 
+***Question 7***:  There are two important outputs from the `fitContinuous()` function that can help you interpret the phylogenetic signal in trait data sets. 
+a. First, compare the lambda values of the untransformed tree to the transformed (lambda = 0).
+b. Second, compare the Akaike information criterion (AIC) scores of the two models. Differences in AIC scores provide maximum likelihood inference regarding the quality of model fit to a given data set. Models with lower AIC values are better. However, if the difference in AIC values between two models ($\Delta$ AIC) isn't greater than at least 2, then then the models are considered equivalent. 
 With this information in hand, what does Pagel's lambda say about the phylogenetic signal of niche breadth in our data set?
 
-> ***Answer 5***:  
+> ***Answer 7a***:  
+> ***Answer 7b***:  
 
 
 ### B) Phylogenetic Signal: Blomberg's K 
@@ -234,13 +329,13 @@ In the R code chunk below, do the following:
 
 ```
 
-***Question 6***: Using the K-values and associated p-values (i.e., "PIC.var.P"") from the `phylosignal` output, answer the following questions:
+***Question 8***: Using the K-values and associated p-values (i.e., "PIC.var.P"") from the `phylosignal` output, answer the following questions:
 
 a.  Is there significant phylogenetic signal for niche breadth or standardized growth on any of the phosphorus resources?  
 b.  If there is significant phylogenetic signal, are the results suggestive of clustering or overdispersion?  
 
-> ***Answer 6a***:   
-> ***Answer 6b***:   
+> ***Answer 8a***:   
+> ***Answer 8b***:   
 
 
 ### C.  Calculate Dispersion of a Trait
@@ -263,48 +358,42 @@ In the R code chunk below, do the following:
 
 ```
 
-***Question 7***: Using the estimates for *D* and the probabilities of each phylogenetic model, answer the following questions:
+***Question 9***: Using the estimates for *D* and the probabilities of each phylogenetic model, answer the following questions:
 
 a.  Choose three phosphorus growth traits and test whether they are significantly clustered or overdispersed?  
 b.  How do these results compare the results from the Blomberg's K analysis?  
 c.  Discuss what factors might give rise to differences between the metrics.  
 
-> ***Answer 7a***:  
-> ***Answer 7b***:  
-> ***Answer 7c***:  
+> ***Answer 9a***:  
+> ***Answer 9b***:  
+> ***Answer 9c***:  
 
 
-### BM vs. Lambda
 
+## 7) PHYLOGENETIC REGRESSION
+
+In the R code chunk below, do the following:  
+1. Load and clean the mammal phylogeny and trait dataset,
+2. Fit a linear model to the trait dataset, examining the relationship between mass and BMR,
+2. Fit a phylogenetic regression to the trait dataset, taking into account the mammal supertree
+
+
+
+```{r}
+
+```
   
-## 7) HOMEWORK
 
-1. Your handout includes the output of a multiple regression model depicting the relationship between the maximum growth rate ($\mu_{max}$) of each bacterial isolate and the niche breadth of that isoalte on the 18 different sources of phosphorus. 
+***Question 10***:
+
+
+## 7) SYNTHESIS
+
+Below is the output of a multiple regression model depicting the relationship between the maximum growth rate ($\mu_{max}$) of each bacterial isolate and the niche breadth of that isoalte on the 18 different sources of phosphorus. 
 One feature of the study which we did not reveal earlier in the handout is that the isolates came from two different lakes. 
 One of the lakes is an very oligotrophic (i.e., low phosphorus) ecosystem named Little Long (LL) Lake. 
 The other lake is an extremely eutrophic (i.e., high phosphorus) ecosystem named Wintergreen (WG) Lake.
 We included a "dummy variable" (D) in the multiple regression model (0 = WG, 1 = LL) to account for the environment from which the bacteria were obtained.  
-Based on your knowledge of the traits and their phylogenetic distributions, what conclusions would you draw about our data and the evidence for a generalist-specialist tradeoff? 
-
-> ***Answer***:
-
-
-
-
-
-2.  Use Knitr to create a pdf of your completed PhyloTraits_handout.Rmd document, push it to GitHub, and create a pull request.
-The due date for this assignment is February 25, 2015 at 12:00 PM (noon).
-
-
-
-## 7) HOMEWORK
-
-1.  Below is the output of a multiple regression model depicting the relationship between the maximum growth rate ($\mu_{max}$) of each bacterial isolate and the niche breadth of that isoalte on the 18 different sources of phosphorus. 
-One feature of the study which we did not reveal earlier in the handout is that the isolates came from two different lakes. 
-One of the lakes is an very oligotrophic (i.e., low phosphorus) ecosystem named Little Long (LL) Lake. 
-The other lake is an extremely eutrophic (i.e., high phosphorus) ecosystem named Wintergreen (WG) Lake.
-We included a "dummy variable" (D) in the multiple regression model (0 = WG, 1 = LL) to account for the environment from which the bacteria were obtained.  
-Based on your knowledge of the traits and their phylogenetic distributions, what conclusions would you draw about our data and the evidence for a generalist-specialist tradeoff? 
 
 ```{r, echo=FALSE, fig.width=6, fig.height=4}
 p.growth <- read.table("./data/p.isolates.raw.growth.txt", sep = "\t", header = TRUE, row.names = 1)
@@ -355,5 +444,10 @@ par(mfrow = c(2, 2), mar = c(5.1 ,4.1 ,4.1 ,2.1))
 plot(fit)
 ```
 
-2.  Use Knitr to create a pdf of your completed PhyloTraits_handout.Rmd document, push it to GitHub, and create a pull request.
-The due date for this assignment is February 25, 2015 at 12:00 PM (noon).
+
+***Question 11***: Based on your knowledge of the traits and their phylogenetic distributions, what conclusions would you draw about our data and the evidence for a generalist-specialist tradeoff? 
+
+
+> ***Answer 11***:
+
+
