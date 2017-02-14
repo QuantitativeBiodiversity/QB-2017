@@ -8,11 +8,15 @@ output: pdf_document
 geometry: margin=2.54cm
 ---
 
+**Be sure to included a glossary: Maximum likelihood, parsimony, isolates, amplify, Markov chain, Monte Carlo, posterior probability, etc.**
+
+
+
 ## OVERVIEW
 
-Up to this point, Quantitative Biodiversity has focused entirely on quantifying aspects of taxonomic diversity. This has included patterns and concepts of commonness and rarity, and diversity across space and time. However, measures of taxonomic diversity overlook the evolutionary relatedness of taxa and the traits that they possess. Since evolution can be broadly defined as descent with modification, it is likely that recently diverged taxa have a greater degree of similarity in their traits relative to taxa that diverged a long time in the past. 
+Up to this point, Quantitative Biodiversity has focused entirely on quantifying aspects of taxonomic diversity. This has included patterns and concepts of commonness and rarity, and diversity across space and time. However, measures of taxonomic diversity overlook the evolutionary relatedness of taxa and their traits. ~~Since evolution can be broadly defined as descent with modification, it is likely that recently diverged taxa have a greater degree of similarity in their traits relative to taxa that diverged a long time in the past.~~
 
-To think about about how taxa are related and how that relates to ecologically-relevant traits we will have to construct evolutionary trees (i.e. phylogenies), the fundamental data structure that allows us to statistically examine the evolutionary differences among and between taxa. By building your tree you will be able to gain evolutionary insight into patterns and processes of biodiversity.
+To think about about how taxa are related and how that relates to ecologically-relevant traits we will have to construct evolutionary trees (i.e., phylogenies), the fundamental ~~data~~ evolutionary structure that allows us to statistically examine the evolutionary differences among and between taxa. By building your tree you will be able to gain evolutionary insight into patterns and processes of biodiversity (e.g., diversification, adaptation).
 
 After completing this exercise you will be able to:
 
@@ -50,24 +54,25 @@ for (package in package.list) {
 In this week's module, we will explore phylogenetic relatedness with regard to functional traits.
 Functional traits refer to physiological, behavioral, and morphological characteristics that inluence the peformance of a taxon. 
 We will use a data set that contains information on 39 strains of freshwater bacteria. 
-The bacteria were isolated from two very different lakes.
-One of the lakes has extremeley low concentrations of nutrients (i.e., oligotrophic) while the other lake is adjacent to a bird sanctuary and receives very high inputs of nutrients (i.e., eutrophic).
-We extracted the DNA from all of the isolates and amplified the 16S rRNA gene, which is a commonly used "marker" for examining the phylogeny of bacteria.
-In terms of functional traits, for each strain, we measured growth characteristics, including the maximum growth rate $\mu_{max}$, lag time, and yield, on 18 different phosphorus sources.
-Here, we will take a phylogenetic approach to mapping phosphorus resource use onto a phylogenetic tree while testing for specialist-generalist trade-offs.
+The bacteria were isolated from two lakes that greatly differ in biogeochemical properties.
+One lake has extremeley low concentrations of nutrients (i.e., oligotrophic) while the other lake is adjacent to a bird sanctuary and receives high nutrient inputs (i.e., eutrophic).
+We extracted DNA from all of the isolates and amplified the 16S rRNA gene, which is a commonly used "marker" for delineating microbial taxa and examining the phylogeny of bacteria.
+We measured growth characteristics for each strain, including the maximum growth rate $\mu_{max}$, lag time (*define*), and yield, on 18 different phosphorus resources.
+Here, we will take a phylogenetic approach to mapping phosphorus resource use onto a phylogenetic tree while testing for ecological trade-offs related to resource use.
 
 ## 3) SEQUENCE ALIGNMENT 
 
-One of the first steps in peforming an phylogenetic analysis is to to align the sequences that have been obtained from your samples. 
+One of the first steps in peforming a phylogenetic analysis is to to align the sequences that have been obtained from samples. 
 The sequences can represent nucleotides (DNA or RNA) or proteins (amino acids).
-The alignment process uses an algorithm to arrange seqeunces relative to one another based on conserved (i.e., non variable) regions.
+The alignment process uses an algorithm to arrange sequences relative to one another based on conserved (i.e., non-variable) regions.
 The non-conserved or "variable" regions are then used for making phylogenetic inference, including tree construction. 
 In R, there are at least two packages that can be used for aligning sequences: `ape` and `muscle`. 
 In `ape`, alignments can be done with the functions `clustal`, `muscle`, and `tcoffee`, all which have a range of options. 
 However, these functions require that other programs be installed on your computer.
-Therefore, for this exercise, we are going to use the `muscle` package in R because it will align sequences in a "stand alone" fashion without the need for installing additional software. 
+Therefore, for this exercise, we are going to use the `muscle` package in R because it will align sequences in a stand alone fashion without the need for installing additional software. 
 
-### A.  Examining a FASTA-File 
+### A.  Examining a FASTA-File
+**A sentence to explain what a FASTA file is. Maybe show the format as well?**
 We will read in a FASTA-formatted file into the `muscle` alignment function.
 FASTA is a very common text-based format that is used across platforms and disciplines. 
 Let's take a second to look at the *p.isolates.fasta* file. 
@@ -79,9 +84,13 @@ When you are done, you can close the file by hitting [Ctrl+X].
 Do not save any inadvertent changes to *p.isolates.fasta*.
 
 ### B.  Performing an Alignment 
-Now, let's align our sequences. 
+Now, let's align our sequences. **Clarify this -->** Not every program is available as an R package and will need to be run in the terminal. 
 
-Not every program is available as an R package and will need to be run in the terminal. However, you can still run all your code in R, you just have to specify what language you'll be using. Here we will be using the `muscle` program in the command language interpreter `Bash`, the language that you are using on the lab Macs.  Using Bash, we'll call the program `muscle`, read in our FASTA file, and create a FASTA-aligned output file (with an .afa extension).  
+**Integrate these however you think is best:**
+*R is a great data analysis language, but it isn't an all-inclusive environment for conducting phylogenetic analyses.* 
+*However, the R language and R Studio environment can be made to interact with other software and computing languages.* 
+
+However, you can still run all your code in R, you just have to specify what computing language you'll be using. Here we will be using the `muscle` program in the command language interpreter `Bash`, the language that you are using on the lab Macs.  Using Bash, we'll call the program `muscle`, read in our FASTA file, and create a FASTA-aligned output file (with an .afa extension).  
 
 ```{bash, results = 'hide', eval = FALSE}
 muscle -in ./data/p.isolates.fasta -out ./data/p.isolates.afa
@@ -89,7 +98,7 @@ muscle -in ./data/p.isolates.fasta -out ./data/p.isolates.afa
 
 
 ### C.  Visualizing the Alignment
-It is good practice to view your sequences after alignment. 
+It is good practice to view your sequences after alignment **because...**
 From this, you should be able to visualize conserved and variable regions among your sequences. 
 This may not be practical for large databases, but in our example, the alignment only contains sequences for 39 bacterial taxa plus a distantly related reference sequence that we will use as an **outgroup**. 
 To visualize our alignment, first, we will read in the FASTA-aligned file using the `read.alignment` function in the `seqinr` package. 
@@ -130,7 +139,7 @@ The following table provides an overview of the methods that are available for e
   \textbf{Tree Method} & \textbf{Properties} \\
   \hline \hline \\ [-1.5ex]
   \textbf{UPGMA} & 
-  Hierarchical clustering technique. Progressively groups the most similar pairs of sequences. Sometimes used as a guide tree for more sophisticated phylogenetic analyses, but prone to distorting tree topology and assumes constant rates of evolution. UPGMA can be implemented in R with the $\emph{upgma()}$ function in the $\emph{panghorn}$ package.\\
+  Hierarchical clustering technique. This technique progressively groups the most similar pairs of sequences. Sometimes used as a guide tree for more sophisticated phylogenetic analyses, but prone to distorting tree topology and assumes constant rates of evolution. UPGMA can be implemented in R with the $\emph{upgma()}$ function in the $\emph{panghorn}$ package.\\
   \\ [-1.5ex]
   \textbf{Neighbor Joining} & 
   Starts with an unresolved tree in a "star network". Algorithm then identifies the two most similar taxa and creates a node. This process is iteratively applied to the remaining sequences. Can serve as a starting point for assessing evolutionary models with more sophisticated methods like maximum likelihood. Neighbor joining can be implemented in the R package $\emph{ape}$ using the $\emph{bionj()}$ function. \\
@@ -149,6 +158,7 @@ The following table provides an overview of the methods that are available for e
 \end{center}
 
 ### A. Neighbor Joining Trees
+**WHAT ABOUT PRO'S AND CON'S TO THESE (OR ANY) METHODS**
 For the purposes of this course, we are going to focus primarily on building trees using neighbor joining methods.
 As you will see in the next section, neighbor joining is commonly used for making "guide tree" that can incorporate more sophisticated models of evolution. 
 The first step in making a neighbor joining tree is to create a distance matrix. 
@@ -280,9 +290,14 @@ dist.topo(raw.rooted, F84.rooted, method = "score")
 
 
 ### D) MAXIMUM LIKELIHOOD TREE
-Often a nearest neighbor joined tree is not good enough. While neighbor joining if very fast and has the convenient property of returning the correct tree for a correct distance matrix, we are rarely in the position where we know the correct distance matrix. Instead a maximum likelihood (ML) tree is often a superior choice, as it is built on the robust statistical procedure of ML (i.e. the process of finding the parameter value that maximizes the likelihood of the data). In addition, ML has the advantage of being the estimation method that is least affected by sampling error, is fairly robust to the assumptions of a particularly model, allows you to compare different tree topologies, and uses all the information in a sequence (as opposed to just distance). 
-
-However, ML estimation is a computationally intensive process that can require a lot of time. This is because ML estimation often must consider all different ways that you can make a tree (i.e. the topology of the tree) and find the best edge lengths for each topology. Because ML estimation can take a long time, we will not ask you to generate a maximum likelihood tree for your assignment. However, below we have supplied code using functions from the package `phangorn` to generate a ML tree. 
+Often a nearest neighbor joined tree is not good enough. **<-- REVISE/CLARIFY**
+While neighbor joining if very fast and has the convenient property of returning the correct tree for a correct distance matrix, we are rarely in the position where we know the correct distance matrix. 
+Instead a maximum likelihood (ML) tree is often a superior choice, as it is built on the robust statistical procedure of ML (i.e. the process of finding the parameter value that maximizes the likelihood of the data). 
+In addition, ML has the advantage of being the estimation method that is least affected by sampling error, is fairly robust to the assumptions of a particularly model, allows you to compare different tree topologies, and uses all the information in a sequence (as opposed to just distance). 
+However, ML estimation is a computationally intensive process that can require a lot of time. 
+This is because ML estimation often must consider all different ways that you can make a tree (i.e. the topology of the tree) and find the best edge lengths for each topology.
+Because ML estimation can take a long time, we will not ask you to generate a maximum likelihood tree for your assignment. 
+However, below we have supplied code using functions from the package `phangorn` to generate a ML tree. 
 
 
 ```{r, eval = FALSE}
@@ -323,9 +338,9 @@ nodelabels(ml.bootstrap$node.label, font = 2, bg = "white", frame = "r", cex = 0
 
 ### F) A NOTE ON MAKING YOUR OWN TREES.
 
-R is useful for a lot of things, but it's not optimized for phylogeny reconstruction and may be extremely slow. If you need to make a phylogeny for your own research and it is larger than a handful of taxa you will have to work with packages that don't easily run in an R environment. One of the packages that you will want to check out is the Randomized Axelerated Maximum Likelihood (RAxML) package for generating maximum likelihood trees with bootstrap support (http://sco.h-its.org/exelixis/web/software/raxml/index.html). If you're dealing with communities with a large number of taxa (ex. 16S rRNA amplicon data from microbial communities), programs like RAxML may be too slow. Here you can use the program FastTree to generate approximately-maximum-likelihood phylogenetic trees, sacrificing exactness for speed (http://www.microbesonline.org/fasttree/). 
+R is useful for a lot of things, but it is not optimized for phylogeny reconstruction and may be extremely slow. If you need to make a phylogeny for your own research and it is larger than a handful of taxa you will have to work with packages that don't easily run in an R environment. One of the packages that you will want to check out is the Randomized Axelerated Maximum Likelihood (RAxML) package for generating maximum likelihood trees with bootstrap support (http://sco.h-its.org/exelixis/web/software/raxml/index.html). If you're dealing with communities with a large number of taxa (ex. 16S rRNA amplicon data from microbial communities), programs like RAxML may be too slow. Here you can use the program FastTree to generate approximately-maximum-likelihood phylogenetic trees, sacrificing exactness for speed (http://www.microbesonline.org/fasttree/). 
 
-To help you with your future tree-building efforts we have included a short script under the folder `Week6-PhyloTraits/bash/` that will allow you to generate a ML tree on the IU computer cluster Mason using the program RAxML. Generating a ML tree is computationally intensive and not all tree-generating software have R packages, so if you need a ML tree it's often easier to run it on a desktop or a computer cluster using a shell script rather than on your laptop. If you are an IU student, postdoc, or faculty member you can register for an account on Mason. See the IU Mason webpage for more information (https://kb.iu.edu/d/bbhh).
+To help you with your future tree-building efforts we have included a short script under the folder `Week6-PhyloTraits/bash/` that will allow you to generate a ML tree on the IU computer cluster Mason using the program RAxML. Generating a ML tree is computationally intensive and not all tree-generating software have R packages, so if you need a ML tree it is often easier to run it on a desktop or a computer cluster using a shell script rather than on your laptop. If you are an IU student, postdoc, or faculty member you can register for an account on Mason. See the IU Mason webpage for more information (https://kb.iu.edu/d/bbhh).
 
 
 ## 5) INTEGRATING TRAITS AND PHYLOGENY
@@ -334,7 +349,7 @@ In the context of biodiversity, many researchers are interested in being able to
 This can be important for addressing questions related to diversification, trait evolution, and ecological interactions.
 In this section, we will import functional trait data that was collected on the 39 freshwater isolates for which we have 16S rRNA sequences. 
 Specifically, we measured the growth rates of each strain on 18 different forms of phosphorus (e.g., phosphate, DNA, ATP, etc.). 
-With this information we will visualize the functional traits (i.e., growth on different phosphorus) in a phylogenetic context by mapping them onto the neighbor joining tree (with the F84 DNA substitution model) that we created. 
+With this information we will visualize the functional traits (i.e., growth on different phosphorus) in a phylogenetic context by mapping them onto the neighbor joining tree (with the F84 DNA substitution model: **see table X**) that we created. 
 
 ### A. Loading Trait Database
 ```{r}
@@ -347,8 +362,12 @@ p.growth.std <- p.growth / (apply(p.growth, 1, sum))
 ```
 
 ### B. Trait Manipulations
-From the section above where we described the data, you will recall that we were interested in testing for a **generalist-specialist trade-off**.
-To do this, we need to create two new variables. 
+From the section above where we described the data, you will recall that we were interested in testing for an ecological trade-off related to species traits.
+Specifically, we will be testing for a well-known trade-off related to resource use.
+This trade-off relates to the differing advantages of growing exceptionally well on one or a few resources, versus being able to grow moderately well on many resources, i.e., a **generalist-specialist trade-off**.
+**Maybe include a seminal reference**
+
+To explore the generalist-specialist trade-off using phylogenetic data, we need to create two new variables. 
 First, we need calculate the maximum growth rate ($\mu_{max}$) of each isolate across all phosphorus types. 
 This will help us test the expectation that generalists will have lower maximum growth rates because there is a cost associated with being able to use a lot of different chemical forms of phosphorus. 
 In contrast, we expect that specialists will have a high maximum growth rate on their preferred phosphorus resource. 
