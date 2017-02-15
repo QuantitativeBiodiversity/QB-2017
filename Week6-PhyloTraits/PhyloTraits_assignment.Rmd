@@ -58,7 +58,7 @@ In the R code chunk below, provide the code to:
 ## 2) DESCRIPTION OF DATA
 
 The maintenance of biodiversity is thought to be influenced by **trade-offs** among species in certain functional traits. 
-One such trade-off involves the ability of a highly specialized species to perform exceptionally well on a particular resource. 
+One such trade-off involves the ability of a highly specialized species to perform exceptionally well on a particular resource compared to the performance of a generalist. 
 In this exercise, we will take a phylogenetic approach to mapping phosphorus resource use onto a phylogenetic tree while testing for specialist-generalist trade-offs. 
 
 
@@ -72,7 +72,7 @@ Describe the differences that you observe between the files.
 
 In the R code chunk below, do the following:
 1. read your alignment file,
-2. convert the agignment to a DNAbin object,
+2. convert the alignment to a DNAbin object,
 3. select a region of the gene to visualize (try various regions), and
 4. plot the alignment using a grid to visualize rows of sequences.
 
@@ -83,7 +83,7 @@ In the R code chunk below, do the following:
 ```
 
 
-***Question 2***:  Make some observations about the `muscle` alingmnet of the 16S rRNA gene sequences for our bacterial isolates and the outgroup, *Methanosarcina*, which belongs to the archaeal domain of life. 
+***Question 2***:  Make some observations about the `muscle` alignment of the 16S rRNA gene sequences for our bacterial isolates and the outgroup, *Methanosarcina*, an archaean. 
 Move along the alignment by changing the values in the `window` object. 
 
 a. Approximatley how long were our reads?  
@@ -116,7 +116,7 @@ In the R code chunk below, do the following:
 
 ```
 
-***Question 3***: What are the advantages and disadvantages of making a neighbor joining tree? 
+***Question 3***: What are the advantages and disadvantages of making a neighbor joining tree?   <-- This seems like an important question, but have we provided them with enough resources or direction to be able to answer this question?
 
 
 > ***Answer 3***:  
@@ -149,9 +149,9 @@ In the R code chunk below, do the following:
 In the R code chunk below, do the following:  
 1. pick another substitution model,  
 2. create and distance matrix and tree for this model,  
-2. make a saturation plot that compares that model to the *Felsenstein (F84)* model,  
-3. make a cophylogenetic plot that compares the topologies of both models, and  
-4. be sure to format, add appropriate labels, and customize each plot.
+3. make a saturation plot that compares that model to the *Felsenstein (F84)* model,  
+4. make a cophylogenetic plot that compares the topologies of both models, and  
+5. be sure to format, add appropriate labels, and customize each plot.
 
 ```{r}
 
@@ -161,13 +161,14 @@ In the R code chunk below, do the following:
 ***Question 4***:  
 
 a. Describe the substitution model that you chose. What assumptions does it make? How does it compare to the F84 model?
-b. Using the saturation plot and cophylogenetic plots from above, describe the effect that the substitution model you chose has on your phylogenetic reconstruction. 
-If the plots seem to be inconsistent with one another, explain what it giving rise to the differences.
-c. How does the effect of your model compare to the *F84* model? What does this tell you about the substitution rates of nucleotide transitions?
+b. Using the saturation plot and cophylogenetic plots from above, describe how your choice of substitution model affects your phylogenetic reconstruction. 
+If the plots are inconsistent with one another, explain why.
+c. How does your model compare to the *F84* model? What does this tell you about the substitution rates of nucleotide transitions?
 
 
 > ***Answer 4a***:   
 > ***Answer 4b***:   
+> ***Answer 4c***:   
 
 ### C) ANALYZING A MAXIMUM LIKELIHOOD TREE
 
@@ -214,7 +215,7 @@ In the R code chunk below, do the following:
 ### B. Trait Manipulations
 
 In the R code chunk below, do the following:  
-1. calculate the maximum growth rate ($\mu_{max}$) of each isoalte across all phosphorus types,  
+1. calculate the maximum growth rate ($\mu_{max}$) of each isolate across all phosphorus types,  
 2. create a function that calculates niche breadth (*nb*), and  
 3. use this function to calcuate *nb* for each isolate.
 
@@ -250,7 +251,7 @@ In the R code chunk below, do the following:
 In the R code chunk below, do the following:  
 1. define a color palette (use something other than "YlOrRd"),  
 2. map the phosphorus traits onto your phylogeny,  
-3. map the *nb* trait on to your phologeny, and  
+3. map the *nb* trait on to your phylogeny, and  
 4. customize the plots as desired (use `help(table.phylo4d)` to learn about the options).
 
 ```{r}
@@ -270,7 +271,7 @@ In the R code chunk below, do the following:
 
 ```
 
-***Question 6***:  Based on the distribution of traits on the neighbor joining tree that we created, what might you predict about the degree of specialization of bacteria on diverse phosphorus resources?  
+***Question 6***:  Based on the distribution of traits on the neighbor joining tree that we created, what might you predict about the degree of specialization of bacteria on diverse phosphorus resources?    <-- I don't know that we've provided them with enough information in the handout for them how to interpret this output: what kind of patterns should they look for that would suggest strong or weak phylogenetic signal? how meaningful is variation in std growth ranging from 0.0 - 0.6? likewise, what is the possible range of niche breadth values and how do these two figures relate back to the  generalist--specialist trade-off? Perhaps that would be a good question for them to answer: "formulate a hypothesis that would lend support for the generalist-specialist trade-off, and what kind of patterns would you expect to see from growth rate & niche breadth values that would support this hypothesis?" - NW
 
 > ***Answer 6***:   
 
@@ -389,8 +390,8 @@ In the R code chunk below, do the following:
 
 ## 7) SYNTHESIS
 
-Below is the output of a multiple regression model depicting the relationship between the maximum growth rate ($\mu_{max}$) of each bacterial isolate and the niche breadth of that isoalte on the 18 different sources of phosphorus. 
-One feature of the study which we did not reveal earlier in the handout is that the isolates came from two different lakes. 
+Below is the output of a multiple regression model depicting the relationship between the maximum growth rate ($\mu_{max}$) of each bacterial isolate and the niche breadth of that isolate on the 18 different sources of phosphorus. 
+One feature of the study which we did not reveal earlier in the handout is that the isolates came from two different lakes.  <- this information is in the handout now I think
 One of the lakes is an very oligotrophic (i.e., low phosphorus) ecosystem named Little Long (LL) Lake. 
 The other lake is an extremely eutrophic (i.e., high phosphorus) ecosystem named Wintergreen (WG) Lake.
 We included a "dummy variable" (D) in the multiple regression model (0 = WG, 1 = LL) to account for the environment from which the bacteria were obtained.  
@@ -444,6 +445,8 @@ par(mfrow = c(2, 2), mar = c(5.1 ,4.1 ,4.1 ,2.1))
 plot(fit)
 ```
 
+
+> we just gave them a bunch of code above, but they can answer the following question without really knowing much about what's going on. Is there a way we can reframe this question (which I think is really important, since it's the culmination of the question laid out at the beginning of the assignment) to be more interactive? Have them code some of it up so they have to think about how niche breadth relates to growth rates and how to use these in a regression? 
 
 ***Question 11***: Based on your knowledge of the traits and their phylogenetic distributions, what conclusions would you draw about our data and the evidence for a generalist-specialist tradeoff? 
 
