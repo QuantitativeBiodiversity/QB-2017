@@ -45,14 +45,6 @@ In the R code chunk below, provide the code to:
 ```{r}
 
 
-
-
-
-
-
-
-
-
 ```
 
 ## 2) DESCRIPTION OF DATA
@@ -83,11 +75,11 @@ In the R code chunk below, do the following:
 ```
 
 
-***Question 2***:  Make some observations about the `muscle` alignment of the 16S rRNA gene sequences for our bacterial isolates and the outgroup, *Methanosarcina*, an archaean. 
+***Question 2***:  Make some observations about the `muscle` alignment of the 16S rRNA gene sequences for our bacterial isolates and the outgroup, *Methanosarcina*, a member of the domain archaea. 
 Move along the alignment by changing the values in the `window` object. 
 
-a. Approximatley how long were our reads?  
-b. What regions do you think would be most appropriate for phylogenetic inference? Why?  
+a. Approximatley how long are our reads?  
+b. What regions do you think would are appropriate for phylogenetic inference and why?  
 
 > ***Answer 2a***:   
 > ***Answer 2b***:  
@@ -110,13 +102,10 @@ In the R code chunk below, do the following:
 ```{r}
 
 
-
-
-
-
 ```
 
-***Question 3***: What are the advantages and disadvantages of making a neighbor joining tree?   <-- This seems like an important question, but have we provided them with enough resources or direction to be able to answer this question?
+***Question 3***: What are the advantages and disadvantages of making a neighbor joining tree?   
+**<-- This seems like an important question, but have we provided them with enough resources or direction to be able to answer this question?**
 
 
 > ***Answer 3***:  
@@ -134,15 +123,6 @@ In the R code chunk below, do the following:
 ```{r}
 
 
-
-
-
-
-
-
-
-
-
 ```
 
 
@@ -155,15 +135,16 @@ In the R code chunk below, do the following:
 
 ```{r}
 
+
 ```
 
 
 ***Question 4***:  
 
-a. Describe the substitution model that you chose. What assumptions does it make? How does it compare to the F84 model?
+a. Describe the substitution model that you chose. What assumptions does it make and how does it compare to the F84 model?
 b. Using the saturation plot and cophylogenetic plots from above, describe how your choice of substitution model affects your phylogenetic reconstruction. 
 If the plots are inconsistent with one another, explain why.
-c. How does your model compare to the *F84* model? What does this tell you about the substitution rates of nucleotide transitions?
+c. How does your model compare to the *F84* model and what does this tell you about the substitution rates of nucleotide transitions?
 
 
 > ***Answer 4a***:   
@@ -179,6 +160,7 @@ In the R code chunk below, do the following:
 
 ```{r}
 
+
 ```
 
 ***Question 5***:  
@@ -188,13 +170,11 @@ If the plots seem to be inconsistent with one another, explain what it giving ri
 
 b) Why do we bootstrap our tree?
 
-c) What do the bootstrap values tell you? Which branches have very low support? Should we trust these branches?
+c) What do the bootstrap values tell you? Which branches have very low support? Should we trust these branches? **<-- This is three questions**
 
 > ***Answer 5a***:   
 > ***Answer 5b***:   
 > ***Answer 5c***:   
-
-
 
 
 ## 5) INTEGRATING TRAITS AND PHYLOGENY
@@ -205,9 +185,6 @@ In the R code chunk below, do the following:
 2. stardardize the data for each strain by the sum of growth rates.
 
 ```{r}
-
-
-
 
 
 ```
@@ -222,13 +199,6 @@ In the R code chunk below, do the following:
 ```{r}
 
 
-
-
-
-
-
-
-
 ```  
 
 ### C. Visualzing Traits on Trees
@@ -241,11 +211,6 @@ In the R code chunk below, do the following:
 ```{r}
 
 
-
-
-
-
-
 ```
 
 In the R code chunk below, do the following:  
@@ -254,24 +219,14 @@ In the R code chunk below, do the following:
 3. map the *nb* trait on to your phylogeny, and  
 4. customize the plots as desired (use `help(table.phylo4d)` to learn about the options).
 
+
 ```{r}
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ```
 
-***Question 6***:  Based on the distribution of traits on the neighbor joining tree that we created, what might you predict about the degree of specialization of bacteria on diverse phosphorus resources?    <-- I don't know that we've provided them with enough information in the handout for them how to interpret this output: what kind of patterns should they look for that would suggest strong or weak phylogenetic signal? how meaningful is variation in std growth ranging from 0.0 - 0.6? likewise, what is the possible range of niche breadth values and how do these two figures relate back to the  generalist--specialist trade-off? Perhaps that would be a good question for them to answer: "formulate a hypothesis that would lend support for the generalist-specialist trade-off, and what kind of patterns would you expect to see from growth rate & niche breadth values that would support this hypothesis?" - NW
+***Question 6***:  Based on the distribution of traits on the neighbor joining tree that we created, what might you predict about the degree of specialization of bacteria on diverse phosphorus resources?    
+**I don't know that we've provided them with enough information in the handout for them how to interpret this output: what kind of patterns should they look for that would suggest strong or weak phylogenetic signal? how meaningful is variation in std growth ranging from 0.0 - 0.6? likewise, what is the possible range of niche breadth values and how do these two figures relate back to the  generalist--specialist trade-off? Perhaps that would be a good question for them to answer: "formulate a hypothesis that would lend support for the generalist-specialist trade-off, and what kind of patterns would you expect to see from growth rate & niche breadth values that would support this hypothesis?" - NW <-- I totally agree with this --KL**
 
 > ***Answer 6***:   
 
@@ -287,10 +242,6 @@ In the R code chunk below, do the following:
 ```{r}
 
 
-
-
-
-
 ```
 
 In the R code chunk below, do the following:  
@@ -299,14 +250,12 @@ In the R code chunk below, do the following:
 ```{r}
 
 
-
-
 ```
 
 ***Question 7***:  There are two important outputs from the `fitContinuous()` function that can help you interpret the phylogenetic signal in trait data sets. 
 a. First, compare the lambda values of the untransformed tree to the transformed (lambda = 0).
-b. Second, compare the Akaike information criterion (AIC) scores of the two models. Differences in AIC scores provide maximum likelihood inference regarding the quality of model fit to a given data set. Models with lower AIC values are better. However, if the difference in AIC values between two models ($\Delta$ AIC) isn't greater than at least 2, then then the models are considered equivalent. 
-With this information in hand, what does Pagel's lambda say about the phylogenetic signal of niche breadth in our data set?
+b. Second, compare the Akaike information criterion (AIC) scores of the two models. Differences in AIC scores provide maximum likelihood inference regarding the quality of model fit to a given data set. Models with lower AIC values are better. However, if the difference in AIC values between two models ($\Delta$ AIC) is not greater than at least 2, then then the models are considered equivalent. 
+With this information in hand, what does Pagel's lambda say about the phylogenetic signal of niche breadth in our data set? **<-- With the information provided, the students are going to tell you the right answer but have no idea what it actually means, lol**
 
 > ***Answer 7a***:  
 > ***Answer 7b***:  
@@ -321,11 +270,6 @@ In the R code chunk below, do the following:
 4. calculate Blomberg's K for niche breadth using the `phylosignal()` function.
 
 ```{r}
-
-
-
-
-
 
 
 ```
@@ -348,13 +292,6 @@ In the R code chunk below, do the following:
 4. use `phylo.d()` to calculate *D* on at least three phosphorus traits.
 
 ```{r}
-
-
-
-
-
-
-
 
 
 ```
@@ -381,6 +318,7 @@ In the R code chunk below, do the following:
 
 
 ```{r}
+
 
 ```
   
