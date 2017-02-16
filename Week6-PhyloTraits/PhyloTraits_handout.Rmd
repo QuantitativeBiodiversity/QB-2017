@@ -23,19 +23,19 @@ After completing this exercise you will be able to:
 
 ## BACKGROUND
 
-Functional traits are morhpological, behavioral, or physiological characteristics of an individual that affect its peformance or fitness under a set of enviromental conditions. 
+Functional traits are morphological, behavioral, or physiological characteristics of an individual that affect its performance or fitness under a set of environmental conditions. 
 We can think of functional traits as falling into two general categories.
 First, "response traits" influence how an individual contends with features of its environment (Lavorel and Garnier 2002).
 For example, waxy leaves are generally thought to aid in plant tolerance to desiccation. 
-Second, "effect traits" are characteristics of an indvidual that can alter the enviroment (Lavorel and Garnier 2002).
+Second, "effect traits" are characteristics of an individual that can alter the environment (Lavorel and Garnier 2002).
 For example, the ability for a plant and its associated microorganisms to fix atmospheric nitrogen can influence soil fertility. 
 It is often assumed that more closely related (i.e., more recently diverged) taxa have a greater degree of trait similarity than more distantly related taxa that diverged further back in time.
-Therfore, it is possible to detect trait-envriroment and trait-function relationships simply becuase an assemblage is comprised of closely related taxa. 
-We can not only test for this so-called **phylogenetic signal**, but also correct fot it. 
+Therefore, it is possible to detect trait-environment and trait-function relationships simply because an assemblage is comprised of closely related taxa. 
+We can not only test for this so-called **phylogenetic signal**, but also correct for it. 
 In order to explore the relationship between the evolutionary relatedness of taxa and the distribution of functional traits among those taxa, we must introduce another fundamental data structure: the **phylogeny**.
 A phylogeny is an evolutionary tree constructed by comparing the divergence in gene or protein sequences among a group of organisms.
 Constructing a phylogeny relies on the assumption that more distantly related organisms have accumulated more differences in their sequences since the time they last shared a common ancestor, while the sequences of more closely related taxa would be more similar. 
-In the following sections, we will provide an introduction to contructing phylogenetic trees.
+In the following sections, we will provide an introduction to constructing phylogenetic trees.
 From this, you will gain evolutionary insight into patterns and processes of biodiversity (e.g., diversification, adaptation, etc.).
 
 ## 1) SETUP
@@ -68,22 +68,22 @@ for (package in package.list) {
 
 We will address question related to functional traits and phylogenetics using a data set that contains information on 39 strains of freshwater bacteria. 
 The bacteria were isolated from two lakes that greatly differ in their biogeochemical properties, especially nutrient content.
-One lake has extremeley low concentrations of phosphorus (i.e., oligotrophic) while the other lake is adjacent to a bird sanctuary and receives high inputs of phosphorus (i.e., eutrophic).
+One lake has extremely low concentrations of phosphorus (i.e., oligotrophic) while the other lake is adjacent to a bird sanctuary and receives high inputs of phosphorus (i.e., eutrophic).
 We hypothesize that these two environments contain taxa with different traits that influence their ability to use different types of phosphorus.
 To test this hypothesis, we extracted DNA from all of bacterial strains and amplified the 16S rRNA gene, which is a commonly used "marker" for delineating microbial taxa and examining phylogenies of bacteria.
 In addition, we measured the maximum growth rate $\mu_{max}$ of each strain on 18 different phosphorus resources.
-With this informaiton, we can measure the **niche breadth** of each strain and consider this a functional trait. 
+With this information, we can measure the **niche breadth** of each strain and consider this a functional trait. 
 In the following sections, we take a phylogenetic approach to mapping phosphorus resource use onto a phylogenetic tree while testing for ecological trade-offs related to resource use.
 
 ## 3) SEQUENCE ALIGNMENT 
 
-One of the first steps in peforming a phylogenetic analysis is to align the sequences that have been obtained from your samples. 
+One of the first steps in performing a phylogenetic analysis is to align the sequences that have been obtained from your samples. 
 The sequences can represent nucleotides (DNA or RNA) or proteins (amino acids).
 Computer algorithms are used to arrange sequences relative to one another based on conserved (i.e., non-variable) regions.
 The non-conserved or "variable" regions are then used for making phylogenetic inference, including tree construction. 
 There are two different ways to align sequences. 
 Global alignment relies on algorithms that attempt to align the entire span of sequences. 
-Local aligment is typically a preferable approach and uses algorithms that initiate alignment by identifynig regions in a sequence that have a high degree of similarity.
+Local alignment is typically a preferable approach and uses algorithms that initiate alignment by identifying regions in a sequence that have a high degree of similarity.
 In the example below, we will be using a local alignment approach. 
 
 ### A.  Examining a FASTA-File
@@ -111,7 +111,7 @@ muscle -in ./data/p.isolates.fasta -out ./data/p.isolates.afa
 
 ### C.  Visualizing the Alignment
 
-After peforming the alignment, it is good practice to view your aligned sequence file. 
+After performing the alignment, it is good practice to view your aligned sequence file. 
 From this, you should be able to visualize conserved and variable regions among your sequences. 
 This may not be practical for databases with a large number of long sequences. 
 In our dataset, however, the alignment only contains sequences for 39 bacterial taxa plus a distantly related reference sequence that we will use as an **outgroup**. 
@@ -145,7 +145,7 @@ An inspection of the figure suggests that our alignment is good because many ver
 Once you have aligned your sequences, the next step is to construct a phylogenetic tree.
 Not only is a phylogenetic tree effective for visualizing the evolutionary relationship among taxa, but as you will see later, the information that goes into a phylogenetic tree is needed for downstream analysis. 
 There are many algorithms, theories, and tools that are used for making phylogenetic trees.
-It is not possible to cover all of these topics in Quantitative Biodiveristy, but we try to highlight some of the major concepts in the following sections, including the table below:
+It is not possible to cover all of these topics in Quantitative Biodiversity, but we try to highlight some of the major concepts in the following sections, including the table below:
 
 \begin{center}
 \hyphenpenalty 10000
@@ -218,7 +218,7 @@ add.scale.bar(cex = 0.7)
 ### B) SUBSTITUTION MODELS OF DNA EVOLUTION 
 
 You now have a distance matrix that represents the shared evolutionary history of your taxa. 
-However, these are raw estimates of phylogenetic distance and they do not account for the fact that multiple substitutions may have occured at the same site over time (e.g., A -> T -> G -> C would be counted as one change of base), something that is likely common if you are dealing with taxa that diverged hundreds of millions of years ago. 
+However, these are raw estimates of phylogenetic distance and they do not account for the fact that multiple substitutions may have occurred at the same site over time (e.g., A -> T -> G -> C would be counted as one change of base), something that is likely common if you are dealing with taxa that diverged hundreds of millions of years ago. 
 In addition, raw distance measures do not take into account substitution biases for one particular nucleotide over the other (e.g., A-T biased mutation). 
 Various models have been developed to account for multiple substitutions and estimate the rates that nucleotides change over time. 
 In the following table, we describe a few of the more commonly used models that correct for multiple substitutions as well as the probability of one nucleotide transitioning to a different nucleotide. 
@@ -358,7 +358,7 @@ How do we know which tree is correct?
 Since we don't know the real tree we'll use the next best thing. 
 We'll re-sample our own data to determine how reliable the tree is. 
 This process is known as **bootstrapping**. 
-To peform bootstrapping, we will select a subset of columns from our alignment randomly with replacement. 
+To perform bootstrapping, we will select a subset of columns from our alignment randomly with replacement. 
 Next we will use that sample to construct a new tree and compare its topology to the original tree. 
 Each interior branch of the original tree that is different from the bootstrap tree gets a score of 0 while all other interior branches get a score of 1. 
 This procedure is done a large number of times (typically 100 - 10,000, depending on the size of the tree) and it gives us the **bootstrap value** for each interior branch. 
@@ -377,7 +377,7 @@ nodelabels(ml.bootstrap$node.label, font = 2, bg = "white", frame = "r", cex = 0
 
 ### F) A NOTE ON MAKING YOUR OWN TREES.
 
-R is useful for a lot of things, but it is not optimized for phylogenetic reconstruction and thefore can be extremely slow. 
+R is useful for a lot of things, but it is not optimized for phylogenetic reconstruction and therefore can be extremely slow. 
 If you need to make a phylogeny with more than a dozen or so taxa, then you may need to use packages that don't easily run in an R environment. 
 One of the packages that you will want to check out is the Randomized Axelerated Maximum Likelihood (RAxML) package for generating maximum likelihood trees with bootstrap support (http://sco.h-its.org/exelixis/web/software/raxml/index.html). 
 If you're dealing with communities with a large number of taxa (e.g., 16S rRNA amplicon data from microbial communities), programs like RAxML may be too slow. Here you can use the program FastTree to generate approximately-maximum-likelihood phylogenetic trees, sacrificing exactness for speed (http://www.microbesonline.org/fasttree/). 
@@ -717,7 +717,7 @@ However, in a phylogenetic regression the variance of the residual errors are de
 It is also important to take into account the phylogenetic signal in the residual error when $V$ is estimated, not just the evolutionary history described by the phylogeny. 
 If phylogenetic signal is not taken into account your phylogenetic regression can have poor statistical performance (Revell, 2010).
 
-To show how to perform a phylogenetic regression we will need to get a new dataset, since we basically only have one measure from our bacterial dataset (i.e. niche breadth). In the `data` folder we've included a dataset on mammels, which we will use to examine the scaling relationship (i.e. power law) between body mass (M) and Basal Metabolic Rate (BMR), the minimal rate of energy expenditure per unit time by endothermic animals at rest. 
+To show how to perform a phylogenetic regression we will need to get a new dataset, since we basically only have one measure from our bacterial dataset (i.e. niche breadth). In the `data` folder we've included a dataset on mammals, which we will use to examine the scaling relationship (i.e. power law) between body mass (M) and Basal Metabolic Rate (BMR), the minimal rate of energy expenditure per unit time by endothermic animals at rest. 
 This relationship has significant phylogenetic signal and can be described by the power law  $BMR = cM^{z}$, where z is the scaling exponent and c is the scaling factor (Capellini et al., 2010). 
 In regression terms this can be described $log(BMR) = log(c) + zlog(M)$, an equation that you should recognize from Week 4 when we used it to describe the species area relationship (SAR). 
 However, phylogeny is rarely accounted for in foundational power laws such as these. Here we will account for phylogeny in the BMR-mass power law using the super-tree of mammals, a single phylogenetic tree assembled from a combination of smaller phylogenetic trees.
@@ -766,7 +766,7 @@ text(0.5, 4.5, eqn, pos = 4)
 
 ```
 
-and we see that we get a power law of approximately $BMR = 0.42M^{0.71}$. So by accounting for how shared evolutionary history impacts the relationship between mass and BMR (i.e. the non-independance of our data) we actually get an higher slope, suggesting a stronger relationship between mass and BMR than expected based off of a simple linear regression.   
+and we see that we get a power law of approximately $BMR = 0.42M^{0.71}$. So by accounting for how shared evolutionary history impacts the relationship between mass and BMR (i.e. the non-independence of our data) we actually get an higher slope, suggesting a stronger relationship between mass and BMR than expected based off of a simple linear regression.   
 
 
 

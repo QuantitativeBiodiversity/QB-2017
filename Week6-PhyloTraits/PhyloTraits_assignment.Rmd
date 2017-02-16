@@ -77,7 +77,7 @@ In the R code chunk below, do the following:
 ***Question 2***:  Make some observations about the `muscle` alignment of the 16S rRNA gene sequences for our bacterial isolates and the outgroup, *Methanosarcina*, a member of the domain archaea. 
 Move along the alignment by changing the values in the `window` object. 
 
-a. Approximatley how long are our reads?  
+a. Approximately how long are our reads?  
 b. What regions do you think would are appropriate for phylogenetic inference and why?  
 
 > ***Answer 2a***:   
@@ -91,7 +91,7 @@ Not only is a phylogenetic tree effective for visualizing the evolutionary relat
 ### A. Neighbor Joining Trees
 
 In the R code chunk below, do the following:  
-1. calcualte the distance matrix using `model = "raw"`,  
+1. calculate the distance matrix using `model = "raw"`,  
 2. create a Neighbor Joining tree based on these distances,  
 3. define "Methanosarcina" as the outgroup and root the tree, and  
 4. plot the rooted tree. 
@@ -158,7 +158,7 @@ In the R code chunk below, do the following:
 ***Question 5***:  
 
 a) How does the maximum likelihood tree compare the to the neighbor-joining tree in the handout? 
-If the plots seem to be inconsistent with one another, explain what it giving rise to the differences.
+If the plots seem to be inconsistent with one another, explain what gives rise to the differences.
 
 b) Why do we bootstrap our tree?
 
@@ -181,7 +181,7 @@ e) Should we trust these branches?
 
 In the R code chunk below, do the following:  
 1. import the raw phosphorus growth data, and  
-2. stardardize the data for each strain by the sum of growth rates.
+2. standardize the data for each strain by the sum of growth rates.
 
 ```{r}
 
@@ -193,14 +193,14 @@ In the R code chunk below, do the following:
 In the R code chunk below, do the following:  
 1. calculate the maximum growth rate ($\mu_{max}$) of each isolate across all phosphorus types,  
 2. create a function that calculates niche breadth (*nb*), and  
-3. use this function to calcuate *nb* for each isolate.
+3. use this function to calculate *nb* for each isolate.
 
 ```{r}
 
 
 ```  
 
-### C. Visualzing Traits on Trees
+### C. Visualizing Traits on Trees
 
 In the R code chunk below, do the following:  
 1. pick your favorite substitution model and make a Neighbor Joining tree,  
@@ -321,8 +321,16 @@ In the R code chunk below, do the following:
 ```
   
 
-***Question 10***:
-~~~~WS
+a. Why do we need to correct for shared evolutionary history?
+b. How does a phylogenetic regression differ from a standard linear regression?
+c. Interpret the slope and fit of each model. Did accounting for shared evolutionary history improve or worsten the fit?
+d. Try to come up with a scenario where the relationship between two variables would completely disappear when the underlying phylogeny is accounted for.
+
+> ***Answer 10a***:  
+> ***Answer 10b***:  
+> ***Answer 10c***:  
+> ***Answer 10d***:  
+
 
 ## 7) SYNTHESIS
 
