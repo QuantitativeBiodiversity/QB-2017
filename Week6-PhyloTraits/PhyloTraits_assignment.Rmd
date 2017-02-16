@@ -7,6 +7,7 @@ geometry: margin=2.54cm
 ---
 
 ## OVERVIEW
+
 Up to this point, we have been focusing on patterns taxonomic diversity in Quantitative Biodiversity. 
 Although taxonomic diversity is an important dimension of biodiversity, it is often necessary to consider the evolutionary history or relatedness of species. 
 The goal of this exercise is to introduce basic concepts of phylogenetic diversity. 
@@ -18,6 +19,7 @@ After completing this exercise you will be able to:
 3.  test for phylogenetic signal within trait distributions and trait-based patterns of biodiversity
 
 ## Directions:
+
 1. Change "Student Name" on line 3 (above) with your name.
 2. Complete as much of the exercise as possible during class; what you do not complete in class will need to be done on your own outside of class.
 3. Use the handout as a guide; it contains a more complete description of data sets along with the proper scripting needed to carry out the exercise.
@@ -56,7 +58,6 @@ In this exercise, we will take a phylogenetic approach to mapping phosphorus res
 
 ## 3) SEQUENCE ALIGNMENT
 
-
 ***Question 1***: Using less or your favorite text editor, compare the `p.isolates.fasta` file and the `p.isolates.afa` file. 
 Describe the differences that you observe between the files. 
 
@@ -68,12 +69,10 @@ In the R code chunk below, do the following:
 3. select a region of the gene to visualize (try various regions), and
 4. plot the alignment using a grid to visualize rows of sequences.
 
-
 ```{r}
 
 
 ```
-
 
 ***Question 2***:  Make some observations about the `muscle` alignment of the 16S rRNA gene sequences for our bacterial isolates and the outgroup, *Methanosarcina*, a member of the domain archaea. 
 Move along the alignment by changing the values in the `window` object. 
@@ -84,12 +83,10 @@ b. What regions do you think would are appropriate for phylogenetic inference an
 > ***Answer 2a***:   
 > ***Answer 2b***:  
 
-
 ## 4) MAKING A PHYLOGENETIC TREE
 
 Once you have aligned your sequences, the next step is to construct a phylogenetic tree.
 Not only is a phylogenetic tree effective for visualizing the evolutionary relationship among taxa, but as you will see later, the information that goes into a phylogenetic tree is needed for downstream analysis. 
-
 
 ### A. Neighbor Joining Trees
 
@@ -124,7 +121,6 @@ In the R code chunk below, do the following:
 
 ```
 
-
 In the R code chunk below, do the following:  
 1. pick another substitution model,  
 2. create and distance matrix and tree for this model,  
@@ -137,14 +133,12 @@ In the R code chunk below, do the following:
 
 ```
 
-
 ***Question 4***:  
 
 a. Describe the substitution model that you chose. What assumptions does it make and how does it compare to the F84 model?
 b. Using the saturation plot and cophylogenetic plots from above, describe how your choice of substitution model affects your phylogenetic reconstruction. 
 If the plots are inconsistent with one another, explain why.
 c. How does your model compare to the *F84* model and what does this tell you about the substitution rates of nucleotide transitions?
-
 
 > ***Answer 4a***:   
 > ***Answer 4b***:   
@@ -155,7 +149,6 @@ c. How does your model compare to the *F84* model and what does this tell you ab
 In the R code chunk below, do the following:  
 1. Read in the maximum likelihood phylogenetic tree used in the handout.
 2. Plot bootstrap support values onto the tree
-
 
 ```{r}
 
@@ -171,7 +164,7 @@ b) Why do we bootstrap our tree?
 
 c) What do the bootstrap values tell you? 
 
-d)Which branches have very low support? 
+d) Which branches have very low support? 
 
 e) Should we trust these branches? 
 
@@ -183,6 +176,7 @@ e) Should we trust these branches?
 
 
 ## 5) INTEGRATING TRAITS AND PHYLOGENY
+
 ### A. Loading Trait Database
 
 In the R code chunk below, do the following:  
@@ -236,12 +230,11 @@ a) Make a hypothesis that would support a generalist-specialist trade-off.
 
 b) What kind of patterns would you expect to see from growth rate and niche breadth values that would support this hypothesis?
 
-
 > ***Answer 6a***:   
 > ***Answer 6b***:   
 
-
 ## 6) HYPOTHESIS TESTING
+
 ### A) Phylogenetic Signal: Pagel's Lambda 
 
 In the R code chunk below, do the following:  
@@ -267,12 +260,9 @@ a. Compare the lambda values of the untransformed tree to the transformed (lambd
 b. Compare the Akaike information criterion (AIC) scores of the two models. Which model would you choose based off of AIC score (remember the criteria that the difference in AIC values has to be at least 2)?
 c. Does this result suggest that there's phylogenetic signal?
 
-
-
 > ***Answer 7a***:  
 > ***Answer 7b***:  
 > ***Answer 7c***:  
-
 
 ### B) Phylogenetic Signal: Blomberg's K 
 
@@ -294,7 +284,6 @@ b.  If there is significant phylogenetic signal, are the results suggestive of c
 
 > ***Answer 8a***:   
 > ***Answer 8b***:   
-
 
 ### C.  Calculate Dispersion of a Trait
 
@@ -319,16 +308,12 @@ c.  Discuss what factors might give rise to differences between the metrics.
 > ***Answer 9b***:  
 > ***Answer 9c***:  
 
-
-
 ## 7) PHYLOGENETIC REGRESSION
 
 In the R code chunk below, do the following:  
 1. Load and clean the mammal phylogeny and trait dataset,
 2. Fit a linear model to the trait dataset, examining the relationship between mass and BMR,
 2. Fit a phylogenetic regression to the trait dataset, taking into account the mammal supertree
-
-
 
 ```{r}
 
@@ -337,7 +322,7 @@ In the R code chunk below, do the following:
   
 
 ***Question 10***:
-
+~~~~WS
 
 ## 7) SYNTHESIS
 
@@ -360,9 +345,6 @@ fit<-lm(log10(umax) ~ nb + D + nb * D)
   
 
 ```
-
-
-
 
 ***Question 11***: Based on your knowledge of the traits and their phylogenetic distributions, what conclusions would you draw about our data and the evidence for a generalist-specialist tradeoff? 
 
