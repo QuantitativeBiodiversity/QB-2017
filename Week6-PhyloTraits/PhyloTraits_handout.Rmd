@@ -45,7 +45,7 @@ From this, you will gain evolutionary insight into patterns and processes of bio
 ```{r, results = 'hide'}
 rm(list = ls())
 getwd()
-setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week6-PhyloTraits")
+setwd("~/GitHub/QB-2017/Week6-PhyloTraits")
 ```
 
 ### B. Load Packages 
@@ -55,7 +55,7 @@ The `require()` function in `R` returns `TRUE` if the package was successfully l
 This `for` loop loads each package and installs the package when `require()` returns `FALSE`.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE, tidy=TRUE, tidy.opts=list(width.cutoff=60)} 
-package.list <- c('ape', 'seqinr', 'phylobase', 'adephylo', 'geiger', 'picante', 'stats', 'RColorBrewer', 'caper', 'phylolm', 'pmc', 'ggplot2', 'tidyr', 'dplyr', 'phangorn') 
+package.list <- c('ape', 'seqinr', 'phylobase', 'adephylo', 'geiger', 'picante', 'stats', 'RColorBrewer', 'caper', 'phylolm', 'pmc', 'ggplot2', 'tidyr', 'dplyr', 'phangorn', 'pander') 
 for (package in package.list) {
   if (!require(package, character.only=TRUE, quietly=TRUE)) {
     install.packages(package)
@@ -88,15 +88,12 @@ In the example below, we will be using a local alignment approach.
 
 ### A.  Examining a FASTA-File
 
-WS: ~ get rid of `muscle` function/package references throughout ~
-We will read in a FASTA-formatted file into the `muscle` alignment function.
+We will read in a FASTA-formatted file into the `muscle` alignment program.
 FASTA is a very common text-based format that is used across platforms and disciplines. 
 The files contain sequences (e.g., CTAAG) and names that are associated with samples. 
 Let's take a second to look at the *p.isolates.fasta* file. 
 Open the terminal and change directory to the data folder. 
-WS: ~ two options; either nano or less function or the cat function
-You can then type `nano p.isolates.fasta` at the command line. 
-This will open the FASTA file in `nano`, which is a text editing program. 
+You can then type `less p.isolates.fasta` at the command line. 
 You can use [Ctrl+V] and [Ctrl+Y] to scroll towards the bottom and top of the file, respectively.
 When you are done, you can close the file by hitting [Ctrl+X].
 Do not save any inadvertent changes to *p.isolates.fasta*.
@@ -140,8 +137,7 @@ image.DNAbin(window, cex.lab = 0.50)
 #grid(ncol(window), nrow(window), col = "lightgrey") 
 ```
 
-~WS: Do we want to include the text in the next three sentences or leave for student interpretation?
-~A sentence here interpreting the figure would be helpful:~
+
 An inspection of the figure suggests that our alignment is good because many vertical bars are aligned with the same color, indicating they share the same nucleotide at that site. If this visualization showed a jumbled mess, we may want to realign our sequences using different parameters/programs, etc. 
 
 ## 4) MAKING A PHYLOGENETIC TREE
@@ -164,7 +160,7 @@ It is not possible to cover all of these topics in Quantitative Biodiveristy, bu
   Starts with an unresolved tree in a "star network". Algorithm then identifies the two most similar taxa and creates a node. This process is iteratively applied to the remaining sequences. Can serve as a starting point for assessing evolutionary models with more sophisticated methods like maximum likelihood. Neighbor joining can be implemented in the R package $\emph{ape}$ using the $\emph{bionj()}$ function. \\
   \\ [-1.5ex]  
   \textbf{Maximum Parsimony} & 
-  A character-based, non-parametric approach that involves identifying one of many possible trees based on the minimum number of evolutionary "steps" (or mutations). No underlying evolutionary model. Maximum parsimony can be executed using the $\emph{parsimony()}$ function in the package $\emph{panghorn}$. The function $\emph{optim.parsimony}$ performs tree rearrangements using nearest-neighbor interchanges (NNI) to optimize parsimony scores.\\
+  A character-based, non-parametric approach that involves identifying one of many possible trees based on the minimum number of evolutionary "steps" (i.e. the most parsimonious tree). No underlying evolutionary model. Maximum parsimony can be executed using the $\emph{parsimony()}$ function in the package $\emph{panghorn}$. The function $\emph{optim.parsimony}$ performs tree rearrangements using nearest-neighbor interchanges (NNI) to optimize parsimony scores.\\
   \\ [-1.5ex]   
   \textbf{Maximum Likelihood} & 
   Parametric approach to identifying the relative probability associated with data fitting a given model of character evolution. One of the most commonly used approaches for building trees from sequence data. Statistically sound and flexible for accommodating realistic models of sequence evolution. Maximum likelihood can be implemented in R using the $\emph{pml()}$ function in the $\emph{panghorn}$ package. Parameters can be optimized using the $\emph{optim.pml()}$ function and evolutionary models can be compared with the $\emph{model.tests()}$ function\\
@@ -178,7 +174,7 @@ It is not possible to cover all of these topics in Quantitative Biodiveristy, bu
 
 ### A. Neighbor Joining Trees
 
-WS: ~~~ **perhaps add more on what nj does?
+As a method, nearest neighbor joining takes a distance matrix that specifies the distance between each pair of taxa as input. The algorithm starts with a tree where all taxa are equally related, finds and joins the taxa with the lowest distance into a new node, re-calculates the distance between all the remaining taxa and the new node, and repeats this process until all the taxa are accounted for. 
 
 Neighbor joining is commonly used for making a "guide tree" that can incorporate more sophisticated models of evolution. 
 The first step in making a neighbor joining tree is to create a distance matrix. 
@@ -186,7 +182,7 @@ We will do this with the `dist.dna` function in the `ape` package.
 In the R chunk below, the "model = raw" argument means that `dist.dna` will estimate distances based on the proportion of sites that differ between pairs of sequences.
 The "pairwise.deletion = FALSE" argument means that an entire site (i.e., column) is deleted if there is a missing observation (i.e., a gap) for one or more of the sequences (i.e., rows). 
 
-WS: ~~~ **We should probably introduce the `phylo` object in R, since it's the common currency of all these phylogenetic packages and the phylocom stuff next week.**
+
 
 ```{r}
 # Create Distance Matrix with "raw" Model {ape}
@@ -197,6 +193,8 @@ After calculating the distances between our sequences, we are now ready to make 
 In the process, we will use *Methanosarcina* as a reference to determine the evolutionary relationship among the members of our tree (i.e. an **outgroup**). 
 By using an outgroup we have a point of comparison for the rest of our taxa (i.e. the **ingroup**), also known as **rooting** the tree. 
 Ideally, the outgroup should be a taxon that you know all of your taxa diverged from farther back in the past than when they diverged from each other.
+
+To store phylogenies we'll be using the `phylo` class, the basic phylogenetic data structure used in R. A `phylo` object stores four objects: 1) the tip labels (i.e. taxa) of the tree, 2) the number of nodes (i.e. the inferred most recent common ancestor) on the tree, 3), the names of the edges (i.e. the evolutionary distance between nodes) on the tree, and 4) and the length of the edges
 
 At this point, we can plot our tree.
 
@@ -221,7 +219,7 @@ add.scale.bar(cex = 0.7)
 
 You now have a distance matrix that represents the shared evolutionary history of your taxa. 
 However, these are raw estimates of phylogenetic distance and they do not account for the fact that multiple substitutions may have occured at the same site over time (e.g., A -> T -> G -> C would be counted as one change of base), something that is likely common if you are dealing with taxa that diverged hundreds of millions of years ago. 
-In addition, raw distance measures do not take into account substitution biases for one particular nucleotide (e.g., ...WS ~~~~). 
+In addition, raw distance measures do not take into account substitution biases for one particular nucleotide over the other (e.g., A-T biased mutation). 
 Various models have been developed to account for multiple substitutions and estimate the rates that nucleotides change over time. 
 In the following table, we describe a few of the more commonly used models that correct for multiple substitutions as well as the probability of one nucleotide transitioning to a different nucleotide. 
 We will then correct the raw distances of your matrix.
@@ -275,10 +273,9 @@ abline(b = 1, a = 0, lty = 2)
 text(0.65, 0.6, "1:1")
 ```
 
-WS: ~~They might ask what the point of this is, so we should tell them. ~~
-We can see from this figure that the F84 distance tends to be greater than the raw distance...~~~
+We can see from this figure that the F84 distance tends to be greater than the raw distance, so it is **correcting** for multiple substitutions
 
-Second, we will assess how the "raw" and "F84" distance matrices affect tree topology by making a **cophylogenetic plot**. 
+Second, we will assess how the "raw" and "F84" distance matrices affect tree topology by plotting each tree next to each other (also known as a **cophylogenetic plot**). 
 This will give us a visual sense of whether or not the two trees are in agreement with one another. 
 
 ```{r}
@@ -309,10 +306,10 @@ plot.phylo(F84.rooted, type = "phylogram", direction = "left", show.tip.label=TR
 
 Sometimes we will want to quantify the difference between two phylogenies rather than simply plotting them side-by-side. 
 The package `ape` includes two ways to calculate this difference: 1) the branch length score (BLS) (Kuhner and Felsenstein, 1994) and the symmetric difference (Robinson and Foulds 1981). 
-The symmetric difference is simply the number of partitions (WS: ~~~~what's a "partition"?) that are in one tree and not the other. 
-This is a very simple calculation, but it is extremely sensitive to ~~~small?~~~~ differences between the trees. 
+The symmetric difference is simply the number of partitions (i.e. the number of ways to group the taxa in our tree) that are in one tree and not the other. 
+This is a very simple calculation, but it is extremely sensitive to small differences between the trees. 
 The branch length score between trees $T$ and ${T}'$ can be described as $BLS(T,{T}') = \sum_{i=1}^{N}(t_{i}- {t_{i}}')^{2}$, where $t_{i}$ is the branch length if the $i$th partition is in both trees and is zero if it isn't. 
-This function should look familiar, since it is just the squared Euclidean distance between two trees. 
+This function should look familiar, since it is just the squared Euclidean distance between two trees and it ranges from values of 0 to 1. 
 The history, appropriateness, and limitations of these methods are nicely discussed in chapter 30 of Felsenstein (2004).
 
 Here we'll calculate branch length score between the raw tree and the tree calculated with F84 distances.
@@ -324,19 +321,14 @@ Here we'll calculate branch length score between the raw tree and the tree calcu
 dist.topo(raw.rooted, F84.rooted, method = "score")
 ```
 
-WS:~~~How do I interpret 0.0438? What is this? Is this good or bad? ~~~~
+
 
 ### D) MAXIMUM LIKELIHOOD TREE
-WS" ~~~~Often a nearest neighbor joined tree is not good enough. **<-- REVISE/CLARIFY**
-While neighbor joining is very fast and has the convenient property of returning the correct tree for a correct distance matrix, we are rarely in the position where we know the correct distance matrix. 
-Instead, a maximum likelihood (ML) tree is often a superior choice, as it is built on the robust statistical procedure of ML (i.e., the process of finding the parameter value that maximizes the likelihood of the data). 
-In addition, ML has the advantage of being the estimation method that is least affected by sampling error, is fairly robust to the assumptions of a particularly model, allows you to compare different tree topologies (**this isn't described until below**), and uses all the information in a sequence (as opposed to just distance). 
+Often a nearest neighbor joined tree does not accurately reconstruct the real phylogeny. While neighbor joining is very fast and has the convenient property of returning the correct tree for a correct distance matrix, we are rarely in the position where we know the correct distance matrix. In addition, it 1) it only uses a distance matrix, which doesn't take into account specific nucleotide states, 2) it only gives one tree, meaning that it is not a statistical method, and 3) it can be sensitive to the underlying substitution model. Instead, a maximum likelihood (ML) tree is often a superior choice, as it is built on the robust statistical procedure of ML (i.e., the process of finding the parameter value that maximizes the likelihood of the data). 
+In addition, ML has the advantage of being the estimation method that is least affected by sampling error, is fairly robust to the assumptions of a particularly model, allows you to compare different trees, and takes into account nucleotide states (as opposed to just distance). 
 However, ML estimation is a computationally intensive process that can require a lot of time. 
 
-This is because ML estimation often must consider all different ways that you can make a tree (**This is not the definition of topology, i.e., the overall branching strucature:**) http://www.ebi.ac.uk/training/online/course/introduction-phylogenetics/what-phylogeny/aspects-phylogenies/topology) 
-
-...(i.e., the topology of the tree) and find the best edge lengths for each topology.
-Because ML estimation can take a long time, we will not ask you to generate a maximum likelihood tree for your assignment. 
+This is because ML estimation needs to find the tree that gives the data the highest probability, a difficult task that requires the use of optimized algorithms. Because ML estimation can take a long time, we will not ask you to generate a maximum likelihood tree for your assignment. 
 However, below we have supplied code using functions from the package `phangorn` to generate a ML tree. 
 
 ```{r, eval = FALSE}
@@ -390,8 +382,7 @@ If you need to make a phylogeny with more than a dozen or so taxa, then you may 
 One of the packages that you will want to check out is the Randomized Axelerated Maximum Likelihood (RAxML) package for generating maximum likelihood trees with bootstrap support (http://sco.h-its.org/exelixis/web/software/raxml/index.html). 
 If you're dealing with communities with a large number of taxa (e.g., 16S rRNA amplicon data from microbial communities), programs like RAxML may be too slow. Here you can use the program FastTree to generate approximately-maximum-likelihood phylogenetic trees, sacrificing exactness for speed (http://www.microbesonline.org/fasttree/). 
 
-To help you with your future tree-building efforts we have included a short script under the folder `Week6-PhyloTraits/bash/` that will allow you to generate a ML tree on the IU computer cluster Mason using the program RAxML. 
-WS: ~~~consolidate or remove following~~~Generating a ML tree is computationally intensive [we've said this many times already, some instances may be redundant] and not all tree-generating software have R packages, so if you need a ML tree it is often easier to run it on a desktop or a computer cluster using a shell script rather than on your laptop. If you are an IU student, postdoc, or faculty member you can register for an account on Mason. See the IU Mason webpage for more information (https://kb.iu.edu/d/bbhh).
+To help you with your future tree-building efforts we have included a short script under the folder `Week6-PhyloTraits/bash/` that will allow you to generate a ML tree on the IU computer cluster Mason using the program RAxML. If you are an IU student, postdoc, or faculty member you can register for an account on Mason. See the IU Mason webpage for more information (https://kb.iu.edu/d/bbhh).
 
 ## 5) INTEGRATING TRAITS AND PHYLOGENY
 
@@ -399,7 +390,7 @@ In the context of biodiversity, many researchers are interested in being able to
 This can be important for addressing questions related to diversification, trait evolution, and ecological interactions.
 In this section, we will import functional trait data that was collected on the 39 freshwater isolates for which we have 16S rRNA sequences. 
 Specifically, we measured the growth rates of each strain on 18 different forms of phosphorus (e.g., phosphate, DNA, ATP, etc.). 
-With this information we will visualize the functional traits (i.e., growth on different phosphorus) in a phylogenetic context by mapping them onto the neighbor joining tree (with the F84 DNA substitution model: ~~~WS**see table X**~~~) that we created. 
+With this information we will visualize the functional traits (i.e., growth on different phosphorus) in a phylogenetic context by mapping them onto the neighbor joining tree constructed under the F84 DNA substitution model (see the table on substitution models) that we created. 
 
 ### A. Loading Trait Database
 ```{r}
@@ -412,10 +403,9 @@ p.growth.std <- p.growth / (apply(p.growth, 1, sum))
 ```
 
 ### B. Trait Manipulations
-From the section above where we described the data, you will recall that we were interested in testing for an ecological trade-off related to species traitsWS:~~~~ <- I don't recall this being mentioned.
+From the section above where we described the data, you will recall that we were interested in answering questions related to trait evolution and ecological interactions.
 Specifically, we will be testing for a well-known trade-off related to resource use.
-This trade-off relates to the differing advantages of growing exceptionally well on one or a few resources, versus being able to grow moderately well on many resources, i.e., a **generalist-specialist trade-off**.
-~~~~**Maybe include a seminal reference**
+This trade-off relates to the differing advantages of growing exceptionally well on one or a few resources, versus being able to grow moderately well on many resources, i.e., a **generalist-specialist trade-off** (MacArthur and MacArthur, 1961).
 
 To explore the generalist-specialist trade-off using phylogenetic data, we need to create two new variables. 
 First, we need calculate the maximum growth rate ($\mu_{max}$) of each isolate across all phosphorus types. 
@@ -541,6 +531,9 @@ fitContinuous(nj.rooted, nb, model = "lambda")
 fitContinuous(nj.lambda.0, nb, model = "lambda")
 ```
 
+From here we're able to get AIC scores. Differences in AIC scores provide maximum likelihood inference regarding the quality of model fit to a given data set. Models with lower AIC values are better. However, if the difference in AIC values between two models ($\Delta$ AIC) is not greater than at least 2, then then the models are considered equivalent. 
+
+
 ### B) Phylogenetic Signal: Blomberg's K 
 
 Blomberg et al. (2003) derived a statistic that quantifies phylogenetic signal by comparing observed trait distributions on a tree to what would evolve under Brownian (i.e., random) motion (http://goo.gl/0xU9Et). 
@@ -578,16 +571,20 @@ for (i in 1:18){
 p.phylosignal[6, ] <- round(p.adjust(p.phylosignal[4, ], method = "BH"), 3)
 ```
 
-WS:~~~~So what do we do with `p.phylosignal`?~~~~
+And from the output of `p.phylosignal` we can see what traits have statistically significant phylogenetic signal.
 
 In addition, let's test for phylogenetic signal using Blomberg's K on *niche breadth*:
 
 ```{r}
 # Calcualate Phylogenetic Signal for Niche Breadth
 signal.nb <- phylosignal(nb, nj.rooted)
+signal.nb
 ```
 
-WS:~~~~Is there a non-obtrusive way to print the output of some of these functions to discuss what they mean at all? e.g., using pander for pretty print of tables
+
+And we can see here that phylogenetic signal is particularly low (~$10^{-6}$) and that niche breadth does not have a statistically significant phylogenetic signal under Blomberg's K ($P\approx 0.5$).
+
+
 
 ### C.  Calculate Dispersion of a Trait
 
@@ -706,7 +703,8 @@ Using a traditional alpha of 0.05, we can determine whether we should reject the
 ```{r, eval = FALSE}
 length(dists$BM[dists$BM > out$lr]) / length(dists$BM)
 ```
-~~~~WS: I get a value of zero here because `length(dists$BM[dists$BM > out$lr])` is zero for some reason What does a value of 0 mean here?~~~
+
+Where we get a value of zero, suggesting that our P-value is smaller than 0.01.
 
 ## 7) PHYLOGENETIC REGRESSION ANALYSIS
 
@@ -719,9 +717,7 @@ However, in a phylogenetic regression the variance of the residual errors are de
 It is also important to take into account the phylogenetic signal in the residual error when $V$ is estimated, not just the evolutionary history described by the phylogeny. 
 If phylogenetic signal is not taken into account your phylogenetic regression can have poor statistical performance (Revell, 2010).
 
-WS:~~~~This section looks cool, but the switch to a dataset containing mammalian metabolic rates felt abrupt:
-
-To show how to perform a phylogenetic regression we will examine the scaling relationship (i.e. power law) between body mass (M) and Basal Metabolic Rate (BMR), the minimal rate of energy expenditure per unit time by endothermic animals at rest. 
+To show how to perform a phylogenetic regression we will need to get a new dataset, since we basically only have one measure from our bacterial dataset (i.e. niche breadth). In the `data` folder we've included a dataset on mammels, which we will use to examine the scaling relationship (i.e. power law) between body mass (M) and Basal Metabolic Rate (BMR), the minimal rate of energy expenditure per unit time by endothermic animals at rest. 
 This relationship has significant phylogenetic signal and can be described by the power law  $BMR = cM^{z}$, where z is the scaling exponent and c is the scaling factor (Capellini et al., 2010). 
 In regression terms this can be described $log(BMR) = log(c) + zlog(M)$, an equation that you should recognize from Week 4 when we used it to describe the species area relationship (SAR). 
 However, phylogeny is rarely accounted for in foundational power laws such as these. Here we will account for phylogeny in the BMR-mass power law using the super-tree of mammals, a single phylogenetic tree assembled from a combination of smaller phylogenetic trees.
@@ -770,10 +766,9 @@ text(0.5, 4.5, eqn, pos = 4)
 
 ```
 
-and we see that we get a power law of approximately $BMR = 0.42M^{0.71}$
+and we see that we get a power law of approximately $BMR = 0.42M^{0.71}$. So by accounting for how shared evolutionary history impacts the relationship between mass and BMR (i.e. the non-independance of our data) we actually get an higher slope, suggesting a stronger relationship between mass and BMR than expected based off of a simple linear regression.   
 
 
-WS: ~~ends somewhat abruptly...
 
 ## REFERENCES
 
@@ -812,6 +807,8 @@ Lavorel, S., and Garnier, E. (2002) Predicting changes in community composition 
 Losos, J. B. 2008. Phylogenetic niche conservatism, phylogenetic signal and the relationship between phylogenetic relatedness and ecological similarity among species. Ecology Letters 11:995–1003. 
 
 Lynch, M. 1991. Methods for the analysis of comparative data in evolutionary biology. Evolution 45: 1065-1080.
+
+MacArthur, R. H., and J. W. MacArthur. 1961. On Bird Species Diversity. Ecology 42:594-598
 
 Münkemüller, T., S. Lavergne, B. Bzeznik, S. Dray, T. Jombart, K. Schiffers, and W. Thuiller. 2012. How to measure and test phylogenetic signal. Methods in Ecology and Evolution 3:743–756. 
 

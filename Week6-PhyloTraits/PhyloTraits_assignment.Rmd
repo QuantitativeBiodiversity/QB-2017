@@ -57,7 +57,7 @@ In this exercise, we will take a phylogenetic approach to mapping phosphorus res
 ## 3) SEQUENCE ALIGNMENT
 
 
-***Question 1***: Using nano or your favorite text editor, compare the `p.isolates.fasta` file and the `p.isolates.afa` file. 
+***Question 1***: Using less or your favorite text editor, compare the `p.isolates.fasta` file and the `p.isolates.afa` file. 
 Describe the differences that you observe between the files. 
 
 > ***Answer 1***: 
@@ -105,7 +105,6 @@ In the R code chunk below, do the following:
 ```
 
 ***Question 3***: What are the advantages and disadvantages of making a neighbor joining tree?   
-**<-- This seems like an important question, but have we provided them with enough resources or direction to be able to answer this question?**
 
 
 > ***Answer 3***:  
@@ -170,11 +169,17 @@ If the plots seem to be inconsistent with one another, explain what it giving ri
 
 b) Why do we bootstrap our tree?
 
-c) What do the bootstrap values tell you? Which branches have very low support? Should we trust these branches? **<-- This is three questions**
+c) What do the bootstrap values tell you? 
+
+d)Which branches have very low support? 
+
+e) Should we trust these branches? 
 
 > ***Answer 5a***:   
 > ***Answer 5b***:   
 > ***Answer 5c***:   
+> ***Answer 5d***:   
+> ***Answer 5e***:   
 
 
 ## 5) INTEGRATING TRAITS AND PHYLOGENY
@@ -225,10 +230,15 @@ In the R code chunk below, do the following:
 
 ```
 
-***Question 6***:  Based on the distribution of traits on the neighbor joining tree that we created, what might you predict about the degree of specialization of bacteria on diverse phosphorus resources?    
-**I don't know that we've provided them with enough information in the handout for them how to interpret this output: what kind of patterns should they look for that would suggest strong or weak phylogenetic signal? how meaningful is variation in std growth ranging from 0.0 - 0.6? likewise, what is the possible range of niche breadth values and how do these two figures relate back to the  generalist--specialist trade-off? Perhaps that would be a good question for them to answer: "formulate a hypothesis that would lend support for the generalist-specialist trade-off, and what kind of patterns would you expect to see from growth rate & niche breadth values that would support this hypothesis?" - NW <-- I totally agree with this --KL**
+***Question 6***:  
 
-> ***Answer 6***:   
+a) Make a hypothesis that would support a generalist-specialist trade-off.
+
+b) What kind of patterns would you expect to see from growth rate and niche breadth values that would support this hypothesis?
+
+
+> ***Answer 6a***:   
+> ***Answer 6b***:   
 
 
 ## 6) HYPOTHESIS TESTING
@@ -253,12 +263,15 @@ In the R code chunk below, do the following:
 ```
 
 ***Question 7***:  There are two important outputs from the `fitContinuous()` function that can help you interpret the phylogenetic signal in trait data sets. 
-a. First, compare the lambda values of the untransformed tree to the transformed (lambda = 0).
-b. Second, compare the Akaike information criterion (AIC) scores of the two models. Differences in AIC scores provide maximum likelihood inference regarding the quality of model fit to a given data set. Models with lower AIC values are better. However, if the difference in AIC values between two models ($\Delta$ AIC) is not greater than at least 2, then then the models are considered equivalent. 
-With this information in hand, what does Pagel's lambda say about the phylogenetic signal of niche breadth in our data set? **<-- With the information provided, the students are going to tell you the right answer but have no idea what it actually means, lol**
+a. Compare the lambda values of the untransformed tree to the transformed (lambda = 0).
+b. Compare the Akaike information criterion (AIC) scores of the two models. Which model would you choose based off of AIC score (remember the criteria that the difference in AIC values has to be at least 2)?
+c. Does this result suggest that there's phylogenetic signal?
+
+
 
 > ***Answer 7a***:  
 > ***Answer 7b***:  
+> ***Answer 7c***:  
 
 
 ### B) Phylogenetic Signal: Blomberg's K 
@@ -329,10 +342,10 @@ In the R code chunk below, do the following:
 ## 7) SYNTHESIS
 
 Below is the output of a multiple regression model depicting the relationship between the maximum growth rate ($\mu_{max}$) of each bacterial isolate and the niche breadth of that isolate on the 18 different sources of phosphorus. 
-One feature of the study which we did not reveal earlier in the handout is that the isolates came from two different lakes.  <- this information is in the handout now I think
+One feature of the study which we did not take into account in the handout is that the isolates came from two different lakes. 
 One of the lakes is an very oligotrophic (i.e., low phosphorus) ecosystem named Little Long (LL) Lake. 
 The other lake is an extremely eutrophic (i.e., high phosphorus) ecosystem named Wintergreen (WG) Lake.
-We included a "dummy variable" (D) in the multiple regression model (0 = WG, 1 = LL) to account for the environment from which the bacteria were obtained.  
+We included a "dummy variable" (D) in the multiple regression model (0 = WG, 1 = LL) to account for the environment from which the bacteria were obtained. For the last part of the assignment, plot nich breadth vs. $\mu_{max}$ and the slope of the regression for each lake. Be sure to color the data from each lake differently. 
 
 ```{r, echo=FALSE, fig.width=6, fig.height=4}
 p.growth <- read.table("./data/p.isolates.raw.growth.txt", sep = "\t", header = TRUE, row.names = 1)
@@ -343,48 +356,13 @@ tradeoff <- data.frame(nb,umax,lake) # make new data frame
 D <- (lake == "LL") * 1
 fit<-lm(log10(umax) ~ nb + D + nb * D)
 
-LL.nb <- subset(nb,lake == "LL")
-WG.nb <- subset(nb,lake == "WG")
 
-LL.umax <- subset(umax,lake == "LL")
-WG.umax<-subset(umax,lake == "WG")
-par(mar=c(4,4,0,1)+ 0.1)
-plot(LL.nb, log10(LL.umax), axes = F, xlab = "Niche Breadth", ylab = "Maximum Growth Rate", 
-  pch = 21, cex = 2.0, las = 1, col = "black", bg = "white",
-  xlim=c(0,1), ylim = c(-2, 1))
   
-  points(WG.nb,log10(WG.umax),pch=21,cex=2,col="black", bg="black")
-  box()
-  ticks <- c(0.01, 0.1, 1, 10)
-  axis(side = 1, labels = T, cex.axis = 1)
-  axis(side = 2, las = 1, cex.axis = 1, labels = ticks,
-    at = log10(ticks))
-  axis(3,labels = F)
-  axis(side = 4, at = log10(ticks), labels = F)
 
-curve(fit$coefficients[1] + fit$coefficients[2] * x, from = min(WG.nb - 0.1), 
-  to = max(WG.nb +0.1), add = TRUE, lty = 2)
-Int <- fit$coefficients[1] + fit$coefficients[3]
-Slp <- fit$coefficients[2] + fit$coefficients[4]
-curve((Int) + (Slp) * x, from = min(LL.nb - 0.08), to =max(LL.nb + 0.1), add = TRUE, lty = 2)
-  
-  legend("topleft", legend = c("LL","WG"), pch = c(1,16), cex = 1, col = "black", bty = "n")
-
-summary(fit)
-
-coefficients <- coefficients(fit) # model coefficients
-confit <- confint(fit,level=0.95) # 95% CI for parameters
-predicted <- fitted(fit) # predicted values
-residuals <- residuals(fit) # residuals
-anova <- anova(fit) # anova table
-vcov <- vcov(fit) # covariance matrix for model parameters
-influence <- influence(fit) # regression diagnostics
-par(mfrow = c(2, 2), mar = c(5.1 ,4.1 ,4.1 ,2.1))
-plot(fit)
 ```
 
 
-> we just gave them a bunch of code above, but they can answer the following question without really knowing much about what's going on. Is there a way we can reframe this question (which I think is really important, since it's the culmination of the question laid out at the beginning of the assignment) to be more interactive? Have them code some of it up so they have to think about how niche breadth relates to growth rates and how to use these in a regression? 
+
 
 ***Question 11***: Based on your knowledge of the traits and their phylogenetic distributions, what conclusions would you draw about our data and the evidence for a generalist-specialist tradeoff? 
 
