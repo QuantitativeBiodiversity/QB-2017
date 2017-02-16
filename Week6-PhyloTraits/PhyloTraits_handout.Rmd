@@ -330,9 +330,12 @@ WS:~~~How do I interpret 0.0438? What is this? Is this good or bad? ~~~~
 WS" ~~~~Often a nearest neighbor joined tree is not good enough. **<-- REVISE/CLARIFY**
 While neighbor joining is very fast and has the convenient property of returning the correct tree for a correct distance matrix, we are rarely in the position where we know the correct distance matrix. 
 Instead, a maximum likelihood (ML) tree is often a superior choice, as it is built on the robust statistical procedure of ML (i.e., the process of finding the parameter value that maximizes the likelihood of the data). 
-In addition, ML has the advantage of being the estimation method that is least affected by sampling error, is fairly robust to the assumptions of a particularly model, allows you to compare different tree topologies, and uses all the information in a sequence (as opposed to just distance). 
+In addition, ML has the advantage of being the estimation method that is least affected by sampling error, is fairly robust to the assumptions of a particularly model, allows you to compare different tree topologies (**this isn't described until below**), and uses all the information in a sequence (as opposed to just distance). 
 However, ML estimation is a computationally intensive process that can require a lot of time. 
-This is because ML estimation often must consider all different ways that you can make a tree (i.e., the topology of the tree) and find the best edge lengths for each topology.
+
+This is because ML estimation often must consider all different ways that you can make a tree (**This is not the definition of topology, i.e., the overall branching strucature:**) http://www.ebi.ac.uk/training/online/course/introduction-phylogenetics/what-phylogeny/aspects-phylogenies/topology) 
+
+...(i.e., the topology of the tree) and find the best edge lengths for each topology.
 Because ML estimation can take a long time, we will not ask you to generate a maximum likelihood tree for your assignment. 
 However, below we have supplied code using functions from the package `phangorn` to generate a ML tree. 
 
