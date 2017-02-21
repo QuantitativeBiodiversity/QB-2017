@@ -9,25 +9,24 @@ geometry: margin=2.54cm
 ---
 
 ## OVERVIEW
-Taxonomic measures of $\alpha$- and $\beta$-diversity do not integrate evolutionary information. 
-However, evolutionary information is important for a broad range of biodiversity issues including conservation, biogeography, and community assembly. 
-In this handout, we introduce some commonly used methods in phylogenetic community ecology.
-These methods will allow us to account for phylogenetic diversity and provide insight into the mechansisms that give rise to the over- and under-dispersion (i.e., clustering) of biological communities. 
+Last week, we learned how to quantify relationships between taxonomic relatedness and functional trait similarity.
+This week, we will use phylogenetic information to aid our understanding of patterns and processes in community ecology.
+To accomplish this, we will introduce concepts linking evolutionary relatedness to community structure, we will quantify phylogenetic diversity using analogues of $\alpha$- and $\beta$-diversity, and discuss key patterns that are commonly seen in phylogenetic community ecology, such as over- and underdispersion.
 
 After completing this exercise you will know how to:
 
-1.  measure phylogenetic $\alpha$ diversity
-2.  measure phylogenetic $\beta$ diversity
-3.  evaluate the contribution of phylogeny to geographical patterns of biodiversity
+1.  incorporate an evolutionary perspective into your understanding of community ecology
+2.  quantify and interpret phylogenetic $\alpha$- and $\beta$-diversity
+3.  evaluate the contribution of phylogeny to spatial patterns of biodiversity
 
 ## BACKGROUND
 Phylogenetic insight has played a key role in the historical development of community ecology.
-Darwin (1859) hypothesized that closely related species (e.g., species in the same genus) should be more ecologically similar   than distantly related species.
-This assumption forms a crucial link between the relatedness of species and their ability to coexist based on ecological similarity.
-
-The advent of new sequencing technology in the mid-1990s fueled the rapid growth of phylogenetic community ecology (Webb et al. 2002, Cavender-Bares et al. 2009, Cadotte and Davies 2016).
-Last week, we learned how to quantify this relationship between taxonomic relatedness and functional trait similarity.
-This week, we use information about phylogenetic relatedness to understand patterns of community structure.
+Darwin (1859) hypothesized that closely related species (e.g., species in the same genus) are more ecologically similar than distantly related species are.
+This led him to identify a paradox: successful invaders must be both (1) sufficiently *related* to resident taxa that they share ecologically-relevant traits that meet local environmental requirements, but also (2) sufficiently *unrelated* to exploit currently unoccupied niches, allowing them to invade the community (Diez et al. 2008).
+This parallels the current thinking in community ecology that species in a community must be ecologically similar enough to one another to have positive fitness in the environment (i.e., equalizing forces), also different enough (i.e., stabilizing niche differences) that they can coexist (e.g., see Leibold and McPeek 2006, Adler et al. 2007, HilleRisLambers et al. 2012).
+The assumption that more closely related species share more similar functional traits may not always be valid though, which makes interpreting patterns of phylogenetic clustering and overdispersion less straightforward than they traditionally have been (e.g., see Mayfield and Levine 2010 for discussion).
+However, often times the assumptions that underlie much of current phylogenetic community ecology are observed, mainly: (1) traits related to competitive ability and species niches *are* phylogenetically conserved (and we discussed how to verify this last week), (2) competitive exclusion is more common than character displacement (meaning incompatible species are removed from the community), and (3) trait convergence is rare (among others: Gerhold et al. 2015).
+When this is the case, we may be able to use patterns of phylogenetic relatedness to make deeper inference about the underlying processes that drive community structure (for general reviews, see Webb et al. 2002, Cavender-Bares et al. 2009, and Cadotte and Davies 2016).
 
 
 ## 1) SETUP
@@ -47,12 +46,13 @@ We will also use a few other packages packages, some of which were introduced in
 After the initial installation of these packages using the `install.packages()` fucntion, load the packages and their dependencies with the `require()` function:
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
-require("picante")
-require("ape")
-require("seqinr")
-require("vegan")
-require("fossil")
-require("simba")
+package.list <- c('picante', 'ape', 'seqinr', 'vegan', 'fossil', 'simba')
+for (package in package.list) {
+  if (!require(package, character.only = TRUE, quietly = TRUE)) {
+    install.packages(package, repos='http://cran.us.r-project.org')
+    library(package, character.only = TRUE)
+  }
+}
 ```
 
 ### C. Load Source Code
@@ -60,6 +60,7 @@ In addition to relying on contributed packages, we will also be using a source c
 A source code file has user-defined functions that are required for certain analyses.
 The benefit of source files is that they contain "vetted" code that can be used across multiple projects. 
 Here, we will be using a source code file that includes a function for reading in the output files from the popular community sequencing software `mothur` (http://www.mothur.org/).
+Take a moment to open the file and see how this file is formatted. 
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 source("./bin/MothurTools.R")
@@ -69,9 +70,9 @@ source("./bin/MothurTools.R")
 We will revisit the data that was used in the Spatial Diversity module. 
 As a reminder, in 2013 we sampled ~ 50 forested ponds located in Brown County State Park, Yellowood State Park, and Hoosier National Forest in southern Indiana. 
 In addition to measuring a suite of geographic and environmental variables, we characterized the diversity of bacteria in the ponds using molecular-based approaches.
-Specifically, we amplified the 16S rRNA gene (i.e., "DNA") and 16S rRNA transcripts (i.e., "RNA") of bacteria using barcoded primers on the Illumina MiSeq platform.
-We then used a `mothur` pipeline to quality-trim our data set and assign sequences to operational taxonomic units (OTU).
-In this exercise, we will use the DNA sequence data for making community phylogenetic inference.  
+Specifically, we amplified the 16S rRNA gene (i.e., the coding DNA sequence) and 16S rRNA transcripts (i.e., the corresponding RNA transcript) of bacteria using barcoded primers on the Illumina MiSeq platform.
+We then used a `mothur` pipeline to quality-trim our data set and assign sequences to operational taxonomic units (OTUs).
+In this handout, we will use the DNA sequence data for making community phylogenetic inference about total (i.e., active + dormant) bacterial communities.  
 
 ## 3) LOADING OF DATA
 First, let's load the environmental data:
@@ -79,6 +80,8 @@ First, let's load the environmental data:
 ```{r}
 # Load Environmental Data
 env <- read.table("data/20130801_PondDataMod.csv", sep = ",", header = TRUE)
+
+# To keep things simple, we'll remove sites with incomplete data
 env <- na.omit(env)
 ```
 
@@ -145,11 +148,15 @@ plot.phylo(phy, main = "Neighbor Joining Tree", "phylogram", show.tip.label = FA
 ```
 
 ## 4) PHYLOGENETIC ALPHA DIVERSITY
-[Say something introductory here about studying phylodiversity within a site that motivates the following analyses]
+In order to analyze aspects of phylogenetic diversity, we first need to consider how to quantify it. 
+There are many ways to quantify phylogenetic diversity (e.g., see Tucker et al. 2016). 
+In general, a community consisting of species that are less closely related has higher phylogenetic diversity, all else equal. 
+Maintaining high phylogenetic diversity has been proposed as a more effective way to maintain ecosystem functionality and is often the focus of conservation biology. 
+
 
 ### A.  Faith's Phylogenetic Diversity (PD)
 In 1992, Daniel Faith developed a diversity metric called Faith's PD (http://goo.gl/wM08Oy).
-The metric sums the branch lengths for each species found in a sample from the root to the tip of a the phylogenetic tree.
+The metric sums the branch lengths for each species found in a sample from the root to the tip of the phylogenetic tree.
 The value of the metric captures the evolutionary history of an assemblage. 
 Higher PD values indicate that an assemblage contains more evolutionarily divergent taxa, while lower PD values indicate that an assemblage contains taxa with a more restricted evolutionary history. 
 
@@ -164,7 +171,7 @@ pd <- pd(comm, phy, include.root = FALSE)
 ```
 
 Let's compare PD estimates with SR of our samples.
-We'll natural-log-transform our data so that the slope of the relationship gives us a power-law exponent, which describes how PD scales with SR.
+We'll transform our data by taking the natural logarithm of SR and PD so that the slope of the relationship gives us a power-law exponent, which describes how PD scales with SR.
 
 ```{r}
 # Biplot of SR and PD
