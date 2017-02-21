@@ -497,11 +497,12 @@ unifrac.dist <- 1 - dist.uf
 unifrac.dist.ls <- liste(unifrac.dist, entry = "unifrac")
 bray.curtis.dist.ls <- liste(bray.curtis.dist, entry = "bray.curtis")
 coord.dist.ls <- liste(coord.dist, entry = "geo.dist")
+env.dist.ls <- liste(env.dist, entry = "env.dist")
 
 # Create a Data Frame from the Lists of Distances
-df <- data.frame(coord.dist.ls, bray.curtis.dist.ls[, 3], unifrac.dist.ls[, 3])
-names(df)[4:5] <- c("bray.curtis", "unifrac")
-attach(df)
+df <- data.frame(coord.dist.ls, bray.curtis.dist.ls[, 3], unifrac.dist.ls[, 3],
+                 env.dist.ls[, 3])
+names(df)[4:6] <- c("bray.curtis", "unifrac", "env.dist")
 ```
 
 Now, let's plot the DD relationships:
@@ -511,30 +512,61 @@ Now, let's plot the DD relationships:
 par(mfrow=c(2, 1), mar = c(1, 5, 2, 1) + 0.1, oma = c(2, 0, 0, 0))
 
 # Make Plot for Taxonomic DD
-plot(coord.dist, bray.curtis, xlab = "", xaxt = "n", las = 1, ylim = c(0.1, 0.9),
+plot(df$geo.dist, df$bray.curtis, xlab = "", xaxt = "n", las = 1, ylim = c(0.1, 0.9),
      ylab="Bray-Curtis Similarity", 
      main = "Distance Decay", col = "SteelBlue")
 
 # Regression for Taxonomic DD 
-DD.reg.bc <- lm(bray.curtis ~ geo.dist)
+DD.reg.bc <- lm(df$bray.curtis ~ df$geo.dist)
 summary(DD.reg.bc)
-abline(DD.reg.bc , col = "red4")
+abline(DD.reg.bc , col = "red4", lwd = 2)
 
 # New Plot Parameters
 par(mar = c(2, 5, 1, 1) + 0.1)
 
 # Make Plot for Phylogenetic DD
-plot(coord.dist, unifrac, xlab = "", las = 1, ylim = c(0.1, 0.9),
+plot(df$geo.dist, df$unifrac, xlab = "", las = 1, ylim = c(0.1, 0.9),
      ylab = "Unifrac Similarity", col = "darkorchid4")
 
 # Regression for Phylogenetic DD
-DD.reg.uni <- lm(unifrac ~ coord.dist)
+DD.reg.uni <- lm(df$unifrac ~ df$geo.dist)
 summary(DD.reg.uni)
-abline(DD.reg.uni, col = "red4")
+abline(DD.reg.uni, col = "red4", lwd = 2)
 
 # Add X-Axis Label to Plot
 mtext("Geographic Distance, km", side = 1, adj = 0.55, 
       line = 0.5, outer = TRUE)
+
+# # Set Initial Plot Parameters
+# par(mfrow=c(2, 1), mar = c(1, 5, 2, 1) + 0.1, oma = c(2, 0, 0, 0))
+# 
+# # Make Plot for Taxonomic DD
+# plot(df$env.dist, df$bray.curtis, xlab = "", xaxt = "n", las = 1, ylim = c(0.1, 0.9),
+#      ylab="Bray-Curtis Similarity", 
+#      main = "Distance Decay", col = "SteelBlue")
+# 
+# # Regression for Taxonomic DD 
+# DD.reg.bc <- lm(df$bray.curtis ~ df$env.dist)
+# summary(DD.reg.bc)
+# abline(DD.reg.bc , col = "red4", lwd = 2)
+# 
+# # New Plot Parameters
+# par(mar = c(2, 5, 1, 1) + 0.1)
+# 
+# # Make Plot for Phylogenetic DD
+# plot(df$env.dist, df$unifrac, xlab = "", las = 1, ylim = c(0.1, 0.9),
+#      ylab = "Unifrac Similarity", col = "darkorchid4")
+# 
+# # Regression for Phylogenetic DD
+# DD.reg.uni <- lm(df$unifrac ~ df$env.dist)
+# summary(DD.reg.uni)
+# abline(DD.reg.uni, col = "red4", lwd = 2)
+# 
+# # Add X-Axis Label to Plot
+# mtext("Environmental Distance", side = 1, adj = 0.55, 
+#       line = 0.5, outer = TRUE)
+
+
 ```
 
 Finally, let's test whether the slopes for taxonomic and phylogenetic DD are significantly different from one another.
@@ -695,7 +727,6 @@ Phylogenetic relationships can be informative for understanding certain aspects 
 However, it is important to note that interpretations of phylogenetic patterns, just like species patterns, are dependent on spatial and temporal scale (Emerson and Gillespie 2008).
 For example, at the local scale, species may show phylogenetic overdispersion (i.e., local communities are more phylogenetically different than expected by chance alone), but at the regional scale they may appear clumped (i.e., species are more similar than expected by chance alone). 
 Thus, there may be ecological selection for species differences acting at the local scale, but regional variability in phylogenetic relatedness when comparing local species composition to other sites. 
-Another important assumption that many of these analyses make is that species show niche conservatism, that is, their niches remain relatively fixed through time (Wiens and Graham 2005, Wiens et al. 2010). 
-The assumption of niche conservatism allows us to posit that ....
-If niches are not conserved, species may 
-If niches are not conserved over time, 
+Another important assumption that many of these analyses make is that species show niche conservatism, that is, species niches remain relatively fixed through time (Wiens and Graham 2005, Wiens et al. 2010). 
+The assumption of niche conservatism allows us to ...
+If niches are not conserved, ...
