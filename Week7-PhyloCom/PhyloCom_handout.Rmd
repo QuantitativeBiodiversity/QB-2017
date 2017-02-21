@@ -20,17 +20,27 @@ After completing this exercise you will know how to:
 2.  measure phylogenetic $\beta$ diversity
 3.  evaluate the contribution of phylogeny to geographical patterns of biodiversity
 
+## BACKGROUND
+Phylogenetic insight has played a key role in the historical development of community ecology.
+Darwin (1859) hypothesized that closely related species (e.g., species in the same genus) should be more ecologically similar   than distantly related species.
+This assumption forms a crucial link between the relatedness of species and their ability to coexist based on ecological similarity.
+
+The advent of new sequencing technology in the mid-1990s fueled the rapid growth of phylogenetic community ecology (Webb et al. 2002, Cavender-Bares et al. 2009, Cadotte and Davies 2016).
+Last week, we learned how to quantify this relationship between taxonomic relatedness and functional trait similarity.
+This week, we use information about phylogenetic relatedness to understand patterns of community structure.
+
+
 ## 1) SETUP
 ### A. Retrieve and Set Your Working Directory
 
 ```{r, results = 'hide'}
 rm(list = ls())
 getwd()
-setwd("~/GitHub/QuantitativeBiodiversity/Assignments/PhyloCom")
+setwd("~/GitHub/QB-2017/Week7-PhyloCom/")
 ```
 
 ### B. Load Packages 
-We will be relying heavily on the R package `picante`. 
+We will rely heavily on the R package `picante`. 
 This package has many of the functions that are contained in the software Phylocom, which is used for the analysis of phylogenetic community structure and character evolution (http://phylodiversity.net/phylocom/).
 We will also use a few other packages packages, some of which were introduced in the Phylogenetic Traits module. 
 
@@ -56,7 +66,7 @@ source("./bin/MothurTools.R")
 ```
 
 ## 2) DESCRIPTION OF DATA
-We will revisit the data that was used in the Geographical Ecology module. 
+We will revisit the data that was used in the Spatial Diversity module. 
 As a reminder, in 2013 we sampled ~ 50 forested ponds located in Brown County State Park, Yellowood State Park, and Hoosier National Forest in southern Indiana. 
 In addition to measuring a suite of geographic and environmental variables, we characterized the diversity of bacteria in the ponds using molecular-based approaches.
 Specifically, we amplified the 16S rRNA gene (i.e., "DNA") and 16S rRNA transcripts (i.e., "RNA") of bacteria using barcoded primers on the Illumina MiSeq platform.
@@ -69,6 +79,7 @@ First, let's load the environmental data:
 ```{r}
 # Load Environmental Data
 env <- read.table("data/20130801_PondDataMod.csv", sep = ",", header = TRUE)
+env <- na.omit(env)
 ```
 
 Next, let's load the bacterial OTU data (i.e., site-by-species matrix):
@@ -134,6 +145,7 @@ plot.phylo(phy, main = "Neighbor Joining Tree", "phylogram", show.tip.label = FA
 ```
 
 ## 4) PHYLOGENETIC ALPHA DIVERSITY
+[Say something introductory here about studying phylodiversity within a site that motivates the following analyses]
 
 ### A.  Faith's Phylogenetic Diversity (PD)
 In 1992, Daniel Faith developed a diversity metric called Faith's PD (http://goo.gl/wM08Oy).
@@ -169,15 +181,6 @@ exponent <- round(coefficients(fit)[2], 2)
 legend("topleft", legend=paste("Scaling exponent = ", exponent, sep = ""), 
        bty = "n", lw = 2, col = "red") 
 ```
-
-***Question 1***: Answer the following questions about the PD-SR pattern.    
-a.  Describe the relationship between taxonomic richness and phylodiversity?  
-b.  Mathematically, why should they be correlated?  
-c.  Under what conditions would you expect these two estimates of diversity to deviate from one another?  
-
-> ***Answer 1a***:  
-> ***Answer 1b***:  
-> ***Answer 1c***:  
 
 #### i.  Randomizations and Null Models
 Randomizations are a way of resampling data to assess whether or not observed patterns are different from a null expectation. 
@@ -228,16 +231,8 @@ ses.pd <- ses.pd(comm[1:2,], phy, null.model = "richness", runs = 25,
                  include.root = FALSE)
 ```
 
-***Question 2***: Using `help()` and the table above, identify two null models that can be used with the `ses.pd()` function.
-Run `ses.pd()` with these null models and answer the following questions:
-
-a.  What hypotheses are being tested with the p-values associated with `ses.pd`?
-b.  What features might affect the intepretation of the `ses.pd` output?
-
-> ***Answer 2a***:  
-> ***Answer 2b***:  
-
 ### B.  Phylogenetic Dispersion Within a Sample
+Earlier, we noted that species that co-occur together may 
 Another way to assess phylogenetic $\alpha$-diversity is to look at dispersion within a sample. 
 In the following section we will introduce two commonly used metrics --- the Net Relatedness Index (NRI) and the Nearest Taxon Index --- to quantify the degree to which closely related taxa co-occur.
 We will use randomization procedures to test whether species are phylogenetically clustered or overdispersed. 
@@ -296,27 +291,8 @@ rownames(NTI) <- row.names(ses.mntd)
 colnames(NTI) <- "NTI"
 ```
 
-***Question 3***: In the NRI and NTI examples above, the arguments "abundance.weighted = FALSE" means that the indices were calculated using presence-absence data.
-Modify and rerun the code so that NRI and NTI are caculated using abundance data. 
-How does this affect the interpretation of NRI and NTI?
-
-> ***Answer 3***:  
-
-### C) Mini-Exercise On Phylogenetic Alpha-Diversity
-Conduct an exploratory analysis of the phylogenetic $\alpha$-diversity for the Indiana refuge ponds.
-Using techniques from the *Week1_Handout.Rmd* and any other statistical methods at your disposal, identify enviornmental variables that may influence the taxonomic richness (SR), phylodiveristy (PD), and dispersion (NRI and NTI) of the bacterial communities in the sampled ponds. 
-Generate some hypotheses as to what ecological and/or evolutionary processes are giving rise to these patterns of phylogenetic $\alpha$-diversity.  
-
-```{r}
-
-
-
-```
-
-> ***Mini-Exercise: Code, Output, and Discussion***:
-
-
 ## 5) PHYLOGENETIC BETA DIVERSITY 
+[Say something here that motivates studying phylobetadiversity]
 
 ### A. Phylogenetically Based Community Resemblance Matrix
 As you may recall, in order to quantify $\beta$-diversity for more than two samples, one needs to create a resemblance matrix. 
@@ -362,12 +338,6 @@ abline(b = 1, a = 0, lty = 2)
 text(0.5, 0.47, "1:1")
 ```
 
-***Question 4***: Using the plot above, describe the relationship between Mean Pair Distance and UniFrac distance. 
-Note: we are calcuating unweighted phylogenetic distances (similar to incidence based measures).
-That means that we are not taking into account the abundance of each taxa in each site.
-
-> ***Answer 4***: 
-
 
 ### B. Visualizing Phylogenetic Beta Diversity
 Now that we have our phylogenetically based community resemblance matrix, we can visualize phyogenetic diversity among samples using the same techniques that we used in the $\beta$-diversity module.
@@ -393,7 +363,7 @@ par(mar = c(5, 5, 1, 2) + 0.1)
 
 # Initiate Plot
 plot(pond.pcoa$points[ ,1], pond.pcoa$points[ ,2],
-     xlim = c(-0.2, 0.2), ylim = c(-0.3, 0.15),
+     xlim = c(-0.2, 0.2), ylim = c(-.16, 0.16),
      xlab = paste("PCoA 1 (", explainvar1, "%)", sep = ""),
      ylab = paste("PCoA 2 (", explainvar2, "%)", sep = ""),
      pch = 16, cex = 2.0, type = "n", cex.lab = 1.5, cex.axis = 1.2, axes = FALSE)
@@ -411,10 +381,6 @@ text(pond.pcoa$points[ ,1], pond.pcoa$points[ ,2],
      labels = row.names(pond.pcoa$points))
 ```
 
-***Question 5***: How much variation is explained in the first three PCoA axes if Mean Pair Distance is used as the resemblance matrix instead of UniFrac?
-
-> ***Answer 5***: 
-
 ### C. Hypothesis Testing
 
 #### i. Categorical Approach: Watershed Effect  
@@ -431,14 +397,15 @@ adonis(dist.uf ~ water.shed, permutations = 999)
 ```
 
 #### ii. Continuous Approach: Environmental Gradients  
-In the Geographic Ecology module, we demonstrated that there was substantial variation in enviornmental variables that are known to influence the structure and function of microbial communities.
+In the Spatial Diversity module, we demonstrated that there was substantial variation in enviornmental variables that are known to influence the structure and function of microbial communities.
 In the following section, we will revist two methods that are used to test for relationships among multivariate environmental and biological data. 
 
-First, let's define the environmental data and then create an enviornmental distance matrix:
+First, let's define the environmental data and then create an environmental distance matrix:
 
 ```{r}
 # Define Environmental Variables
 envs <- env[, 5:19]
+envs <- envs[, -which(names(envs) %in% c("TDS", "Salinity", "Cal_Volume"))]
 
 # Distance Matrix for Environmental Variables
 env.dist <- vegdist(scale(envs), method = "euclid")
@@ -456,26 +423,27 @@ You will recall that this constrained ordination technique allows one to test fo
 
 ```{r, results = 'hide'}
 # Conduct CCA {vegan}
-ponds.cca <- vegan::cca(dist.uf ~ scale(envs))
+ponds.dbrda <- vegan::dbrda(dist.uf ~ ., data = as.data.frame(scale(envs)))
+ponds.dbrda <- ordistep(ponds.dbrda, direction = "both", permutations = 999)
 
 # Permutation Tests: Axes and Env Variables
-anova(ponds.cca, by = "axis")
-ponds.fit <- envfit(ponds.cca, envs, perm = 999)
+anova(ponds.dbrda, by = "axis")
+ponds.fit <- envfit(ponds.dbrda, envs, perm = 999)
 ponds.fit
 
 # Calculate Explained Variation
-cca.explainvar1 <- round(ponds.cca$CCA$eig[1] / 
-                         sum(c(ponds.cca$CCA$eig, ponds.cca$CA$eig)), 3) * 100
-cca.explainvar2 <- round(ponds.cca$CCA$eig[2] / 
-                         sum(c(ponds.cca$CCA$eig, ponds.cca$CA$eig)), 3) * 100
+dbrda.explainvar1 <- round(ponds.dbrda$CCA$eig[1] / 
+                         sum(c(ponds.dbrda$CCA$eig, ponds.dbrda$CA$eig)), 3) * 100
+dbrda.explainvar2 <- round(ponds.dbrda$CCA$eig[2] / 
+                         sum(c(ponds.dbrda$CCA$eig, ponds.dbrda$CA$eig)), 3) * 100
 
 # Define Plot Parameters
 par(mar = c(5, 5, 4, 4) + 0.1)
 
 # Initiate Plot
-plot(scores(ponds.cca, display = "wa"), xlim = c(-3, 3), ylim = c(-3.5, 3),
-     xlab = paste("CCA 1 (", cca.explainvar1, "%)", sep = ""),
-     ylab = paste("CCA 2 (", cca.explainvar2, "%)", sep = ""),
+plot(scores(ponds.dbrda, display = "wa"), xlim = c(-2, 2), ylim = c(-2, 2),
+     xlab = paste("dbRDA 1 (", dbrda.explainvar1, "%)", sep = ""),
+     ylab = paste("dbRDA 2 (", dbrda.explainvar2, "%)", sep = ""),
      pch = 16, cex = 2.0, type = "n", cex.lab = 1.5, cex.axis = 1.2, axes = FALSE)
 
 # Add Axes
@@ -485,15 +453,14 @@ abline(h = 0, v = 0, lty = 3)
 box(lwd = 2)
 
 # Add Points & Labels
-points(scores(ponds.cca, display = "wa"),
+points(scores(ponds.dbrda, display = "wa"),
        pch = 19, cex = 3, bg = "gray", col = "gray")
-text(scores(ponds.cca, display = "wa"), 
+text(scores(ponds.dbrda, display = "wa"), 
     labels = row.names(scores(ponds.cca, display = "wa")), cex = 0.5)
 
 # Add Environmental Vectors
-vectors <- scores(ponds.cca, display = "bp")
-row.names(vectors) <- c("Elev", "Dia", "Dep", "Vol", "ORP", "Temp", "SpC", "DO", 
-                        "TDS", "Sal", "pH", "Col", "Chla", "DOC", "DON")
+vectors <- scores(ponds.dbrda, display = "bp")
+#row.names(vectors) <- c("Temp", "DO", "chla", "DON")
 arrows(0, 0, vectors[,1] * 2, vectors[, 2] * 2, 
        lwd = 2, lty = 1, length = 0.2, col = "red")
 text(vectors[,1] * 2, vectors[, 2] * 2, pos = 3, 
@@ -504,28 +471,9 @@ axis(side = 4, lwd.ticks = 2, cex.axis = 1.2, las = 1, col = "red", lwd = 2.2,
      at = pretty(range(vectors[, 2])) * 2, labels = pretty(range(vectors[, 2])))
 ```
 
-***Question 6***: Based on the multivariate procecures conducted above, describe some of the phylogenetic patterns of $\beta$-diversity for bacterial communities in the Indiana refuge ponds.   
 
-> ***Answer 6***: 
-
-### D) Mini-Exercise On Phylogenetic Beta-Diversity
-Generate and test hypotheses about the phylogenetic $\beta$-diversity of the Indiana refuge ponds.
-Using the environemtanal variables identified in the $\alpha$-diversity mini-exercise, redo either the PERMANOVA or CCA analysis above using just these variables. 
-Feel free to add any additional approaches we used in *Beta_Handout.Rmd*. 
-Compare your results to the findings from above and discuss any differences. 
-
-```{r}
-
-
-
-
-
-```
-
-> ***Mini-Exercise Discussion***:
-
-
-## 6) GEOGRAPHICAL PHYLOGENETIC COMMUNITY ECOLOGY
+## 6) SPATIAL PHYLOGENETIC COMMUNITY ECOLOGY
+[Say something here that motivates spatial phylodiversity]
 
 ### A. Phylogenetic Distance-Decay (PDD)
 You will recall from the Geographical Ecology module, that the distance decay (DD) relationship reflects the spatial autocorrelation of community similarity.
@@ -539,21 +487,22 @@ First, we will calcualte distances for geographic data, taxonomic data, and phyl
 long.lat <- as.matrix(cbind(env$long, env$lat))
 coord.dist <- earth.dist(long.lat, dist = TRUE)
 
-# Taxonomic Distances Among Ponds (Bray-Curits)
+# Taxonomic Similarity Among Ponds (Bray-Curits)
 bray.curtis.dist <- 1 - vegdist(comm) 
 
-# Phylogenetic Distances Among Ponds
+# Phylogenetic Similarity Among Ponds
 unifrac.dist <- 1 - dist.uf 
   
 # Transform All Distances Into List Format:
 unifrac.dist.ls <- liste(unifrac.dist, entry = "unifrac")
 bray.curtis.dist.ls <- liste(bray.curtis.dist, entry = "bray.curtis")
 coord.dist.ls <- liste(coord.dist, entry = "geo.dist")
+env.dist.ls <- liste(env.dist, entry = "env.dist")
 
 # Create a Data Frame from the Lists of Distances
-df <- data.frame(coord.dist.ls, bray.curtis.dist.ls[, 3], unifrac.dist.ls[, 3])
-names(df)[4:5] <- c("bray.curtis", "unifrac")
-attach(df)
+df <- data.frame(coord.dist.ls, bray.curtis.dist.ls[, 3], unifrac.dist.ls[, 3],
+                 env.dist.ls[, 3])
+names(df)[4:6] <- c("bray.curtis", "unifrac", "env.dist")
 ```
 
 Now, let's plot the DD relationships:
@@ -563,30 +512,61 @@ Now, let's plot the DD relationships:
 par(mfrow=c(2, 1), mar = c(1, 5, 2, 1) + 0.1, oma = c(2, 0, 0, 0))
 
 # Make Plot for Taxonomic DD
-plot(coord.dist, bray.curtis, xlab = "", xaxt = "n", las = 1, ylim = c(0.1, 0.9),
+plot(df$geo.dist, df$bray.curtis, xlab = "", xaxt = "n", las = 1, ylim = c(0.1, 0.9),
      ylab="Bray-Curtis Similarity", 
      main = "Distance Decay", col = "SteelBlue")
 
 # Regression for Taxonomic DD 
-DD.reg.bc <- lm(bray.curtis ~ geo.dist)
+DD.reg.bc <- lm(df$bray.curtis ~ df$geo.dist)
 summary(DD.reg.bc)
-abline(DD.reg.bc , col = "red4")
+abline(DD.reg.bc , col = "red4", lwd = 2)
 
 # New Plot Parameters
 par(mar = c(2, 5, 1, 1) + 0.1)
 
 # Make Plot for Phylogenetic DD
-plot(coord.dist, unifrac, xlab = "", las = 1, ylim = c(0.1, 0.9),
+plot(df$geo.dist, df$unifrac, xlab = "", las = 1, ylim = c(0.1, 0.9),
      ylab = "Unifrac Similarity", col = "darkorchid4")
 
 # Regression for Phylogenetic DD
-DD.reg.uni <- lm(unifrac ~ coord.dist)
+DD.reg.uni <- lm(df$unifrac ~ df$geo.dist)
 summary(DD.reg.uni)
-abline(DD.reg.uni, col = "red4")
+abline(DD.reg.uni, col = "red4", lwd = 2)
 
 # Add X-Axis Label to Plot
 mtext("Geographic Distance, km", side = 1, adj = 0.55, 
       line = 0.5, outer = TRUE)
+
+# # Set Initial Plot Parameters
+# par(mfrow=c(2, 1), mar = c(1, 5, 2, 1) + 0.1, oma = c(2, 0, 0, 0))
+# 
+# # Make Plot for Taxonomic DD
+# plot(df$env.dist, df$bray.curtis, xlab = "", xaxt = "n", las = 1, ylim = c(0.1, 0.9),
+#      ylab="Bray-Curtis Similarity", 
+#      main = "Distance Decay", col = "SteelBlue")
+# 
+# # Regression for Taxonomic DD 
+# DD.reg.bc <- lm(df$bray.curtis ~ df$env.dist)
+# summary(DD.reg.bc)
+# abline(DD.reg.bc , col = "red4", lwd = 2)
+# 
+# # New Plot Parameters
+# par(mar = c(2, 5, 1, 1) + 0.1)
+# 
+# # Make Plot for Phylogenetic DD
+# plot(df$env.dist, df$unifrac, xlab = "", las = 1, ylim = c(0.1, 0.9),
+#      ylab = "Unifrac Similarity", col = "darkorchid4")
+# 
+# # Regression for Phylogenetic DD
+# DD.reg.uni <- lm(df$unifrac ~ df$env.dist)
+# summary(DD.reg.uni)
+# abline(DD.reg.uni, col = "red4", lwd = 2)
+# 
+# # Add X-Axis Label to Plot
+# mtext("Environmental Distance", side = 1, adj = 0.55, 
+#       line = 0.5, outer = TRUE)
+
+
 ```
 
 Finally, let's test whether the slopes for taxonomic and phylogenetic DD are significantly different from one another.
@@ -594,10 +574,6 @@ Finally, let's test whether the slopes for taxonomic and phylogenetic DD are sig
 ```{r, results = 'hide'}
 diffslope(geo.dist, unifrac, geo.dist, bray.curtis)
 ```
-
-***Question 7***: Interpret the slopes from the taxonomic and phylogenetic DD relationships. If there are differences, hypothesize why this might be.   
-
-> ***Answer 7***: 
 
 
 ### A. Phlogenetic diversity-area relationship (PDAR)
@@ -746,21 +722,11 @@ legend("topleft", legend= c(paste("Spearman Correlation = ", S, "; p = ", Sp, se
                             bty = "n", col = "red") 
 ```
 
-***Question 8***: For the bacteria in the Indiana ponds, the slope (*z*) of the SAR was 0.14.
-This is slightly lower than *z*-values observed for many macroscopic organisms (e.g., fish, birds, plants), but is higher than what has been reported for other microbial systems. 
-However, what did we observe for the microbial PDAR in the Indiana pond?
-How might we explain the differences between the taxonomic (SAR) and phylogenetic (PDAR)?  
-
-> ***Answer 8***: 
-
-
-## 7) HOMEWORK 
-
-1.  In their study of phylogenetic diversity-area relationships (PDARs), Helmus and Ives, increased area by aggregating plots in two ways.
-First, they aggregated plots with respect to whether the plots were adjacent; what they called 'spatial'.
-Second, they aggregated plots at random ('non-spatial').
-While both spatial and non-spatial sampling methods capture the effect of increasing area, sampling with respect to location (i.e., spatial) also captures the effect of increasing distance or spatial autocorrelation.
-Explain the general difference that Helmus and Ives (2012) observed between spatial and non-spatial PDARs, and why this difference should be expected in both the species-area relationship (SAR) and the phylogenetic diversity-area relationship.
-
-2.  Use Knitr to create a pdf of your completed PhyloTraits_handout.Rmd document, push it to GitHub, and create a pull request.
-The due date for this assignment is March 4, 2015 at 12:00 PM (noon).
+## CONCLUSIONS
+Phylogenetic relationships can be informative for understanding certain aspects of community ecology.
+However, it is important to note that interpretations of phylogenetic patterns, just like species patterns, are dependent on spatial and temporal scale (Emerson and Gillespie 2008).
+For example, at the local scale, species may show phylogenetic overdispersion (i.e., local communities are more phylogenetically different than expected by chance alone), but at the regional scale they may appear clumped (i.e., species are more similar than expected by chance alone). 
+Thus, there may be ecological selection for species differences acting at the local scale, but regional variability in phylogenetic relatedness when comparing local species composition to other sites. 
+Another important assumption that many of these analyses make is that species show niche conservatism, that is, species niches remain relatively fixed through time (Wiens and Graham 2005, Wiens et al. 2010). 
+The assumption of niche conservatism allows us to ...
+If niches are not conserved, ...
