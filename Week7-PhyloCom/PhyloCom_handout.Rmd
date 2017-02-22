@@ -33,10 +33,10 @@ Species in a community must be ecologically similar enough to one another to hav
 In theory, ecological similarity can be determined by measuring the functional traits of all the individuals for all species in a community. 
 In practice, it is challenging to measure ecologically relelvant traits of individuals in complex communities.
 As a proxy, many scientists will use phylogeny as a proxy for traits. 
-Based on these assumptions, ecologists have attempted to use phylogenetic information to draw gain insight into community assembly processes.
+Based on these assumptions, ecologists have attempted to use phylogenetic information to gain insight into community assembly processes.
 For example, if a community is comprised of closely related taxa (i.e. clustering), one might infer that enviromental filtering is acting on a set of shared functional traits; a scenario that is consistent with equalizing mechansisms of coexistence.
 In contrast, if a community is comprised of more distantly related taxa (i.e., overdispersion), one might infer that competitive exclusion is an important assembly process; a scenario that is consistent with stabilizing mechanisms of coexistence.
-It is important to note, however, that other mechanisms can give rise patterns of phylogenetic clustering and overdispersion (e.g., see Mayfield and Levine 2010 for discussion).
+It is important to note, however, that other mechanisms can give rise to patterns of phylogenetic clustering and overdispersion (e.g., see Mayfield and Levine 2010 for discussion).
 
 ~~~However, often times the assumptions that underlie much of current phylogenetic community ecology are observed, mainly: (1) traits related to competitive ability and species niches *are* phylogenetically conserved (and we discussed how to verify this last week), (2) competitive exclusion is more common than character displacement (meaning incompatible species are removed from the community), and (3) trait convergence is rare (among others: Gerhold et al. 2015).
 When this is the case, we may be able to use patterns of phylogenetic relatedness to make deeper inference about the underlying processes that drive community structure (for general reviews, see Webb et al. 2002, Cavender-Bares et al. 2009, and Cadotte and Davies 2016).~~~
@@ -68,6 +68,15 @@ for (package in package.list) {
     library(package, character.only = TRUE)
   }
 }
+
+#install.packages('picante', repos='http://cran.us.r-project.org')
+#require(picante)
+#install.packages('seqinr', repos='http://cran.us.r-project.org')
+#require(seqinr)
+#install.packages('seqinr', repos='http://cran.us.r-project.org')
+#require(seqinr)
+#install.packages('simba', repos='http://cran.us.r-project.org')
+#require(simba)
 ```
 
 ### C. Load Source Code
@@ -75,7 +84,7 @@ for (package in package.list) {
 In addition to relying on contributed packages, we will also be using a source code file.
 A source code file has user-defined functions that are required for certain analyses.
 The benefit of source files is that they contain "vetted" code that can be used across multiple projects. 
-Here, we will be using a source code file that includes a function for reading in the output files from the popular community sequencing software `mothur` (http://www.mothur.org/).
+Here, we will use a source code file that includes a function for reading in the output files from the popular community sequencing software `mothur` (http://www.mothur.org/).
 Take a moment to open the file and see how this file is formatted. 
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
@@ -84,14 +93,14 @@ source("./bin/MothurTools.R")
 
 ## 2) DESCRIPTION OF DATA
 
-We will revisit the data that was used in the Spatial Diversity module. 
-As a reminder, in 2013 we sampled ~ 50 forested ponds located in Brown County State Park, Yellowood State Park, and Hoosier National Forest in southern Indiana. 
+We will revisit the environmental and community data that was used in the Spatial Diversity module. 
+As a reminder, in 2013 we sampled more than 50 forested ponds located in Brown County State Park, Yellowood State Park, and Hoosier National Forest in southern Indiana. 
 In addition to measuring a suite of geographic and environmental variables, we characterized the diversity of bacteria in the ponds using molecular-based approaches.
-Specifically, we amplified the 16S rRNA gene (i.e., the coding DNA sequence) and 16S rRNA transcripts (i.e., the corresponding RNA transcript) of bacteria using barcoded primers on the Illumina MiSeq platform.
+Specifically, we amplified the 16S rRNA gene (i.e., the DNA sequence) and 16S rRNA transcripts (i.e., the RNA transcript of the gene) of bacteria using barcoded primers on the Illumina MiSeq platform.
+While use of the 16S rRNA gene indicates which taxa were present in our samples, use of the 16S rRNA transcripts indicates which taxa were metabolically active.
+In this module we will focus on taxa that were present, which is how microbial communities are most often characterized.
 We then used a `mothur` pipeline to quality-trim our data set and assign sequences to operational taxonomic units (OTUs).
-In this Handout, we will use the DNA sequence data for making community phylogenetic inference about total (i.e., active + dormant) bacterial communities.  
-
-~~~~ I haven't gotten through this yet, but do we end up using the RNA? If not, seems like we might as well not mention in this section; will make things easeir. 
+In this Handout, we will use the DNA sequence data for making community phylogenetic inference about total (i.e., active + dormant) bacterial communities.
 
 ## 3) LOAD AND PROCESS DATA
 
@@ -101,23 +110,23 @@ For simplicity, we are going to remove these ponds from our analyses.
 
 ```{r}
 env <- read.table("data/20130801_PondDataMod.csv", sep = ",", header = TRUE)
-
 env <- na.omit(env)
 ```
 
 Next, let's load the bacterial OTU data (i.e., site-by-species matrix):
-~~~ Perhaps this is where we can mention RNA briefly and then say we're excluding. 
-~~~ Might be good to talk about what we're doing with the grep/gsub functions. 
+
 ```{r}
 # Load Site-by-Species Matrix
 comm <- read.otu(shared = "./data/INPonds.final.rdp.shared", cutoff = "1")
 
-# Select DNA Data: Use the `grep()` Command and Rename with `gsub()`
+# Select DNA data: Use the `grep()` command to search for matches to a pattern within each element of a character vector
 comm <- comm[grep("*-DNA", rownames(comm)), ]
+
+# Perform replacement of all matches with `gsub()`
 rownames(comm) <- gsub("\\-DNA", "", rownames(comm))
 rownames(comm) <- gsub("\\_", "", rownames(comm))
 
-# Remove Sites Not in the Environmental Data Set
+# Remove sites not in the environmental data set
 comm <- comm[rownames(comm)  %in% env$Sample_ID, ]
 ```
 
@@ -137,7 +146,9 @@ tax <- read.tax(taxonomy = "./data/INPonds.final.rdp.1.cons.taxonomy")
 Now, we need to load and process the phylogenetic data.
 There are a few steps involved in this process. 
 First, we need to read in a file containing the aligned sequences. 
-After a few other processing steps, we then make a neihbor-joining phylogenetic tree with a Jukes Cantor model of evolution. 
+After a few other processing steps, we then make a neighbor-joining phylogenetic tree with a Jukes Cantor model of evolution.
+You will remember from the previous phylogenetic traits module that the benefit of this approach is in its reduced computational time.
+Generating trees of greater confidence with, for example, maximum likelihood analysis, can take a long time in the RStudio environment.
 
 ```{r}
 # Import the Alignment File {seqinr}
@@ -181,10 +192,9 @@ plot.phylo(phy, main = "Neighbor Joining Tree", "phylogram", show.tip.label = FA
 ## 4) PHYLOGENETIC ALPHA DIVERSITY
 
 In order to analyze aspects of phylogenetic diversity, we first need to consider how to quantify it. 
-There are many ways to quantify phylogenetic diversity (e.g., see Tucker et al. 2016). 
-In general, a community consisting of species that are less closely related has higher phylogenetic diversity, all else equal. 
-Maintaining high phylogenetic diversity has been proposed as a more effective way to maintain ecosystem functionality and is often the focus of conservation biology. 
-
+Tucker et al. (2016) discuss several methods for quantifying phylogenetic diversity. 
+In general, a community consisting of species that are less closely related has higher phylogenetic diversity. 
+Maintaining high phylogenetic diversity has been proposed as a more effective way to maintain ecosystem functionality and is often the focus of conservation biology.
 
 ### A.  Faith's Phylogenetic Diversity (PD)
 
@@ -195,27 +205,27 @@ Higher PD values indicate that an assemblage contains more evolutionarily diverg
 
 Faith's PD can be implemented in R using the `pd()` function in the `picante` package. 
 A phylogenetic tree containing the species pool is required. 
-In addition to returning Faith's PD, the `pd()` function also returns species richness (SR).
-SR is the same as observed richness ($S_{obs}), which we covered in the $\alpha$ diversity module. 
+In addition to returning Faith's PD, the `pd()` function also returns species richness (S).
+S is the same as observed richness ($S_{obs}), which we covered in the $\alpha$ diversity module. 
 
 ```{r}
-# Calculate PD and SR {picante}
+# Calculate PD and S {picante}
 pd <- pd(comm, phy, include.root = FALSE)
 ```
 
-Let's compare PD estimates with SR of our samples.
-We'll transform our data by taking the natural logarithm of SR and PD so that the slope of the relationship gives us a power-law exponent, which describes how PD scales with SR.
+Let's compare PD estimates with S of our samples.
+We'll transform our data by taking the natural logarithm of S and PD so that the slope of the relationship gives us a power-law exponent, which describes how PD scales with S.
 
 ```{r}
-# Biplot of SR and PD
+# Biplot of S and PD
 par(mar = c(5, 5, 4, 1) + 0.1)
 
-plot(log(pd$SR), log(pd$PD), 
+plot(log(pd$S), log(pd$PD), 
      pch = 20, col = "red", las = 1,
-     xlab = "ln(SR)", ylab = "ln(PD)", cex.main = 1,
-     main="Phylodiversity (PD) vs. Taxonomic richness (SR)")
+     xlab = "ln(S)", ylab = "ln(PD)", cex.main = 1,
+     main="Phylodiversity (PD) vs. Taxonomic richness (S)")
 
-fit <- lm('log(pd$PD) ~ log(pd$SR)')
+fit <- lm('log(pd$PD) ~ log(pd$S)')
 abline(fit, col = "red", lw = 2)
 exponent <- round(coefficients(fit)[2], 2)
 legend("topleft", legend=paste("Scaling exponent = ", exponent, sep = ""), 
