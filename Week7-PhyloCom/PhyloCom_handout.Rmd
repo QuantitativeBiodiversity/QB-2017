@@ -33,10 +33,10 @@ Species in a community must be ecologically similar enough to one another to hav
 In theory, ecological similarity can be determined by measuring the functional traits of all the individuals for all species in a community. 
 In practice, it is challenging to measure ecologically relelvant traits of individuals in complex communities.
 As a proxy, many scientists will use phylogeny as a proxy for traits. 
-Based on these assumptions, ecologists have attempted to use phylogenetic information to draw gain insight into community assembly processes.
+Based on these assumptions, ecologists have attempted to use phylogenetic information to gain insight into community assembly processes.
 For example, if a community is comprised of closely related taxa (i.e. clustering), one might infer that enviromental filtering is acting on a set of shared functional traits; a scenario that is consistent with equalizing mechansisms of coexistence.
 In contrast, if a community is comprised of more distantly related taxa (i.e., overdispersion), one might infer that competitive exclusion is an important assembly process; a scenario that is consistent with stabilizing mechanisms of coexistence.
-It is important to note, however, that other mechanisms can give rise patterns of phylogenetic clustering and overdispersion (e.g., see Mayfield and Levine 2010 for discussion).
+It is important to note, however, that other mechanisms can give rise to patterns of phylogenetic clustering and overdispersion (e.g., see Mayfield and Levine 2010 for discussion).
 
 ~~~However, often times the assumptions that underlie much of current phylogenetic community ecology are observed, mainly: (1) traits related to competitive ability and species niches *are* phylogenetically conserved (and we discussed how to verify this last week), (2) competitive exclusion is more common than character displacement (meaning incompatible species are removed from the community), and (3) trait convergence is rare (among others: Gerhold et al. 2015).
 When this is the case, we may be able to use patterns of phylogenetic relatedness to make deeper inference about the underlying processes that drive community structure (for general reviews, see Webb et al. 2002, Cavender-Bares et al. 2009, and Cadotte and Davies 2016).~~~
@@ -75,7 +75,7 @@ for (package in package.list) {
 In addition to relying on contributed packages, we will also be using a source code file.
 A source code file has user-defined functions that are required for certain analyses.
 The benefit of source files is that they contain "vetted" code that can be used across multiple projects. 
-Here, we will be using a source code file that includes a function for reading in the output files from the popular community sequencing software `mothur` (http://www.mothur.org/).
+Here, we will use a source code file that includes a function for reading in the output files from the popular community sequencing software `mothur` (http://www.mothur.org/).
 Take a moment to open the file and see how this file is formatted. 
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
@@ -84,14 +84,14 @@ source("./bin/MothurTools.R")
 
 ## 2) DESCRIPTION OF DATA
 
-We will revisit the data that was used in the Spatial Diversity module. 
-As a reminder, in 2013 we sampled ~ 50 forested ponds located in Brown County State Park, Yellowood State Park, and Hoosier National Forest in southern Indiana. 
+We will revisit the environmental and community data that was used in the Spatial Diversity module. 
+As a reminder, in 2013 we sampled more than 50 forested ponds located in Brown County State Park, Yellowood State Park, and Hoosier National Forest in southern Indiana. 
 In addition to measuring a suite of geographic and environmental variables, we characterized the diversity of bacteria in the ponds using molecular-based approaches.
-Specifically, we amplified the 16S rRNA gene (i.e., the coding DNA sequence) and 16S rRNA transcripts (i.e., the corresponding RNA transcript) of bacteria using barcoded primers on the Illumina MiSeq platform.
+Specifically, we amplified the 16S rRNA gene (i.e., the DNA sequence) and 16S rRNA transcripts (i.e., the RNA transcript of the gene) of bacteria using barcoded primers on the Illumina MiSeq platform.
+While use of the 16S rRNA gene indicates which taxa were present in our samples, use of the 16S rRNA transcripts indicates which taxa were metabolically active.
+In this module we will focus on taxa that were present, which is how microbial communities are most often characterized.
 We then used a `mothur` pipeline to quality-trim our data set and assign sequences to operational taxonomic units (OTUs).
-In this Handout, we will use the DNA sequence data for making community phylogenetic inference about total (i.e., active + dormant) bacterial communities.  
-
-~~~~ I haven't gotten through this yet, but do we end up using the RNA? If not, seems like we might as well not mention in this section; will make things easeir. 
+In this Handout, we will use the DNA sequence data for making community phylogenetic inference about total (i.e., active + dormant) bacterial communities.
 
 ## 3) LOAD AND PROCESS DATA
 
@@ -101,23 +101,23 @@ For simplicity, we are going to remove these ponds from our analyses.
 
 ```{r}
 env <- read.table("data/20130801_PondDataMod.csv", sep = ",", header = TRUE)
-
 env <- na.omit(env)
 ```
 
 Next, let's load the bacterial OTU data (i.e., site-by-species matrix):
-~~~ Perhaps this is where we can mention RNA briefly and then say we're excluding. 
-~~~ Might be good to talk about what we're doing with the grep/gsub functions. 
+
 ```{r}
 # Load Site-by-Species Matrix
 comm <- read.otu(shared = "./data/INPonds.final.rdp.shared", cutoff = "1")
 
-# Select DNA Data: Use the `grep()` Command and Rename with `gsub()`
+# Select DNA data: Use the `grep()` command to search for matches to a pattern within each element of a character vector
 comm <- comm[grep("*-DNA", rownames(comm)), ]
+
+# Perform replacement of all matches with `gsub()`
 rownames(comm) <- gsub("\\-DNA", "", rownames(comm))
 rownames(comm) <- gsub("\\_", "", rownames(comm))
 
-# Remove Sites Not in the Environmental Data Set
+# Remove sites not in the environmental data set
 comm <- comm[rownames(comm)  %in% env$Sample_ID, ]
 ```
 
@@ -137,7 +137,9 @@ tax <- read.tax(taxonomy = "./data/INPonds.final.rdp.1.cons.taxonomy")
 Now, we need to load and process the phylogenetic data.
 There are a few steps involved in this process. 
 First, we need to read in a file containing the aligned sequences. 
-After a few other processing steps, we then make a neihbor-joining phylogenetic tree with a Jukes Cantor model of evolution. 
+After a few other processing steps, we then make a neighbor-joining phylogenetic tree with a Jukes Cantor model of evolution.
+You will remember from the previous phylogenetic traits module that the benefit of this approach is in its reduced computational time.
+Generating trees of greater confidence with, for example, maximum likelihood analysis, can take a long time in the RStudio environment.
 
 ```{r}
 # Import the Alignment File {seqinr}
@@ -153,7 +155,7 @@ outgroup <- read.alignment(file = "./data/methanosarcina.fasta", format = "fasta
 # Convert Alignment File to DNAbin Object {ape}
 DNAbin <- rbind(as.DNAbin(outgroup), as.DNAbin(ponds.cons))
 
-# Visusalize Sequence Alignment {ape}
+# Visualize Sequence Alignment {ape}
 image.DNAbin(DNAbin, show.labels=T, cex.lab = 0.05, las = 1) 
 
 # Create Distance Matrix with the Jukes Cantor "JC" Model {ape}
@@ -181,10 +183,9 @@ plot.phylo(phy, main = "Neighbor Joining Tree", "phylogram", show.tip.label = FA
 ## 4) PHYLOGENETIC ALPHA DIVERSITY
 
 In order to analyze aspects of phylogenetic diversity, we first need to consider how to quantify it. 
-There are many ways to quantify phylogenetic diversity (e.g., see Tucker et al. 2016). 
-In general, a community consisting of species that are less closely related has higher phylogenetic diversity, all else equal. 
-Maintaining high phylogenetic diversity has been proposed as a more effective way to maintain ecosystem functionality and is often the focus of conservation biology. 
-
+Tucker et al. (2016) discuss several methods for quantifying phylogenetic diversity. 
+In general, a community consisting of species that are less closely related has higher phylogenetic diversity. 
+Maintaining high phylogenetic diversity has been proposed as a more effective way to maintain ecosystem functionality and is often the focus of conservation biology.
 
 ### A.  Faith's Phylogenetic Diversity (PD)
 
@@ -195,27 +196,27 @@ Higher PD values indicate that an assemblage contains more evolutionarily diverg
 
 Faith's PD can be implemented in R using the `pd()` function in the `picante` package. 
 A phylogenetic tree containing the species pool is required. 
-In addition to returning Faith's PD, the `pd()` function also returns species richness (SR).
-SR is the same as observed richness ($S_{obs}), which we covered in the $\alpha$ diversity module. 
+In addition to returning Faith's PD, the `pd()` function also returns species richness (S).
+S is the same as observed richness ($S_{obs}), which we covered in the $\alpha$ diversity module. 
 
 ```{r}
-# Calculate PD and SR {picante}
+# Calculate PD and S {picante}
 pd <- pd(comm, phy, include.root = FALSE)
 ```
 
-Let's compare PD estimates with SR of our samples.
-We'll transform our data by taking the natural logarithm of SR and PD so that the slope of the relationship gives us a power-law exponent, which describes how PD scales with SR.
+Let's compare PD estimates with S of our samples.
+We'll transform our data by taking the natural logarithm of S and PD so that the slope of the relationship gives us a power-law exponent, which describes how PD scales with S.
 
 ```{r}
-# Biplot of SR and PD
+# Biplot of S and PD
 par(mar = c(5, 5, 4, 1) + 0.1)
 
-plot(log(pd$SR), log(pd$PD), 
+plot(log(pd$S), log(pd$PD), 
      pch = 20, col = "red", las = 1,
-     xlab = "ln(SR)", ylab = "ln(PD)", cex.main = 1,
-     main="Phylodiversity (PD) vs. Taxonomic richness (SR)")
+     xlab = "ln(S)", ylab = "ln(PD)", cex.main = 1,
+     main="Phylodiversity (PD) vs. Taxonomic richness (S)")
 
-fit <- lm('log(pd$PD) ~ log(pd$SR)')
+fit <- lm('log(pd$PD) ~ log(pd$S)')
 abline(fit, col = "red", lw = 2)
 exponent <- round(coefficients(fit)[2], 2)
 legend("topleft", legend=paste("Scaling exponent = ", exponent, sep = ""), 
@@ -338,13 +339,14 @@ colnames(NTI) <- "NTI"
 
 ## 5) PHYLOGENETIC BETA DIVERSITY 
 
-[Say something here that motivates studying phylobetadiversity]
+In previous modules, we examined how taxonomic diversity changed across sites in response to environmental differences.
+As you probably understand by now, examining taxonomic diversity does not reveal evolutionary relationships or the way in which environmental variables relate to shared evolutionary history.
 
 ### A. Phylogenetically Based Community Resemblance Matrix
 
-As you may recall, in order to quantify $\beta$-diversity for more than two samples, one needs to create a resemblance matrix. 
+As you may recall, a resemblance matrix is needed to quantify $\beta$-diversity for more than two samples. 
 When quantifying taxonomic $\beta$-diversity, we calculated the pairwise **similarity** or **dissimiliarity** for all samples in a site-by-species matrix using metrics such as the Sørensen index or the Bray-Curtis index. 
-More or less, we need to go through the same process for quantifying phylogenetic $\beta$-diversity.
+We need a similar process for quantifying phylogenetic $\beta$-diversity.
 Instead of making the resemblance matrix based on incidence or abundance of taxa, we are going to incorporate information about the phylogenetic relationships among taxa. 
 Similar to other measures of $\beta$-diversity, there are numerous ways to calculate the phylogenetic distances in the community resemblance matrix.
 Here, we will explore two: Mean Pairwise Distance and UniFrac distance.
@@ -447,7 +449,7 @@ adonis(dist.uf ~ water.shed, permutations = 999)
 
 #### ii. Continuous Approach: Environmental Gradients  
 
-In the Spatial Diversity module, we demonstrated that there was substantial variation in enviornmental variables that are known to influence the structure and function of microbial communities.
+In the Spatial Diversity module, we demonstrated that there was substantial variation in environmental variables that are known to influence the structure and function of microbial communities.
 In the following section, we will revist two methods that are used to test for relationships among multivariate environmental and biological data. 
 
 First, let's define the environmental data and then create an environmental distance matrix:
@@ -461,7 +463,7 @@ envs <- envs[, -which(names(envs) %in% c("TDS", "Salinity", "Cal_Volume"))]
 env.dist <- vegdist(scale(envs), method = "euclid")
 ```
 
-Second, let's conduct a Mantel's test to see whether UniFrac distance is correlated with environmental variation:
+Second, let's conduct a Mantel test to examine the potential correlation between UniFrac distance and environmental variation:
 
 ```{r, results = 'hide'}
 # Conduct Mantel Test {vegan}
@@ -523,14 +525,16 @@ axis(side = 4, lwd.ticks = 2, cex.axis = 1.2, las = 1, col = "red", lwd = 2.2,
 
 ## 6) SPATIAL PHYLOGENETIC COMMUNITY ECOLOGY
 
-[Say something here that motivates spatial phylodiversity]
+In the Spatial Diversity module, you learned that environments and communities can differ as a matter of geographic location.
+You also learned that population densities are naturally aggregated and that patterns of diversity can arise from spatial autocorrelation and random distribution of individuals and species across space.
+Here, we will add a phylogenetic dimension to the spatial diversity with the study of two phylogenetic patterns, i.e., the phylogenetic distance decay and the phylogenetic diversity-area relationship.
 
 ### A. Phylogenetic Distance-Decay (PDD)
 You will recall from the Geographical Ecology module, that the distance decay (DD) relationship reflects the spatial autocorrelation of community similarity.
 That is, geographically near communities should be more similar than geographically distant communities.
 Here, we will test to what degree spatial autocorrelation can also affect phylogenetic DD.  
 
-First, we will calcualte distances for geographic data, taxonomic data, and phylogenetic data among all unique pair-wise combinations of ponds.
+First, we will calculate distances for geographic data, taxonomic data, and phylogenetic data among all unique pair-wise combinations of ponds.
 
 ```{r}
 # Geographic Distances (Kilometers) Among Ponds
@@ -586,37 +590,6 @@ abline(DD.reg.uni, col = "red4", lwd = 2)
 # Add X-Axis Label to Plot
 mtext("Geographic Distance, km", side = 1, adj = 0.55, 
       line = 0.5, outer = TRUE)
-
-# # Set Initial Plot Parameters
-# par(mfrow=c(2, 1), mar = c(1, 5, 2, 1) + 0.1, oma = c(2, 0, 0, 0))
-# 
-# # Make Plot for Taxonomic DD
-# plot(df$env.dist, df$bray.curtis, xlab = "", xaxt = "n", las = 1, ylim = c(0.1, 0.9),
-#      ylab="Bray-Curtis Similarity", 
-#      main = "Distance Decay", col = "SteelBlue")
-# 
-# # Regression for Taxonomic DD 
-# DD.reg.bc <- lm(df$bray.curtis ~ df$env.dist)
-# summary(DD.reg.bc)
-# abline(DD.reg.bc , col = "red4", lwd = 2)
-# 
-# # New Plot Parameters
-# par(mar = c(2, 5, 1, 1) + 0.1)
-# 
-# # Make Plot for Phylogenetic DD
-# plot(df$env.dist, df$unifrac, xlab = "", las = 1, ylim = c(0.1, 0.9),
-#      ylab = "Unifrac Similarity", col = "darkorchid4")
-# 
-# # Regression for Phylogenetic DD
-# DD.reg.uni <- lm(df$unifrac ~ df$env.dist)
-# summary(DD.reg.uni)
-# abline(DD.reg.uni, col = "red4", lwd = 2)
-# 
-# # Add X-Axis Label to Plot
-# mtext("Environmental Distance", side = 1, adj = 0.55, 
-#       line = 0.5, outer = TRUE)
-
-
 ```
 
 Finally, let's test whether the slopes for taxonomic and phylogenetic DD are significantly different from one another.
@@ -668,6 +641,8 @@ pond.areas <- as.vector(pi * (env$Diameter/2)^2) # Find areas of all 51 ponds
 sar <- SAR(comm)
 sar <- as.data.frame(sar)
 
+plot.new()
+par(mfrow=c(2, 1), mar = c(1, 5, 2, 1) + 0.1, oma = c(2, 0, 0, 0))
 plot(sar, xlab = "log(Area)", ylab = "log(Richness)", 
      main = "Species-Area Relationship", col = "red")
 
@@ -763,20 +738,23 @@ S <- round(Spearman$estimate, 2)
 Sp <- round(Spearman$p.value, 3)
 
 # Plot the PDAR
-par(mar = c(5, 5, 4, 2) + 0.1)
+plot.new()
+par(mfrow=c(1, 1), mar = c(1, 5, 2, 1) + 0.1, oma = c(2, 0, 0, 0))
 plot(pdar[, 1], pdar[, 2], xlab = "Area", ylab = "PSV", ylim = c(0, 1), 
      main = "Phylogenetic Diversity-Area Relationship", 
      col = "red", pch = 16, las = 1)
 
-legend("topleft", legend= c(paste("Spearman Correlation = ", S, "; p = ", Sp, sep = ""), 
-                            paste("Pearson Correlation = ", P, "; p = ", Pp, sep = "")), 
+legend("topleft", legend= c(paste("Spearman Correlation = ", S, "; p = ", Sp, sep = ""),
+                            paste("Pearson Correlation = ", P, "; p = ", Pp, sep = "")),
                             bty = "n", col = "red") 
 ```
 
 ## 7) CONCLUSIONS
 
+**THE FOLLOWING IS A COMBINATION OF CAVEATS AND FURTHER INSTRUCTION. NOT REALLY CONCLUSION MATERIAL.**
+
 Phylogenetic relationships can be informative for understanding certain aspects of community ecology.
-However, it is important to note that interpretations of phylogenetic patterns, just like species patterns, are dependent on spatial and temporal scale (Emerson and Gillespie 2008).
+However, interpretations of phylogenetic patterns, just like taxonomic patterns, are dependent on spatial and temporal scale (Emerson and Gillespie 2008).
 For example, at the local scale, species may show phylogenetic overdispersion (i.e., local communities are more phylogenetically different than expected by chance alone), but at the regional scale they may appear clumped (i.e., species are more similar than expected by chance alone). 
 Thus, there may be ecological selection for species differences acting at the local scale, but regional variability in phylogenetic relatedness when comparing local species composition to other sites. 
 Another important assumption that many of these analyses make is that species show niche conservatism, that is, species niches remain relatively fixed through time (Wiens and Graham 2005, Wiens et al. 2010). 
