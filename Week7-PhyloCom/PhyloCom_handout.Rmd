@@ -9,9 +9,11 @@ geometry: margin=2.54cm
 ---
 
 ## OVERVIEW
-Last week, we learned how to quantify relationships between taxonomic relatedness and functional trait similarity.
+
+Last week, we examined the distribution of functional traits with respect to the shared evolutionary history (i.e., phylogeny) of organisms. 
 This week, we will use phylogenetic information to aid our understanding of patterns and processes in community ecology.
-To accomplish this, we will introduce concepts linking evolutionary relatedness to community structure, we will quantify phylogenetic diversity using analogues of $\alpha$- and $\beta$-diversity, and discuss key patterns that are commonly seen in phylogenetic community ecology, such as over- and underdispersion.
+To accomplish this, we will introduce concepts linking evolutionary relatedness to community structure. 
+We will quantify phylogenetic diversity using analogues of $\alpha$- and $\beta$-diversity, and discuss key patterns that are commonly encountered in phylogenetic community ecology, such as over- and under-dispersion.
 
 After completing this exercise you will know how to:
 
@@ -20,16 +22,27 @@ After completing this exercise you will know how to:
 3.  evaluate the contribution of phylogeny to spatial patterns of biodiversity
 
 ## BACKGROUND
-Phylogenetic insight has played a key role in the historical development of community ecology.
-Darwin (1859) hypothesized that closely related species (e.g., species in the same genus) are more ecologically similar than distantly related species are.
-This led him to identify a paradox: successful invaders must be both (1) sufficiently *related* to resident taxa that they share ecologically-relevant traits that meet local environmental requirements, but also (2) sufficiently *unrelated* to exploit currently unoccupied niches, allowing them to invade the community (Diez et al. 2008).
-This parallels the current thinking in community ecology that species in a community must be ecologically similar enough to one another to have positive fitness in the environment (i.e., equalizing forces), also different enough (i.e., stabilizing niche differences) that they can coexist (e.g., see Leibold and McPeek 2006, Adler et al. 2007, HilleRisLambers et al. 2012).
-The assumption that more closely related species share more similar functional traits may not always be valid though, which makes interpreting patterns of phylogenetic clustering and overdispersion less straightforward than they traditionally have been (e.g., see Mayfield and Levine 2010 for discussion).
-However, often times the assumptions that underlie much of current phylogenetic community ecology are observed, mainly: (1) traits related to competitive ability and species niches *are* phylogenetically conserved (and we discussed how to verify this last week), (2) competitive exclusion is more common than character displacement (meaning incompatible species are removed from the community), and (3) trait convergence is rare (among others: Gerhold et al. 2015).
-When this is the case, we may be able to use patterns of phylogenetic relatedness to make deeper inference about the underlying processes that drive community structure (for general reviews, see Webb et al. 2002, Cavender-Bares et al. 2009, and Cadotte and Davies 2016).
 
+Phylogenetic insight has played a key role in the historical development of community ecology.
+Darwin (1859) hypothesized that closely related species (e.g., species in the same genus) are more ecologically similar than distantly related species.
+This led him to identify a paradox. 
+On the one hand, in order for a species to successfully invade a community it must be sufficiently *related* to resident taxa and thereby share ecologically relevant traits that allow it to contend with local conditions (e.g., pH). 
+On the other hand, the species must be sufficiently *unrelated* to resident taxa and thereby possess unique traits so that it can exploit unoccupied niches (Diez et al. 2008).
+These concepts are reflected in the contemporary views of community ecology.
+Species in a community must be ecologically similar enough to one another to have positive fitness in the enviroment (i.e., equalizing forces), but also be different enough (i.e., stabilizing niche differences) that they can coexist (e.g., see Leibold and McPeek 2006, Adler et al. 2007, HilleRisLambers et al. 2012).
+In theory, ecological similarity can be determined by measuring the functional traits of all the individuals for all species in a community. 
+In practice, it is challenging to measure ecologically relelvant traits of individuals in complex communities.
+As a proxy, many scientists will use phylogeny as a proxy for traits. 
+Based on these assumptions, ecologists have attempted to use phylogenetic information to draw gain insight into community assembly processes.
+For example, if a community is comprised of closely related taxa (i.e. clustering), one might infer that enviromental filtering is acting on a set of shared functional traits; a scenario that is consistent with equalizing mechansisms of coexistence.
+In contrast, if a community is comprised of more distantly related taxa (i.e., overdispersion), one might infer that competitive exclusion is an important assembly process; a scenario that is consistent with stabilizing mechanisms of coexistence.
+It is important to note, however, that other mechanisms can give rise patterns of phylogenetic clustering and overdispersion (e.g., see Mayfield and Levine 2010 for discussion).
+
+~~~However, often times the assumptions that underlie much of current phylogenetic community ecology are observed, mainly: (1) traits related to competitive ability and species niches *are* phylogenetically conserved (and we discussed how to verify this last week), (2) competitive exclusion is more common than character displacement (meaning incompatible species are removed from the community), and (3) trait convergence is rare (among others: Gerhold et al. 2015).
+When this is the case, we may be able to use patterns of phylogenetic relatedness to make deeper inference about the underlying processes that drive community structure (for general reviews, see Webb et al. 2002, Cavender-Bares et al. 2009, and Cadotte and Davies 2016).~~~
 
 ## 1) SETUP
+
 ### A. Retrieve and Set Your Working Directory
 
 ```{r, results = 'hide'}
@@ -39,11 +52,13 @@ setwd("~/GitHub/QB-2017/Week7-PhyloCom/")
 ```
 
 ### B. Load Packages 
-We will rely heavily on the R package `picante`. 
-This package has many of the functions that are contained in the software Phylocom, which is used for the analysis of phylogenetic community structure and character evolution (http://phylodiversity.net/phylocom/).
-We will also use a few other packages packages, some of which were introduced in the Phylogenetic Traits module. 
 
-After the initial installation of these packages using the `install.packages()` fucntion, load the packages and their dependencies with the `require()` function:
+Several R packages have been developed for conducting phylogenetic analyses (http://goo.gl/DtU16j).
+In particular, we will rely heavily on the R package `picante`.
+The `picante` package has many of the functions that are contained in the software Phylocom, which was developed for the analysis of phylogenetic community structure and character evolution (http://phylodiversity.net/phylocom/).
+We will describe `picante` and other packages in greater detail in the sections below.
+In th chunk of code below, the `require()` function in `R` returns `TRUE` if the package was successfully loaded or `FALSE` if the package failed to load. 
+This `for` loop loads each package and installs the package when `require()` returns `FALSE`.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
 package.list <- c('picante', 'ape', 'seqinr', 'vegan', 'fossil', 'simba')
@@ -56,6 +71,7 @@ for (package in package.list) {
 ```
 
 ### C. Load Source Code
+
 In addition to relying on contributed packages, we will also be using a source code file.
 A source code file has user-defined functions that are required for certain analyses.
 The benefit of source files is that they contain "vetted" code that can be used across multiple projects. 
@@ -67,26 +83,31 @@ source("./bin/MothurTools.R")
 ```
 
 ## 2) DESCRIPTION OF DATA
+
 We will revisit the data that was used in the Spatial Diversity module. 
 As a reminder, in 2013 we sampled ~ 50 forested ponds located in Brown County State Park, Yellowood State Park, and Hoosier National Forest in southern Indiana. 
 In addition to measuring a suite of geographic and environmental variables, we characterized the diversity of bacteria in the ponds using molecular-based approaches.
 Specifically, we amplified the 16S rRNA gene (i.e., the coding DNA sequence) and 16S rRNA transcripts (i.e., the corresponding RNA transcript) of bacteria using barcoded primers on the Illumina MiSeq platform.
 We then used a `mothur` pipeline to quality-trim our data set and assign sequences to operational taxonomic units (OTUs).
-In this handout, we will use the DNA sequence data for making community phylogenetic inference about total (i.e., active + dormant) bacterial communities.  
+In this Handout, we will use the DNA sequence data for making community phylogenetic inference about total (i.e., active + dormant) bacterial communities.  
 
-## 3) LOADING OF DATA
-First, let's load the environmental data:
+~~~~ I haven't gotten through this yet, but do we end up using the RNA? If not, seems like we might as well not mention in this section; will make things easeir. 
+
+## 3) LOAD AND PROCESS DATA
+
+First, let's load the environmental data. 
+There are a few ponds with missing enviromental data. 
+For simplicity, we are going to remove these ponds from our analyses. 
 
 ```{r}
-# Load Environmental Data
 env <- read.table("data/20130801_PondDataMod.csv", sep = ",", header = TRUE)
 
-# To keep things simple, we'll remove sites with incomplete data
 env <- na.omit(env)
 ```
 
 Next, let's load the bacterial OTU data (i.e., site-by-species matrix):
-
+~~~ Perhaps this is where we can mention RNA briefly and then say we're excluding. 
+~~~ Might be good to talk about what we're doing with the grep/gsub functions. 
 ```{r}
 # Load Site-by-Species Matrix
 comm <- read.otu(shared = "./data/INPonds.final.rdp.shared", cutoff = "1")
@@ -98,15 +119,25 @@ rownames(comm) <- gsub("\\_", "", rownames(comm))
 
 # Remove Sites Not in the Environmental Data Set
 comm <- comm[rownames(comm)  %in% env$Sample_ID, ]
+```
 
-# Remove Zero-Occurrence Taxa 
+Because we have removed some samples from our larger "global" data set, there are some OTUs that are not found in our "reduced" data set.
+In the following line of code, let's remove those taxa.
+
+```{r}
 comm <- comm[ , colSums(comm) > 0]
+```
 
-# Import Taxonomy Data Using `read.tax()` from Source Code
+Now we are going to import the taxonomic information that is associated with the OTU data using the `read.tax()` from Source Code
+
+```{r}
 tax <- read.tax(taxonomy = "./data/INPonds.final.rdp.1.cons.taxonomy")
 ```
 
-Now, let's load and process the phylogenetic data:
+Now, we need to load and process the phylogenetic data.
+There are a few steps involved in this process. 
+First, we need to read in a file containing the aligned sequences. 
+After a few other processing steps, we then make a neihbor-joining phylogenetic tree with a Jukes Cantor model of evolution. 
 
 ```{r}
 # Import the Alignment File {seqinr}
@@ -148,6 +179,7 @@ plot.phylo(phy, main = "Neighbor Joining Tree", "phylogram", show.tip.label = FA
 ```
 
 ## 4) PHYLOGENETIC ALPHA DIVERSITY
+
 In order to analyze aspects of phylogenetic diversity, we first need to consider how to quantify it. 
 There are many ways to quantify phylogenetic diversity (e.g., see Tucker et al. 2016). 
 In general, a community consisting of species that are less closely related has higher phylogenetic diversity, all else equal. 
@@ -155,6 +187,7 @@ Maintaining high phylogenetic diversity has been proposed as a more effective wa
 
 
 ### A.  Faith's Phylogenetic Diversity (PD)
+
 In 1992, Daniel Faith developed a diversity metric called Faith's PD (http://goo.gl/wM08Oy).
 The metric sums the branch lengths for each species found in a sample from the root to the tip of the phylogenetic tree.
 The value of the metric captures the evolutionary history of an assemblage. 
@@ -190,6 +223,7 @@ legend("topleft", legend=paste("Scaling exponent = ", exponent, sep = ""),
 ```
 
 #### i.  Randomizations and Null Models
+
 Randomizations are a way of resampling data to assess whether or not observed patterns are different from a null expectation. 
 A number of the functions in `picante` allow us to specify different null models as an argument. 
 These null models can control for features such as species richness, species occurrence frequencey, and the diversity of the regional species pool. 
@@ -239,12 +273,14 @@ ses.pd <- ses.pd(comm[1:2,], phy, null.model = "richness", runs = 25,
 ```
 
 ### B.  Phylogenetic Dispersion Within a Sample
+
 Earlier, we noted that species that co-occur together may 
 Another way to assess phylogenetic $\alpha$-diversity is to look at dispersion within a sample. 
 In the following section we will introduce two commonly used metrics --- the Net Relatedness Index (NRI) and the Nearest Taxon Index --- to quantify the degree to which closely related taxa co-occur.
 We will use randomization procedures to test whether species are phylogenetically clustered or overdispersed. 
 
 #### i. Phylogenetic Resemblance Matrix 
+
 Before estimating dispersion metrics, we need to create a phylogenetic resemblance matrix.
 This type of matrix is nearly identical to the resemblance matrix introduced in the $\beta$-diversity module.
 The only difference is that the phylogenetic resemblance matrix contains distances between taxa in a tree, whereas the community resemblance matrix contains distances among sites. 
@@ -258,6 +294,7 @@ phydist <- cophenetic.phylo(phy)
 ```
 
 #### ii.  Net Relatedness Index (NRI)
+
 One common way to test for phylogenetic clustering and overdispersion is to use the Net Relatedness Index (NRI).
 NRI is based on the mean phylogenetic distance (MPD).
 MPD is the mean phylogenetic distance from pairwise branch lengths in a sample.
@@ -280,6 +317,7 @@ colnames(NRI) <- "NRI"
 ```
 
 ### iii.  Nearest Taxon Index (NTI)
+
 Another way to test for phylogenetic clustering and oversdispersion in a sample is to use the Nearest Taxon Index (NTI).
 This index is mathemically similar to NRI, but uses the mean nearest phylogenetic neighbor distance (MNND) instead of MPD. 
 MNND is the mean phylogenetic distance between all taxa in a sample and their phylogenetically closest neighbor.
@@ -299,9 +337,11 @@ colnames(NTI) <- "NTI"
 ```
 
 ## 5) PHYLOGENETIC BETA DIVERSITY 
+
 [Say something here that motivates studying phylobetadiversity]
 
 ### A. Phylogenetically Based Community Resemblance Matrix
+
 As you may recall, in order to quantify $\beta$-diversity for more than two samples, one needs to create a resemblance matrix. 
 When quantifying taxonomic $\beta$-diversity, we calculated the pairwise **similarity** or **dissimiliarity** for all samples in a site-by-species matrix using metrics such as the Sørensen index or the Bray-Curtis index. 
 More or less, we need to go through the same process for quantifying phylogenetic $\beta$-diversity.
@@ -326,6 +366,7 @@ Here, we will explore two: Mean Pairwise Distance and UniFrac distance.
 \end{center}
 
 Let's calculate the phylogenetically based community resemblance matrices for our pond data set. 
+
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 # Mean Pairwise Distance
 dist.mp <- comdist(comm, phydist)
@@ -345,8 +386,8 @@ abline(b = 1, a = 0, lty = 2)
 text(0.5, 0.47, "1:1")
 ```
 
-
 ### B. Visualizing Phylogenetic Beta Diversity
+
 Now that we have our phylogenetically based community resemblance matrix, we can visualize phyogenetic diversity among samples using the same techniques that we used in the $\beta$-diversity module.
 As an example, we will use ordination, but any of the other $\beta$-diversity viualization techniques would also work (e.g., heatmaps and cluster analysis). 
 Specifically, we will use the `cmdscale()` function to conduct a Principal Coordinates Analysis (PCoA) using the UniFrac distance matrix.
@@ -390,7 +431,8 @@ text(pond.pcoa$points[ ,1], pond.pcoa$points[ ,2],
 
 ### C. Hypothesis Testing
 
-#### i. Categorical Approach: Watershed Effect  
+#### i. Categorical Approach: Watershed Effect 
+
 The ponds that we sampled in southern Indiana were located in three distinct watersheds (BCSP, HNF, and YSF). 
 For many organisms, watershed boundaries represent major dispersal barriers, which may influence the phylogenetic distribution of species. 
 Here, we will test for this watershed affect using the Permutational Multivariate Analysis of Variance (PERMANOVA) test that we learned about in the $\beta$-diversity module. 
@@ -404,6 +446,7 @@ adonis(dist.uf ~ water.shed, permutations = 999)
 ```
 
 #### ii. Continuous Approach: Environmental Gradients  
+
 In the Spatial Diversity module, we demonstrated that there was substantial variation in enviornmental variables that are known to influence the structure and function of microbial communities.
 In the following section, we will revist two methods that are used to test for relationships among multivariate environmental and biological data. 
 
@@ -478,8 +521,8 @@ axis(side = 4, lwd.ticks = 2, cex.axis = 1.2, las = 1, col = "red", lwd = 2.2,
      at = pretty(range(vectors[, 2])) * 2, labels = pretty(range(vectors[, 2])))
 ```
 
-
 ## 6) SPATIAL PHYLOGENETIC COMMUNITY ECOLOGY
+
 [Say something here that motivates spatial phylodiversity]
 
 ### A. Phylogenetic Distance-Decay (PDD)
@@ -582,7 +625,6 @@ Finally, let's test whether the slopes for taxonomic and phylogenetic DD are sig
 diffslope(geo.dist, unifrac, geo.dist, bray.curtis)
 ```
 
-
 ### A. Phlogenetic diversity-area relationship (PDAR)
 
 Helmus and Ives (2012) developed methods to study how phylogenetic diversity changes with increasing area.
@@ -640,6 +682,7 @@ In contrast to SAR, phylogenetic divesity-area relationships can increase or dec
 This provoked Helmus and Ives (2012) to develop theoretical expectations for the effects that ecological and evolutionary processes might have on the shape of the PDAR.
 
 #### i. Constructing the PDAR  
+
 Helmus and Ives (2012) used the phylogenetic species variability (PSV) metric to quantify phylogenetic diversity.
 PSV quantifies how phylogenetic relatedness decreases the variance of a hypothetical neutral trait shared by all species in a community. 
 Type 'help(psv)' to learn more.
@@ -696,6 +739,7 @@ PDAR <- function(comm, tree){
 ```
 
 #### ii. Evaluating the PDAR  
+
 We will examine the relationship between phylogenetic diversity and area using both Spearman's correlation coefficient (S) and Pearson's correlation coefficient (P).
 It is informative to use both because while S is computed on ranks and depicts monotonic relationships (the degree to which the relationship is continually increasing or decreasing), P is computed on the observed values and therefore depicts linear relationships.
 
@@ -729,7 +773,8 @@ legend("topleft", legend= c(paste("Spearman Correlation = ", S, "; p = ", Sp, se
                             bty = "n", col = "red") 
 ```
 
-## CONCLUSIONS
+## 7) CONCLUSIONS
+
 Phylogenetic relationships can be informative for understanding certain aspects of community ecology.
 However, it is important to note that interpretations of phylogenetic patterns, just like species patterns, are dependent on spatial and temporal scale (Emerson and Gillespie 2008).
 For example, at the local scale, species may show phylogenetic overdispersion (i.e., local communities are more phylogenetically different than expected by chance alone), but at the regional scale they may appear clumped (i.e., species are more similar than expected by chance alone). 
@@ -737,3 +782,5 @@ Thus, there may be ecological selection for species differences acting at the lo
 Another important assumption that many of these analyses make is that species show niche conservatism, that is, species niches remain relatively fixed through time (Wiens and Graham 2005, Wiens et al. 2010). 
 The assumption of niche conservatism allows us to ...
 If niches are not conserved, ...
+
+## 8) REFERENCES
