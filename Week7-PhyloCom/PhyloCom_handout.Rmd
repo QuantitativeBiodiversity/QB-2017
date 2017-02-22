@@ -68,15 +68,6 @@ for (package in package.list) {
     library(package, character.only = TRUE)
   }
 }
-
-#install.packages('picante', repos='http://cran.us.r-project.org')
-#require(picante)
-#install.packages('seqinr', repos='http://cran.us.r-project.org')
-#require(seqinr)
-#install.packages('seqinr', repos='http://cran.us.r-project.org')
-#require(seqinr)
-#install.packages('simba', repos='http://cran.us.r-project.org')
-#require(simba)
 ```
 
 ### C. Load Source Code
@@ -164,7 +155,7 @@ outgroup <- read.alignment(file = "./data/methanosarcina.fasta", format = "fasta
 # Convert Alignment File to DNAbin Object {ape}
 DNAbin <- rbind(as.DNAbin(outgroup), as.DNAbin(ponds.cons))
 
-# Visusalize Sequence Alignment {ape}
+# Visualize Sequence Alignment {ape}
 image.DNAbin(DNAbin, show.labels=T, cex.lab = 0.05, las = 1) 
 
 # Create Distance Matrix with the Jukes Cantor "JC" Model {ape}
@@ -348,13 +339,14 @@ colnames(NTI) <- "NTI"
 
 ## 5) PHYLOGENETIC BETA DIVERSITY 
 
-[Say something here that motivates studying phylobetadiversity]
+In previous modules, we examined how taxonomic diversity changed across sites in response to environmental differences.
+As you probably understand by now, examining taxonomic diversity does not reveal evolutionary relationships or the way in which environmental variables relate to shared evolutionary history.
 
 ### A. Phylogenetically Based Community Resemblance Matrix
 
-As you may recall, in order to quantify $\beta$-diversity for more than two samples, one needs to create a resemblance matrix. 
+As you may recall, a resemblance matrix is needed to quantify $\beta$-diversity for more than two samples. 
 When quantifying taxonomic $\beta$-diversity, we calculated the pairwise **similarity** or **dissimiliarity** for all samples in a site-by-species matrix using metrics such as the Sørensen index or the Bray-Curtis index. 
-More or less, we need to go through the same process for quantifying phylogenetic $\beta$-diversity.
+We need a similar process for quantifying phylogenetic $\beta$-diversity.
 Instead of making the resemblance matrix based on incidence or abundance of taxa, we are going to incorporate information about the phylogenetic relationships among taxa. 
 Similar to other measures of $\beta$-diversity, there are numerous ways to calculate the phylogenetic distances in the community resemblance matrix.
 Here, we will explore two: Mean Pairwise Distance and UniFrac distance.
@@ -457,7 +449,7 @@ adonis(dist.uf ~ water.shed, permutations = 999)
 
 #### ii. Continuous Approach: Environmental Gradients  
 
-In the Spatial Diversity module, we demonstrated that there was substantial variation in enviornmental variables that are known to influence the structure and function of microbial communities.
+In the Spatial Diversity module, we demonstrated that there was substantial variation in environmental variables that are known to influence the structure and function of microbial communities.
 In the following section, we will revist two methods that are used to test for relationships among multivariate environmental and biological data. 
 
 First, let's define the environmental data and then create an environmental distance matrix:
@@ -471,7 +463,7 @@ envs <- envs[, -which(names(envs) %in% c("TDS", "Salinity", "Cal_Volume"))]
 env.dist <- vegdist(scale(envs), method = "euclid")
 ```
 
-Second, let's conduct a Mantel's test to see whether UniFrac distance is correlated with environmental variation:
+Second, let's conduct a Mantel test to examine the potential correlation between UniFrac distance and environmental variation:
 
 ```{r, results = 'hide'}
 # Conduct Mantel Test {vegan}
@@ -533,14 +525,16 @@ axis(side = 4, lwd.ticks = 2, cex.axis = 1.2, las = 1, col = "red", lwd = 2.2,
 
 ## 6) SPATIAL PHYLOGENETIC COMMUNITY ECOLOGY
 
-[Say something here that motivates spatial phylodiversity]
+In the Spatial Diversity module, you learned that environments and communities can differ as a matter of geographic location.
+You also learned that population densities are naturally aggregated and that patterns of diversity can arise from spatial autocorrelation and random distribution of individuals and species across space.
+Here, we will add a phylogenetic dimension to the spatial diversity with the study of two phylogenetic patterns, i.e., the phylogenetic distance decay and the phylogenetic diversity-area relationship.
 
 ### A. Phylogenetic Distance-Decay (PDD)
 You will recall from the Geographical Ecology module, that the distance decay (DD) relationship reflects the spatial autocorrelation of community similarity.
 That is, geographically near communities should be more similar than geographically distant communities.
 Here, we will test to what degree spatial autocorrelation can also affect phylogenetic DD.  
 
-First, we will calcualte distances for geographic data, taxonomic data, and phylogenetic data among all unique pair-wise combinations of ponds.
+First, we will calculate distances for geographic data, taxonomic data, and phylogenetic data among all unique pair-wise combinations of ponds.
 
 ```{r}
 # Geographic Distances (Kilometers) Among Ponds
@@ -596,37 +590,6 @@ abline(DD.reg.uni, col = "red4", lwd = 2)
 # Add X-Axis Label to Plot
 mtext("Geographic Distance, km", side = 1, adj = 0.55, 
       line = 0.5, outer = TRUE)
-
-# # Set Initial Plot Parameters
-# par(mfrow=c(2, 1), mar = c(1, 5, 2, 1) + 0.1, oma = c(2, 0, 0, 0))
-# 
-# # Make Plot for Taxonomic DD
-# plot(df$env.dist, df$bray.curtis, xlab = "", xaxt = "n", las = 1, ylim = c(0.1, 0.9),
-#      ylab="Bray-Curtis Similarity", 
-#      main = "Distance Decay", col = "SteelBlue")
-# 
-# # Regression for Taxonomic DD 
-# DD.reg.bc <- lm(df$bray.curtis ~ df$env.dist)
-# summary(DD.reg.bc)
-# abline(DD.reg.bc , col = "red4", lwd = 2)
-# 
-# # New Plot Parameters
-# par(mar = c(2, 5, 1, 1) + 0.1)
-# 
-# # Make Plot for Phylogenetic DD
-# plot(df$env.dist, df$unifrac, xlab = "", las = 1, ylim = c(0.1, 0.9),
-#      ylab = "Unifrac Similarity", col = "darkorchid4")
-# 
-# # Regression for Phylogenetic DD
-# DD.reg.uni <- lm(df$unifrac ~ df$env.dist)
-# summary(DD.reg.uni)
-# abline(DD.reg.uni, col = "red4", lwd = 2)
-# 
-# # Add X-Axis Label to Plot
-# mtext("Environmental Distance", side = 1, adj = 0.55, 
-#       line = 0.5, outer = TRUE)
-
-
 ```
 
 Finally, let's test whether the slopes for taxonomic and phylogenetic DD are significantly different from one another.
@@ -678,6 +641,8 @@ pond.areas <- as.vector(pi * (env$Diameter/2)^2) # Find areas of all 51 ponds
 sar <- SAR(comm)
 sar <- as.data.frame(sar)
 
+plot.new()
+par(mfrow=c(2, 1), mar = c(1, 5, 2, 1) + 0.1, oma = c(2, 0, 0, 0))
 plot(sar, xlab = "log(Area)", ylab = "log(Richness)", 
      main = "Species-Area Relationship", col = "red")
 
@@ -773,20 +738,23 @@ S <- round(Spearman$estimate, 2)
 Sp <- round(Spearman$p.value, 3)
 
 # Plot the PDAR
-par(mar = c(5, 5, 4, 2) + 0.1)
+plot.new()
+par(mfrow=c(1, 1), mar = c(1, 5, 2, 1) + 0.1, oma = c(2, 0, 0, 0))
 plot(pdar[, 1], pdar[, 2], xlab = "Area", ylab = "PSV", ylim = c(0, 1), 
      main = "Phylogenetic Diversity-Area Relationship", 
      col = "red", pch = 16, las = 1)
 
-legend("topleft", legend= c(paste("Spearman Correlation = ", S, "; p = ", Sp, sep = ""), 
-                            paste("Pearson Correlation = ", P, "; p = ", Pp, sep = "")), 
+legend("topleft", legend= c(paste("Spearman Correlation = ", S, "; p = ", Sp, sep = ""),
+                            paste("Pearson Correlation = ", P, "; p = ", Pp, sep = "")),
                             bty = "n", col = "red") 
 ```
 
 ## 7) CONCLUSIONS
 
+**THE FOLLOWING IS A COMBINATION OF CAVEATS AND FURTHER INSTRUCTION. NOT REALLY CONCLUSION MATERIAL.**
+
 Phylogenetic relationships can be informative for understanding certain aspects of community ecology.
-However, it is important to note that interpretations of phylogenetic patterns, just like species patterns, are dependent on spatial and temporal scale (Emerson and Gillespie 2008).
+However, interpretations of phylogenetic patterns, just like taxonomic patterns, are dependent on spatial and temporal scale (Emerson and Gillespie 2008).
 For example, at the local scale, species may show phylogenetic overdispersion (i.e., local communities are more phylogenetically different than expected by chance alone), but at the regional scale they may appear clumped (i.e., species are more similar than expected by chance alone). 
 Thus, there may be ecological selection for species differences acting at the local scale, but regional variability in phylogenetic relatedness when comparing local species composition to other sites. 
 Another important assumption that many of these analyses make is that species show niche conservatism, that is, species niches remain relatively fixed through time (Wiens and Graham 2005, Wiens et al. 2010). 
