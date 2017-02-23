@@ -270,7 +270,7 @@ Higher PD values indicate that an assemblage contains more evolutionarily diverg
 Faith's PD can be implemented in R using the `pd()` function in the `picante` package. 
 A phylogenetic tree containing the species pool is required. 
 In addition to returning Faith's PD, the `pd()` function also returns species richness (S), which is identical 
-to observed richness ($S_{obs}) that we covered in the $\alpha$ diversity module. 
+to observed richness ($S_{obs}$) that we covered in the $\alpha$ diversity module. 
 
 ```{r}
 # Calculate PD and S {picante}
