@@ -615,16 +615,26 @@ axis(side = 4, lwd.ticks = 2, cex.axis = 1.2, las = 1, col = "red", lwd = 2.2,
 
 ## 6) SPATIAL PHYLOGENETIC COMMUNITY ECOLOGY
 
-In the Spatial Diversity module, you learned that communities can be affected by geography for different reasons (e.g., dispersal and evironmental conditions). 
-You also learned that population densities are naturally aggregated and that patterns of diversity can arise from spatial autocorrelation and random distribution of individuals and species across space.
-Here, we will add a phylogenetic dimension to two fundamental patterns of biodiveristy: the distance decay (DD) relationship and the species area relationship (SAR).
+In the Spatial Diversity module, you learned that taxonomic diversity can be affected by geography for different reasons (e.g., dispersal and environmental conditions). 
+For example, while population densities are often aggregated due to the spatial distribution of environmental variables, aggregated patterns of diversity can also arise from dispersal limitation and the stochastic distribution of individuals and species across space.
+You learned that factors such as these can lead to spatial autocorrelation in patterns of diversity, i.e., the tendency for near things to be more similar than distant things.
+Knowing whether your data is spatially autocorrelated is central to understanding the forces influencing diversity and to knowing the spatial scale at which comparisons should be made.
+You were also introduced to two primary spatial patterns of taxonomic diversity, i.e., the distance decay (DD) relationship and the species-area relationship (SAR).
+
+Here, we will add a phylogenetic dimension to the study of spatial diversity.
+This section will combine the study of community ecology with one of the earliest scientific notions for why biological diversity varies across space.
+Specifically, evolutionary events like adaptive radiation, speciation, and extinction always have a geographic context (Lomolino et al. 2006). 
+Consequently, spatial patterns of taxonomic diversity like the DD and SAR might reflect the influence of evolutionary processes and, hence, have a phylogenetic signal.
+
+Here, you will learn to construct and analyze two primary spatial patterns of phylogenetic biodiversity, i.e., the phylogenetic distance decay (PDD) relationship and the phylogenetic diversity area relationship (PDAR).
 
 ### A. Phylogenetic Distance-Decay (PDD)
 Recall that the distance decay (DD) relationship reflects the spatial autocorrelation of community similarity.
-That is, communities located near one another should be more similar to one another than to distant communities.
-Here, we will test to what degree spatial autocorrelation can also affect phylogenetic DD.  
-
-First, we will calculate pairwise geographic, taxonomic, and phylogenetic distances between ponds.
+That is, communities located near one another should be more similar to one another in taxonomic composition than distant communities.
+Historically, the two most common explanations for the taxonomic DD are that it reflects spatially autocorrelated environmental variables and the influence of dispersal limitation. 
+However, if phylogenetic diversity is also spatially autocorrelated, then evolutionary history may also explain some of the taxonomic DD pattern.
+Here, we will construct the PDD relationship in a way that is similar to how we constructed the taxonomic DD.
+First, let's calculate pairwise geographic, taxonomic, and phylogenetic distances between sites of our Indiana ponds data set.
 
 ```{r}
 # Geographic distances (kilometers) among ponds
@@ -690,11 +700,20 @@ diffslope(df$geo.dist, df$unifrac, df$geo.dist, df$bray.curtis)
 
 ### A. Phylogenetic diversity-area relationship (PDAR)
 
+In the Spatial Diversity module you were introduced to one of ecology's most intensively studied patterns of biodiversity, i.e., the species-area relationship (SAR).
+The SAR reveals the rate at which species are discovered with increasing area and demonstrates the importance of considering spatial scale (i.e., extent, grain) and aggregation, the effects of random placement, and even the way in which area in the landscape is accumulated (e.g., nested design, accumulating contiguous or non-contiguous plots).
+You will recall that the SAR is typically constructed by accumulating area and in this way, the slope of the SAR cannot be negative.
+The slope of the SAR can however be 0, meaning that all species are found in all samples.
+
+Recently, scientists have begun to explore the influence of evolutionary history on area relationships, specifically in regards to how phylogenetic diversity changes with area. 
 Helmus and Ives (2012) developed methods to study how phylogenetic diversity changes with increasing area.
-This phylogenetic diversity-area relationship (PDAR) is analogous to the species-area relationship (SAR) that we learned about in the Spatial Diversity module.
-You will recall that the SAR is a cumulative relationship (S = cA^z^) and so, cannot be negative.
-In fact, the shallowest the SAR can get is to have a slope of 0.0, meaning that all species are found in all samples.
-In the following section, we calculate and plot the taxonomically based SAR for the pond data. 
+They invoked macroevolutionary mechanisms such as *in situ* speciation (i.e., diversification within an area) and eco-evolutionary mechanisms such as phylogenetic repulsion (i.e., the tendency for closely related species to be found in similar habitats but not in the same area) to explain why phylogenetic diversity may increase with area.
+However, unlike the SAR, where newly observed species are simply added to the list of previously observed species, the PDAR can be negative because accumulating new taxa does not necessarily translate to accumulating greater evolutionary distance.
+In fact, phylogenetic repulsion would imply that sampling a new area could add species (increasing the SAR) that are phylogenetically closer than species in the same area (decreasing the PDAR).
+
+In the following sections, we examine the microbial SAR and PDAR for our Indiana ponds data set.
+We will accumulate ponds at random across the landscape, as in Helmus and Ives (2012).
+Let's begin by constructing the SAR.
 
 ```{r, echo=FALSE, results = 'hide'}
 SAR <- function(OTUs){
@@ -754,19 +773,14 @@ slope <- round(coefficients(OLS)[2], 3)
 legend("topleft", legend = paste("slope =", slope), bty = "n", lw = 2, col = "red")  
 ```
 
-In contrast to SAR, phylogenetic divesity-area relationships can increase or decrease with area. 
-*Is there an simple example to clearly demonstrate how this can occur?*
-This provoked Helmus and Ives (2012) to develop theoretical expectations for the effects that ecological and evolutionary processes might have on the shape of the PDAR.
-
 #### i. Constructing the PDAR  
 
 Helmus and Ives (2012) used the phylogenetic species variability (PSV) metric to quantify phylogenetic diversity.
 PSV quantifies how phylogenetic relatedness decreases the variance of a hypothetical neutral trait shared by all species in a community. 
 Type 'help(psv)' to learn more.
 
-In this exercise, we will construct PDARs using the random aggregation approach of Helmus and Ives (2012).
-
-Let's begin by writing a function to generate the PDAR.
+Let's construct the PDAR using the same approach to aggregating area.
+We will begin by writing a function to generate the PDAR.
 
 ```{r}
 PDAR <- function(comm, tree){
@@ -816,8 +830,8 @@ PDAR <- function(comm, tree){
 
 #### ii. Evaluating the PDAR  
 
-We will examine the relationship between phylogenetic diversity and area using both Spearman's correlation coefficient (S) and Pearson's correlation coefficient (P).
-It is informative to use both because while S is computed on ranks and depicts monotonic relationships (the degree to which the relationship is continually increasing or decreasing), P is computed on the observed values and therefore depicts linear relationships.
+Let's examine the relationship between phylogenetic diversity and area using both Spearman's correlation coefficient ($\rho$) and Pearson's correlation coefficient (P).
+It is informative to use both because while $\rho$ is computed on ranks and depicts monotonic relationships (the degree to which the relationship is continually increasing or decreasing), P is computed on the observed values and therefore depicts linear relationships.
 
 ```{r, results = 'hide'}
 # Calculate areas for ponds: find areas of all ponds
@@ -831,12 +845,12 @@ pdar$areas <- sqrt(pdar$areas)
 # Calculate Pearson's correlation coefficient
 Pearson <- cor.test(pdar$areas, pdar$diversity, method = "pearson")
 P <- round(Pearson$estimate, 2)
-Pp <- round(Pearson$p.value, 3)
+P.pval <- round(Pearson$p.value, 3)
 
 # Calculate Spearman's correlation coefficient
 Spearman <- cor.test(pdar$areas, pdar$diversity, method = "spearman")
-S <- round(Spearman$estimate, 2)
-Sp <- round(Spearman$p.value, 3)
+rho <- round(Spearman$estimate, 2)
+rho.pval <- round(Spearman$p.value, 3)
 
 # Plot the PDAR
 plot.new()
@@ -845,8 +859,8 @@ plot(pdar[, 1], pdar[, 2], xlab = "Area", ylab = "PSV", ylim = c(0, 1),
      main = "Phylogenetic Diversity-Area Relationship", 
      col = "red", pch = 16, las = 1)
 
-legend("topleft", legend= c(paste("Spearman Correlation = ", S, "; p = ", Sp, sep = ""),
-                            paste("Pearson Correlation = ", P, "; p = ", Pp, sep = "")),
+legend("topleft", legend= c(paste("Spearman Correlation = ", rho, "; p = ", rho.pval, sep = ""),
+                            paste("Pearson Correlation = ", P, "; p = ", P.val, sep = "")),
                             bty = "n", col = "red") 
 ```
 
@@ -877,6 +891,8 @@ HilleRisLambers, J., P. B. Adler, W. S. Harpole, J. M. Levine, and M. M. Mayfiel
 Ives, A. R., and M. R. Helmus. 2010. Phylogenetic metrics of community similarity. The American Naturalist 176:E128-E142.
 
 Leibold, M. A., and M. A. McPeek. 2006. Coexistence of the niche and neutral perspectives in community ecology. Ecology 87:1399-1410.
+
+Lomolino, M. V., Riddle, B. R., and J. H. Brown. 2006. Biogeography. 3rd Edition. Sunderland, MA. Sinauer Associates.
 
 Mayfield, M. M., and J. M. Levine. 2010. Opposing effects of competitive exclusion on the phylogenetic structure of communities. Ecology Letters 13:1085-1093.
 
