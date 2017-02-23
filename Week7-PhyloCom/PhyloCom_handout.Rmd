@@ -25,7 +25,7 @@ After completing this exercise you will know how to:
 
 Phylogenetic insight has played a key role in the historical development of community ecology.
 Darwin (1859) observed that closely related species (e.g., species in the same genus) are more ecologically similar than distantly related species.
-This observation led him to the identifcation of a paradox. 
+This observation led ~him~ to the identifcation of a paradox. 
 On the one hand, in order for a species to successfully invade a community it must be sufficiently *related* to resident taxa and thereby share ecologically relevant traits that allow it to contend with local conditions (e.g., pH). 
 On the other hand, the species must be sufficiently *unrelated* to resident taxa and thereby possess some unique traits so that it can exploit unoccupied niches (Diez et al. 2008).
 These concepts are reflected in the contemporary views of community ecology.
@@ -34,8 +34,8 @@ In theory, ecological similarity can be determined by measuring the functional t
 In practice, it is challenging to measure ecologically relelvant traits of individuals in complex communities.
 Therefore, many scientists will use phylogeny as a proxy for traits since phylogenetic information is becoming increasingly accessible. 
 Ecologists have attempted to use phylogenetic information to gain insight into community assembly processes.
-For example, if a community is dominated by closely related taxa (i.e. clustering), one might infer that enviromental filtering is acting on a set of shared functional traits; a scenario that is consistent with equalizing mechansisms of coexistence.
-In contrast, if a community is comprised of more distantly related taxa (i.e., overdispersion), one might infer that competitive exclusion is an important assembly process; a scenario that is consistent with stabilizing mechanisms of coexistence.
+For example, if a community is dominated by closely related taxa (i.e. clustering), one might infer that enviromental filtering is acting on a set of shared functional traits.
+In contrast, if a community is comprised of more distantly related taxa (i.e., overdispersion), one might infer that competitive exclusion is an important assembly process.
 It is important to note, however, that other mechanisms can give rise to patterns of phylogenetic clustering and overdispersion (e.g., see Mayfield and Levine 2010 for discussion).
 
 ~~~However, often times the assumptions that underlie much of current phylogenetic community ecology are observed, mainly: (1) traits related to competitive ability and species niches *are* phylogenetically conserved (and we discussed how to verify this last week), (2) competitive exclusion is more common than character displacement (meaning incompatible species are removed from the community), and (3) trait convergence is rare (among others: Gerhold et al. 2015).
@@ -154,8 +154,11 @@ Now let's load the bacterial OTU data (i.e., site-by-species matrix).
 First, we will use the `read.OTU()` function from the Source Code.
 The rownames contain information about whether a site (pond) represents data obtained from 16S rRNA genes (i.e., DNA) or 16S rRNA transcripts, which were sequenced as copy DNA (cDNA). 
 We want to retain only the DNA data for this module. 
-Therefore, we are going to use the `grep()` function, which is designed for matching patterns in string of characters.
-Then we will use the `gsub()` function, which replaces matches in a string of characters, to clean up the rowname so it is more useful. 
+Therefore, we are going to use the `grep()` function, which is designed for matching patterns in string of characters, or "regular expressions".
+Here, we only want the rownames that end in "-DNA", not those that end in "-cDNA". 
+Then we will use the `gsub()` function, which replaces a matched regular expression (the first argument) with another character string (provided in the second argument).
+Here, we will simply clean up the rownames so they are less cumbersome.
+Inspect the rownames of `comm` (e.g., `rownames(comm)`) after each grep command to see how it works. 
 
 ```{r}
 # Load Site-by-Species Matrix
@@ -170,9 +173,9 @@ rownames(comm) <- gsub("\\_", "", rownames(comm))
 ```
 
 Now we just need to clean up the `comm` dataframe a little bit. 
-First we'll remove sites that contained in the `env` dataframe. 
-Second, because we removed the RNA samples, there are likely to be some OTUs that are not found in the DNA sample. 
-So, we'll remove any zero-abundance taxa. 
+First, we'll remove sites that are not contained in the `env` dataframe. 
+Second, because we removed the RNA samples, there are likely to be some OTUs that are not found in the DNA samples. 
+So, we'll remove any zero-abundance taxa (i.e., empty columns). 
 
 ```{r}
 # Remove sites not in the environmental data set
@@ -224,7 +227,7 @@ image.DNAbin(DNAbin, show.labels=T, cex.lab = 0.05, las = 1)
 With the DNAbin object that we just made, we'll now create a distance matrix with the Jukes Cantor "JC" Model using the `ape` package. 
 You will remember from the PhyloTraits module that the benefit of this approach is in its reduced computational time.
 We will then use the neighbor joining algorithm to construct a tree file and we will remove any tips associated with zero-abundance taxa.
-Next, we will specify the outgropu sequence, root the tree, and make a plot of the tree.
+Next, we will specify the outgroup sequence, root the tree, and plot the tree.
 
 ```{r}
 # Make distance matrix (`ape`)
@@ -254,16 +257,16 @@ plot.phylo(phy, main = "Neighbor Joining Tree", "phylogram", show.tip.label = FA
 
 Now that we have loaded and processed all of our data, we are prepared to quantify phylogenetic diversity. 
 Tucker et al. (2016) discuss several methods for quantifying phylogenetic diversity. 
-We will start by assessing the with-in site or $\alpha$-phylodiversity. 
+We will start by assessing the within site or $\alpha$-phylodiversity. 
 In general, a sample consisting of species that are less closely related has higher phylogenetic diversity. 
 Maintaining high phylogenetic diversity has been proposed as a more effective way to maintain ecosystem functionality and is often the focus of conservation biology.
-In the following sections, we will introduce a few ways to calcaulte $\alpha$-phylodiversity.
+In the following sections, we will introduce a few ways to calculate $\alpha$-phylodiversity.
 
 ### A.  Faith's Phylogenetic Diversity (PD)
 
 In 1992, Daniel Faith developed a diversity metric called Faith's PD (http://goo.gl/wM08Oy).
 The metric sums the branch lengths for each species found in a sample from the root to the tip of the phylogenetic tree.
-It's important to note that PD, as implemented here, is based on the presence-absence of an OTU; it does not weight 
+It's important to note that PD, as implemented here, is based on the presence-absence of an OTU; that is, it does not weight the branches of common species more than the brances of rare species.
 The value of the metric captures the evolutionary history of an assemblage. 
 Higher PD values indicate that an assemblage contains more evolutionarily divergent taxa, while lower PD values indicate that an assemblage contains taxa with a more restricted evolutionary history.
 
@@ -300,6 +303,8 @@ legend("topleft", legend=paste("Scaling exponent = ", exponent, sep = ""),
 
 #### i.  Randomizations and Null Models
 
+Now that we have a way to quantify PD, how do we know if our observed values really reflect high phylogenetic diversity or are merely an artifact of high species richness?
+In order to say whether a site has unusually high or low phylogenetic diversity, we need to know something about how variable our metric is under null conditions. 
 Randomization is powerful way to resample data to assess whether or not observed patterns are different from a null expectation. 
 A number of the functions in `picante` allow us to specify different null models as an argument. 
 These null models can control for features such as species richness, species occurrence frequencey, and the diversity of the regional species pool. 
@@ -339,6 +344,7 @@ The following table describes some of the null models that are available to us w
 
 Now, we are going to use the `ses.pd()` function in `picante`.
 This function estimates the standardized effect size ("ses") using the following equation: `ses.pd` = (`pd.obs` - `pd.rand.mean`) / `pd.rand.sd`, where `pd.obs` is the observed PD, `pd.rand.mean` is the mean of the PD values generated via randomization under a null model, and `pd.rand.sd` is the standard deviation of the PD values generated via randomization under a null model (see table above). 
+When the observed value is greater than the null expectation (i.e., ses.pd > 0), our sample is more phylogenetically diverse than expected under the null distribution.
 Given the size of both our site-by-species matrix and the phylogenetic tree, the randomizaiton process is computationally intensive. 
 Therfore, we are only going to run the `ses.pd` function for two ponds with a limited number of randomizations (i.e., "runs" argument).
 
@@ -352,15 +358,15 @@ ses.pd <- ses.pd(comm[1:2,], phy, null.model = "richness", runs = 25,
 
 Earlier, we described how the relatedness of species in a sample can deviate from a random distribution.
 Clustered communities contain species that are more closely related than would be expected by chance. 
-Overdispersed communities contain species tha re more distantly related than would be expected by chance. 
-In this section, we introduce two ways of quantifying $\alpha$ phylodiversity based on the **dispersion** of species in a sample: the Net Relatedness Index (NRI) and the Nearest Taxon Index.
+Overdispersed communities contain species that are more distantly related than would be expected by chance. 
+In this section, we introduce two ways of quantifying $\alpha$ phylodiversity based on the **dispersion** of species in a sample: the Net Relatedness Index (NRI) and the Nearest Taxon Index (NTI).
 We will use randomization procedures to test whether species are phylogenetically clustered or overdispersed. 
 
 #### i. Phylogenetic Resemblance Matrix 
 
 Before estimating dispersion metrics, we need to create a phylogenetic resemblance matrix.
 This type of matrix is nearly identical to the resemblance matrix introduced in the $\beta$-diversity module.
-The only difference is that the phylogenetic resemblance matrix contains distances between taxa in a tree, whereas the community resemblance matrix contains distances among sites. 
+The only difference is that the phylogenetic resemblance matrix contains distances between *taxa* in a tree, whereas the community resemblance matrix contains distances among *sites*. 
 The elements in phylogenetic resemblance matrix are calculated as the pairwise branch-length distances between tips (i.e., taxa) on a phylogenetic tree. 
 The phylogenetic resemblance matrix is sometimes referred to as the phylogenetic variance-covariance matrix. 
 We will use the `cophenetic.phylo()` function in the `picante` package to calculate the phylogenetic resemblance matrix.
@@ -373,8 +379,8 @@ phydist <- cophenetic.phylo(phy)
 #### ii.  Net Relatedness Index (NRI)
 
 One common way to test for phylogenetic clustering and overdispersion is to use the Net Relatedness Index (NRI).
-NRI is based on the mean phylogenetic distance (MPD), which is calculated based on the pairwise branch lengths in a sample that is contained in your phylogenetic resemblance matrix. 
-With this information in hand, NRI is expressed as: - (`mpd.obs` - `mpd.rand.mean`) / `mpd.rand.sd` where `mpd.obs` is the observed MPD, essentially, the avarage value of the resemblance matrix for a given sample; `mpd.rand.mean` is the mean of the MPD values generated via randomization under a null model, and `mpd.rand.sd` is the standard deviation of the MPD values generated via randomization under a null model. 
+NRI is based on the mean phylogenetic distance (MPD), which is calculated as the average pairwise branch length between the taxa in a sample, a subset of the phylogenetic resemblance matrix (the `phydist` object above).
+After calculating MPD, the NRI is expressed as: - (`mpd.obs` - `mpd.rand.mean`) / `mpd.rand.sd`, where `mpd.obs` is the observed MPD of a sample, `mpd.rand.mean` is the mean of the MPD values generated via randomization under a null model, and `mpd.rand.sd` is the standard deviation of the MPD values generated via randomization under a null model. 
 
 Negative NRI values indicate that a sample is phylogenetically overdispersed; that is, taxa are less related to one another than expected under the null model.
 Positive NRI values indicate that a sample is phylogentically underdispersed, or clustered, such that taxa are more closely related to one another than expected under the null model. 
@@ -394,13 +400,14 @@ colnames(NRI) <- "NRI"
 
 ### iii.  Nearest Taxon Index (NTI)
 
-Another way to test for phylogenetic clustering and oversdispersion in a sample is to use the Nearest Taxon Index (NTI).
-This index is mathemically similar to NRI, but uses the mean nearest phylogenetic neighbor distance (MNND) instead of MPD. 
+Another way to test for phylogenetic clustering and overdispersion in a sample is to use the Nearest Taxon Index (NTI).
+This index is mathematically similar to NRI, but uses the mean nearest phylogenetic neighbor distance (MNND) instead of MPD. 
 MNND is the mean phylogenetic distance between all taxa in a sample and their phylogenetically closest neighbor.
-Effectively, this is the sum of the minimum values for each colum (i.e. taxon) of the phylogenetic resemblance matrix.
-As a result, NTI tends to emphasize terminal clustering, independent of deep level clustering (Webb et al. 2002; http://goo.gl/WikgWE).
+Effectively, this is the sum of the minimum values for each row or column (i.e. taxon) of the square, non-triangular, phylogenetic resemblance matrix.
+Because only the most closely related taxa are considered, NTI tends to emphasize terminal clustering (i.e., near the tips), independent of deep level clustering (Webb et al. 2002; http://goo.gl/WikgWE).
 Just like NRI, we peform randomizations and use this information to estimate the standardized effect size. 
-Negative NTI values indicate phylogenetic overdispersion and positive NTI values indicate phylogenetic clustering. 
+The NTI is then calculated as -(mntd.obs - mntd.mean)/mntd.sd. 
+Negative NTI values indicate phylogenetic overdispersion (because nearest taxa are more distantly related than expected) and positive NTI values indicate phylogenetic clustering (because nearest taxa are more closely related than expected). 
 
 ```{r}
 # Estimate Standardized Effect Size of NRI via Randomization {picante} 
@@ -417,12 +424,15 @@ colnames(NTI) <- "NTI"
 
 In previous modules, we examined how taxonomic diversity changed across sites in response to environmental differences.
 As you probably understand by now, examining taxonomic diversity does not reveal evolutionary relationships or the way in which environmental variables relate to shared evolutionary history.
+Understanding how phylogenetic relationships change across sites may be useful for identifying whether groups of sites differ because of differing local conditions (e.g., pH or primary productivity) or historical factors (e.g., in situ radiations due to dispersal limitations). 
+As with the discussions about phylogenetic alpha diversity, this is a highly active research field.
+You are encouraged to seek out additional information to learn more about how phylogenetic information can aid your understanding of among-site variability in phylogenetic and taxonomic diversity. 
 
 ### A. Phylogenetically Based Community Resemblance Matrix
 
-As you may recall, a resemblance matrix is needed to quantify $\beta$-diversity for more than two samples. 
+Recall that a resemblance matrix is needed to quantify $\beta$-diversity for more than two samples. 
 When quantifying taxonomic $\beta$-diversity, we calculated the pairwise **similarity** or **dissimiliarity** for all samples in a site-by-species matrix using metrics such as the Sørensen index or the Bray-Curtis index. 
-We need a similar process for quantifying phylogenetic $\beta$-diversity.
+We need a similar process for quantifying phylogenetic dissimilarity between sites.
 Instead of making the resemblance matrix based on incidence or abundance of taxa, we are going to incorporate information about the phylogenetic relationships among taxa. 
 Similar to other measures of $\beta$-diversity, there are numerous ways to calculate the phylogenetic distances in the community resemblance matrix.
 Here, we will explore two: Mean Pairwise Distance and UniFrac distance.
@@ -443,7 +453,7 @@ Here, we will explore two: Mean Pairwise Distance and UniFrac distance.
 \end{tabular}
 \end{center}
 
-Let's calculate the phylogenetically based community resemblance matrices for our pond data set. 
+Let's calculate the phylogenetic community resemblance matrices for our pond data set. 
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 # Mean Pairwise Distance
@@ -466,8 +476,8 @@ text(0.5, 0.47, "1:1")
 
 ### B. Visualizing Phylogenetic Beta Diversity
 
-Now that we have our phylogenetically based community resemblance matrix, we can visualize phyogenetic diversity among samples using the same techniques that we used in the $\beta$-diversity module.
-As an example, we will use ordination, but any of the other $\beta$-diversity viualization techniques would also work (e.g., heatmaps and cluster analysis). 
+Now that we have our phylogenetically based community resemblance matrix, we can visualize phylogenetic diversity among samples using the same techniques that we used in the $\beta$-diversity module.
+As an example, we will use ordination, but because we have a distance matrix (e.g., of UniFrac distances) any of the other $\beta$-diversity visualization techniques that operate on a distance matrix would also be appropriate (e.g., heatmaps and cluster analysis). 
 Specifically, we will use the `cmdscale()` function to conduct a Principal Coordinates Analysis (PCoA) using the UniFrac distance matrix.
 Additionally, we will calculate the amount of explained variation for each phylogenetically informed PCoA axis.
 
@@ -509,7 +519,7 @@ text(pond.pcoa$points[ ,1], pond.pcoa$points[ ,2],
 
 ### C. Hypothesis Testing
 
-#### i. Categorical Approach: Watershed Effect 
+#### i. Categorical Designs 
 
 The ponds that we sampled in southern Indiana were located in three distinct watersheds (BCSP, HNF, and YSF). 
 For many organisms, watershed boundaries represent major dispersal barriers, which may influence the phylogenetic distribution of species. 
@@ -517,13 +527,20 @@ Here, we will test for this watershed affect using the Permutational Multivariat
 
 ```{r, results = 'hide'}
 # Define Environmental Category
-water.shed <- env$Location
+watershed <- env$Location
 
 # Run PERMANOVA with `adonis()` Function {vegan}
-adonis(dist.uf ~ water.shed, permutations = 999)
+adonis(dist.uf ~ watershed, permutations = 999)
+
+# We can compare to PERMANOVA results based on taxonomy
+adonis(
+  vegdist(                             # create a distance matrix on
+    decostand(comm, method = "log"),   # log-transformed relative abundances
+    method = "bray") ~ watershed,      # using Bray-Curtis dissimilarity metric
+  permutations = 999)
 ```
 
-#### ii. Continuous Approach: Environmental Gradients  
+#### ii. Continuous Designs  
 
 In the Spatial Diversity module, we demonstrated that there was substantial variation in environmental variables that are known to influence the structure and function of microbial communities.
 In the following section, we will revist two methods that are used to test for relationships among multivariate environmental and biological data. 
@@ -533,6 +550,8 @@ First, let's define the environmental data and then create an environmental dist
 ```{r}
 # Define Environmental Variables
 envs <- env[, 5:19]
+
+# These are highly correlated variables, so let's remove them to reduce overfitting
 envs <- envs[, -which(names(envs) %in% c("TDS", "Salinity", "Cal_Volume"))]
 
 # Distance Matrix for Environmental Variables
@@ -546,13 +565,12 @@ Second, let's conduct a Mantel test to examine the potential correlation between
 mantel(dist.uf, env.dist) 
 ```
 
-Last, let's conduct a Canonical Correspondence Analysis (CCA). 
+Last, let's conduct a distance-based Redundance Analysis (dbRDA). 
 You will recall that this constrained ordination technique allows one to test for the effects of an explanatory matrix (e.g., environmental data) on a response matrix (e.g., phylogenetic distance matrix). 
 
 ```{r, results = 'hide'}
-# Conduct CCA {vegan}
+# Conduct dbRDA {vegan}
 ponds.dbrda <- vegan::dbrda(dist.uf ~ ., data = as.data.frame(scale(envs)))
-ponds.dbrda <- ordistep(ponds.dbrda, direction = "both", permutations = 999)
 
 # Permutation Tests: Axes and Env Variables
 anova(ponds.dbrda, by = "axis")
@@ -584,7 +602,7 @@ box(lwd = 2)
 points(scores(ponds.dbrda, display = "wa"),
        pch = 19, cex = 3, bg = "gray", col = "gray")
 text(scores(ponds.dbrda, display = "wa"), 
-    labels = row.names(scores(ponds.cca, display = "wa")), cex = 0.5)
+    labels = row.names(scores(ponds.dbrda, display = "wa")), cex = 0.5)
 
 # Add Environmental Vectors
 vectors <- scores(ponds.dbrda, display = "bp")
@@ -603,14 +621,14 @@ axis(side = 4, lwd.ticks = 2, cex.axis = 1.2, las = 1, col = "red", lwd = 2.2,
 
 In the Spatial Diversity module, you learned that environments and communities can differ as a matter of geographic location.
 You also learned that population densities are naturally aggregated and that patterns of diversity can arise from spatial autocorrelation and random distribution of individuals and species across space.
-Here, we will add a phylogenetic dimension to the spatial diversity with the study of two phylogenetic patterns, i.e., the phylogenetic distance decay and the phylogenetic diversity-area relationship.
+Here, we will add a phylogenetic dimension to spatial diversity with the study of two phylogenetic patterns: the phylogenetic distance decay and the phylogenetic diversity-area relationship.
 
 ### A. Phylogenetic Distance-Decay (PDD)
-You will recall from the Geographical Ecology module, that the distance decay (DD) relationship reflects the spatial autocorrelation of community similarity.
-That is, geographically near communities should be more similar than geographically distant communities.
+Recall that the distance decay (DD) relationship reflects the spatial autocorrelation of community similarity.
+That is, communities located near one another should be more similar to one another than to distant communities.
 Here, we will test to what degree spatial autocorrelation can also affect phylogenetic DD.  
 
-First, we will calculate distances for geographic data, taxonomic data, and phylogenetic data among all unique pair-wise combinations of ponds.
+First, we will calculate pairwise geographic, taxonomic, and phylogenetic distances between ponds.
 
 ```{r}
 # Geographic Distances (Kilometers) Among Ponds
@@ -671,41 +689,52 @@ mtext("Geographic Distance, km", side = 1, adj = 0.55,
 Finally, let's test whether the slopes for taxonomic and phylogenetic DD are significantly different from one another.
 
 ```{r, results = 'hide'}
-diffslope(geo.dist, unifrac, geo.dist, bray.curtis)
+diffslope(df$geo.dist, df$unifrac, df$geo.dist, df$bray.curtis)
 ```
 
-### A. Phlogenetic diversity-area relationship (PDAR)
+### A. Phylogenetic diversity-area relationship (PDAR)
 
 Helmus and Ives (2012) developed methods to study how phylogenetic diversity changes with increasing area.
-This phylogenetic diversity-area relationship (PDAR) is analogous to the species-area relationship (SAR) that we learned about in the Geographical Ecology module.
+This phylogenetic diversity-area relationship (PDAR) is analogous to the species-area relationship (SAR) that we learned about in the Spatial Diversity module.
 You will recall that the SAR is a cumulative relationship (S = cA^z) and so, cannot be negative.
 In fact, the shallowest the SAR can get is to have a slope of 0.0, meaning that all species are found in all samples.
 Below is a plot of the taxonomically based SAR for the pond data. 
 
 ```{r, echo=FALSE, results = 'hide'}
 SAR <- function(OTUs){
+
+  # First, create empty vectors for Area and Species lists
   Alist <- c()
   Slist <- c()
   
+  # Aggregate ponds by 2, 4, 8, 16...
   num.ponds <- c(2,4,8,16,32,51)
+  
+  # Next, we'll loop based on 2, 4, 8, etc ponds at a time
   for (i in num.ponds) {   
     areas <- c() # hold iterated area values 
     Ss <- c() # hold iterated S values
     
     for(j in 1:100){
+      
+      # Randomly choose 2, 4, 8, 16...pond numbers
       pond.sample <- sample(51, replace = FALSE, size = i) 
       area <- 0
       cum.abs <- vector(mode = "numeric", length = length(comm))
   
       for (k in pond.sample) { # Loop through each randomly drawn pond
         area <- area + pond.areas[k] # aggregating area, (incrementing)
-        cum.abs <- cum.abs + as.numeric(comm[k, ])
+        cum.abs <- cum.abs + as.numeric(comm[k, ]) # combine comm data for each site
     
       } # End random pond samples loop
+      
+      # Add up number of species at all sites and cumulative areas
       S <- length(cum.abs[cum.abs > 0])
       areas <- c(areas, area)
       Ss <- c(Ss, S)
     }
+    
+    # Pair up species lists with abundances
     Alist <- rbind(Alist, mean(areas))
     Slist <- rbind(Slist, mean(Ss))
     print(c(mean(areas), mean(Ss)))
@@ -730,6 +759,7 @@ legend("topleft", legend = paste("slope =", slope), bty = "n", lw = 2, col = "re
 ```
 
 In contrast to SAR, phylogenetic divesity-area relationships can increase or decrease with area. 
+*Is there an simple example to clearly demonstrate how this can occur?*
 This provoked Helmus and Ives (2012) to develop theoretical expectations for the effects that ecological and evolutionary processes might have on the shape of the PDAR.
 
 #### i. Constructing the PDAR  
@@ -739,7 +769,6 @@ PSV quantifies how phylogenetic relatedness decreases the variance of a hypothet
 Type 'help(psv)' to learn more.
 
 In this exercise, we will construct PDARs using the random aggregation approach of Helmus and Ives (2012).
-This approach is similar to how we constructed SARs in the Geographical Ecology module.
 
 Let's begin by writing a function to generate the PDAR.
 
@@ -772,7 +801,7 @@ PDAR <- function(comm, tree){
         sites <- rbind(sites, comm[k, ])    # And Sites
         }
       
-      # Concatenate the rea to areas.iter
+      # Concatenate the area to areas.iter
       areas.iter <- c(areas.iter, area)  
       # Calculate PSV or Other Phylogenetic Alpha-Diversity Metric
       psv.vals <- psv(sites, tree, compute.var = FALSE) 
@@ -803,7 +832,7 @@ pdar <- PDAR(comm, phy)
 pdar <- as.data.frame(pdar)
 pdar$areas <- sqrt(pdar$areas)
 
-# Calculate Perason's Correlation Coefficient
+# Calculate Pearson's Correlation Coefficient
 Pearson <- cor.test(pdar$areas, pdar$diversity, method = "pearson")
 P <- round(Pearson$estimate, 2)
 Pp <- round(Pearson$p.value, 3)
