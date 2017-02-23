@@ -1,7 +1,7 @@
 ---
 title: "Phylogenetic Diversity - Communities"
 author: "Z620: Quantitative Biodiversity, Indiana University"
-date: "February 27, 2015"
+date: "February 24, 2017"
 header-includes:
    - \usepackage{array}
 output: pdf_document
@@ -13,7 +13,7 @@ geometry: margin=2.54cm
 Last week, we examined the distribution of functional traits with respect to the shared evolutionary history (i.e., phylogeny) of organisms. 
 This week, we will use phylogenetic information to aid our understanding of patterns and processes in community ecology.
 To accomplish this, we will introduce concepts linking evolutionary relatedness to community structure. 
-We will quantify phylogenetic diversity using analogues of $\alpha$- and $\beta$-diversity, and discuss key patterns that are commonly encountered in phylogenetic community ecology, such as over- and under-dispersion.
+We will quantify phylogenetic $\alpha$- and $\beta$-diversity, and discuss key patterns that are encountered in phylogenetic community ecology, such as clustering and overdispersion.
 
 After completing this exercise you will know how to:
 
@@ -24,17 +24,17 @@ After completing this exercise you will know how to:
 ## BACKGROUND
 
 Phylogenetic insight has played a key role in the historical development of community ecology.
-Darwin (1859) hypothesized that closely related species (e.g., species in the same genus) are more ecologically similar than distantly related species.
-This led him to identify a paradox. 
+Darwin (1859) observed that closely related species (e.g., species in the same genus) are more ecologically similar than distantly related species.
+This observation led him to the identifcation of a paradox. 
 On the one hand, in order for a species to successfully invade a community it must be sufficiently *related* to resident taxa and thereby share ecologically relevant traits that allow it to contend with local conditions (e.g., pH). 
-On the other hand, the species must be sufficiently *unrelated* to resident taxa and thereby possess unique traits so that it can exploit unoccupied niches (Diez et al. 2008).
+On the other hand, the species must be sufficiently *unrelated* to resident taxa and thereby possess some unique traits so that it can exploit unoccupied niches (Diez et al. 2008).
 These concepts are reflected in the contemporary views of community ecology.
 Species in a community must be ecologically similar enough to one another to have positive fitness in the enviroment (i.e., equalizing forces), but also be different enough (i.e., stabilizing niche differences) that they can coexist (e.g., see Leibold and McPeek 2006, Adler et al. 2007, HilleRisLambers et al. 2012).
 In theory, ecological similarity can be determined by measuring the functional traits of all the individuals for all species in a community. 
 In practice, it is challenging to measure ecologically relelvant traits of individuals in complex communities.
-As a proxy, many scientists will use phylogeny as a proxy for traits. 
-Based on these assumptions, ecologists have attempted to use phylogenetic information to gain insight into community assembly processes.
-For example, if a community is comprised of closely related taxa (i.e. clustering), one might infer that enviromental filtering is acting on a set of shared functional traits; a scenario that is consistent with equalizing mechansisms of coexistence.
+Therefore, many scientists will use phylogeny as a proxy for traits since phylogenetic information is becoming increasingly accessible. 
+Ecologists have attempted to use phylogenetic information to gain insight into community assembly processes.
+For example, if a community is dominated by closely related taxa (i.e. clustering), one might infer that enviromental filtering is acting on a set of shared functional traits; a scenario that is consistent with equalizing mechansisms of coexistence.
 In contrast, if a community is comprised of more distantly related taxa (i.e., overdispersion), one might infer that competitive exclusion is an important assembly process; a scenario that is consistent with stabilizing mechanisms of coexistence.
 It is important to note, however, that other mechanisms can give rise to patterns of phylogenetic clustering and overdispersion (e.g., see Mayfield and Levine 2010 for discussion).
 
@@ -48,7 +48,7 @@ When this is the case, we may be able to use patterns of phylogenetic relatednes
 ```{r, results = 'hide'}
 rm(list = ls())
 getwd()
-setwd("~/GitHub/QB-2017/Week7-PhyloCom/")
+setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week7-PhyloCom/")
 ```
 
 ### B. Load Packages 
@@ -75,8 +75,8 @@ for (package in package.list) {
 In addition to relying on contributed packages, we will also be using a source code file.
 A source code file has user-defined functions that are required for certain analyses.
 The benefit of source files is that they contain "vetted" code that can be used across multiple projects. 
-Here, we will use a source code file that includes a function for reading in the output files from the popular community sequencing software `mothur` (http://www.mothur.org/).
-Take a moment to open the file and see how this file is formatted. 
+Here, we will use a source code file that includes functions for reading in the output files that contain OTU and taxonomic information generated from `mothur` (http://www.mothur.org/), a popular software platform for analzying bacterial sequence data.
+Take a moment to open the file and examine the source code. 
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 source("./bin/MothurTools.R")
@@ -84,115 +84,189 @@ source("./bin/MothurTools.R")
 
 ## 2) DESCRIPTION OF DATA
 
-We will revisit the environmental and community data that was used in the Spatial Diversity module. 
+We will revisit the environmental and community data that we used in the Spatial Diversity module of Quantitative Biodiversity a few weeks ago. 
 As a reminder, in 2013 we sampled more than 50 forested ponds located in Brown County State Park, Yellowood State Park, and Hoosier National Forest in southern Indiana. 
 In addition to measuring a suite of geographic and environmental variables, we characterized the diversity of bacteria in the ponds using molecular-based approaches.
 Specifically, we amplified the 16S rRNA gene (i.e., the DNA sequence) and 16S rRNA transcripts (i.e., the RNA transcript of the gene) of bacteria using barcoded primers on the Illumina MiSeq platform.
-While use of the 16S rRNA gene indicates which taxa were present in our samples, use of the 16S rRNA transcripts indicates which taxa were metabolically active.
-In this module we will focus on taxa that were present, which is how microbial communities are most often characterized.
-We then used a `mothur` pipeline to quality-trim our data set and assign sequences to operational taxonomic units (OTUs).
-In this Handout, we will use the DNA sequence data for making community phylogenetic inference about total (i.e., active + dormant) bacterial communities.
+The recovery of a 16S rRNA gene tells us that a certain taxon was present in a pond, while the recovery of a 16S rRNA transcript provides information about the metabolic activity of that taxon.  
+We used a `mothur` pipeline to quality-trim our data set and assign sequences to operational taxonomic units (OTUs) which resulted in a site-by-OTU matrix.  
+In this module we will focus on taxa that were present (i.e., DNA), but there will be a few steps where we need to parse out the transcript (i.e., RNA) samples.
 
 ## 3) LOAD AND PROCESS DATA
 
-First, let's load the environmental data. 
+### A. Environmental and Geographic Data
+First, let's load the environmental and geographic data. 
 There are a few ponds with missing enviromental data. 
-For simplicity, we are going to remove these ponds from our analyses. 
+For simplicity, we are going to remove those ponds from our analyses. 
 
 ```{r}
 env <- read.table("data/20130801_PondDataMod.csv", sep = ",", header = TRUE)
 env <- na.omit(env)
 ```
 
-Next, let's load the bacterial OTU data (i.e., site-by-species matrix):
+Here is a description of the column headers in `env`:
+
+  + Location = Brown County State Park (BCSP), Hoosier National Forest (HNF), Yellowwood State Forest (YSF)
+
+  + Sample_ID = unqiue pond identifier (e.g., "BC001" = pond 1 from BCSP)
+  
+  + lat = geographic coordinate, degrees latitude
+  
+  + long = geographic coordinate, degrees longitude
+  
+  + Elevation = meters above sea level
+  
+  + Diameter = dimension of pond (m)
+  
+  + Depth = average depth of pond (m)
+  
+  + Cal_Volume = calculated volume of pond (m^3^)
+  
+  + ORP = oxidation reduction potential (mV)
+  
+  + Temp = surface water tempeature (C &deg;)
+  
+  + SpC = specific conductivity of water (µS/m)
+  
+  + DO = dissolved oxygen of water (mg/L)
+  
+  + TDS = total dissolved solids (mg/L)
+  
+  + Salinity = parts per thousand (‰)
+  
+  + pH = negative log of the hydrogen ion concentration
+  
+  + Color = absorbance of light by water at 440 nm
+  
+  + chla = chlorophylla *a* (µg/L)
+  
+  + DOC = dissolved organic carbon (mg/L)
+  
+  + DON = dissolved organic nitrogen (mg/L)
+  
+  + canopy = open canopy above pond (%)
+  
+  + TP = total phosphorus (µg/L)
+
+### B. Taxonomic Data
+
+Now let's load the bacterial OTU data (i.e., site-by-species matrix).
+First, we will use the `read.OTU()` function from the Source Code.
+The rownames contain information about whether a site (pond) represents data obtained from 16S rRNA genes (i.e., DNA) or 16S rRNA transcripts, which were sequenced as copy DNA (cDNA). 
+We want to retain only the DNA data for this module. 
+Therefore, we are going to use the `grep()` function, which is designed for matching patterns in string of characters.
+Then we will use the `gsub()` function, which replaces matches in a string of characters, to clean up the rowname so it is more useful. 
 
 ```{r}
 # Load Site-by-Species Matrix
 comm <- read.otu(shared = "./data/INPonds.final.rdp.shared", cutoff = "1")
 
-# Select DNA data: Use the `grep()` command to search for matches to a pattern within each element of a character vector
+# Select DNA data using `grep()`
 comm <- comm[grep("*-DNA", rownames(comm)), ]
 
 # Perform replacement of all matches with `gsub()`
 rownames(comm) <- gsub("\\-DNA", "", rownames(comm))
 rownames(comm) <- gsub("\\_", "", rownames(comm))
-
-# Remove sites not in the environmental data set
-comm <- comm[rownames(comm)  %in% env$Sample_ID, ]
 ```
 
-Because we have removed some samples from our larger "global" data set, there are some OTUs that are not found in our "reduced" data set.
-In the following line of code, let's remove those taxa.
+Now we just need to clean up the `comm` dataframe a little bit. 
+First we'll remove sites that contained in the `env` dataframe. 
+Second, because we removed the RNA samples, there are likely to be some OTUs that are not found in the DNA sample. 
+So, we'll remove any zero-abundance taxa. 
 
 ```{r}
+# Remove sites not in the environmental data set
+comm <- comm[rownames(comm)  %in% env$Sample_ID, ]
+
+# Remove zero-abundance OTUs from data set
 comm <- comm[ , colSums(comm) > 0]
 ```
 
-Now we are going to import the taxonomic information that is associated with the OTU data using the `read.tax()` from Source Code
+Now import and take a look at the taxonomic information associated with the OTU data using the `read.tax()` function from Source Code. 
 
 ```{r}
 tax <- read.tax(taxonomy = "./data/INPonds.final.rdp.1.cons.taxonomy")
 ```
 
-Now, we need to load and process the phylogenetic data.
-There are a few steps involved in this process. 
-First, we need to read in a file containing the aligned sequences. 
-After a few other processing steps, we then make a neighbor-joining phylogenetic tree with a Jukes Cantor model of evolution.
-You will remember from the previous phylogenetic traits module that the benefit of this approach is in its reduced computational time.
-Generating trees of greater confidence with, for example, maximum likelihood analysis, can take a long time in the RStudio environment.
+### C. Phylogenetic Data
+
+The next step is to load and process the phylogenetic data.
+First, we need to read in a file containing the aligned sequences using the `read.alignment()` function in the `seqinr` package.
 
 ```{r}
 # Import the Alignment File {seqinr}
 ponds.cons <- read.alignment(file = "./data/INPonds.final.rdp.1.rep.fasta", 
                              format = "fasta")  
+```
 
+You can visualize the alignment in `ponds.cons`, but may also detect that the names associated with the FASTA entries are not very useful. 
+So, we'll use `gsub()` again to clean things up. 
+
+```{r}
 # Rename OTUs in the FASTA File
 ponds.cons$nam <- gsub("\\|.*$", "", gsub("^.*?\t", "", ponds.cons$nam))
+```
 
-# Import the Outgroup FASTA File {seqinr}
+Next, we will import an archaeal sequence and specify this as our outgroup and then convert the alignment file to a DNAbin object using the `ape` package.
+We can then visualize the alignment using the `image.DNAbin()` function. 
+
+```{r}
+# Import outgroup sequence
 outgroup <- read.alignment(file = "./data/methanosarcina.fasta", format = "fasta")
 
-# Convert Alignment File to DNAbin Object {ape}
+# Convert alignment file to DNAbin
 DNAbin <- rbind(as.DNAbin(outgroup), as.DNAbin(ponds.cons))
 
-# Visualize Sequence Alignment {ape}
+# Visualize alignment
 image.DNAbin(DNAbin, show.labels=T, cex.lab = 0.05, las = 1) 
+```
 
-# Create Distance Matrix with the Jukes Cantor "JC" Model {ape}
+With the DNAbin object that we just made, we'll now create a distance matrix with the Jukes Cantor "JC" Model using the `ape` package. 
+You will remember from the PhyloTraits module that the benefit of this approach is in its reduced computational time.
+We will then use the neighbor joining algorithm to construct a tree file and we will remove any tips associated with zero-abundance taxa.
+Next, we will specify the outgropu sequence, root the tree, and make a plot of the tree.
+
+```{r}
+# Make distance matrix (`ape`)
 seq.dist.jc <- dist.dna(DNAbin, model = "JC", pairwise.deletion = FALSE)
 
-# Use Neighbor Joining Algorithm to Construct a Full Tree (DNA and RNA sequences) {ape}
+# Make a neigbor-joining tree file (`ape`)
 phy.all <- bionj(seq.dist.jc)
 
-# Drop Tips of Zero-Occurrence OTUs (Removes Taxa Only Found via RNA Sequencing) {ape}
+# Drop tips of zero-occurrence OTUs (`ape`)
 phy <- drop.tip(phy.all, phy.all$tip.label[!phy.all$tip.label %in% 
-                                             c(colnames(comm), "Methanosarcina")])
+              c(colnames(comm), "Methanosarcina")])
 
-# Identify Outgroup Sequence
+# Identify outgroup sequence
 outgroup <- match("Methanosarcina", phy$tip.label)
 
-# Root the Tree {ape}
+# Root the tree {ape}
 phy <- root(phy, outgroup, resolve.root = TRUE)
 
-# Plot the Rooted Tree {ape}
+# Plot the rooted tree {ape}
 par(mar = c(1, 1, 2, 1) + 0.1)
 plot.phylo(phy, main = "Neighbor Joining Tree", "phylogram", show.tip.label = FALSE, 
            use.edge.length = FALSE, direction = "right", cex = 0.6, label.offset = 1)
+
 ```
 
 ## 4) PHYLOGENETIC ALPHA DIVERSITY
 
-In order to analyze aspects of phylogenetic diversity, we first need to consider how to quantify it. 
+Now that we have loaded and processed all of our data, we are prepared to quantify phylogenetic diversity. 
 Tucker et al. (2016) discuss several methods for quantifying phylogenetic diversity. 
-In general, a community consisting of species that are less closely related has higher phylogenetic diversity. 
+We will start by assessing the with-in site or $\alpha$-phylodiversity. 
+In general, a sample consisting of species that are less closely related has higher phylogenetic diversity. 
 Maintaining high phylogenetic diversity has been proposed as a more effective way to maintain ecosystem functionality and is often the focus of conservation biology.
+In the following sections, we will introduce a few ways to calcaulte $\alpha$-phylodiversity.
 
 ### A.  Faith's Phylogenetic Diversity (PD)
 
 In 1992, Daniel Faith developed a diversity metric called Faith's PD (http://goo.gl/wM08Oy).
 The metric sums the branch lengths for each species found in a sample from the root to the tip of the phylogenetic tree.
+It's important to note that PD, as implemented here, is based on the presence-absence of an OTU; it does not weight 
 The value of the metric captures the evolutionary history of an assemblage. 
-Higher PD values indicate that an assemblage contains more evolutionarily divergent taxa, while lower PD values indicate that an assemblage contains taxa with a more restricted evolutionary history. 
+Higher PD values indicate that an assemblage contains more evolutionarily divergent taxa, while lower PD values indicate that an assemblage contains taxa with a more restricted evolutionary history.
+
 
 Faith's PD can be implemented in R using the `pd()` function in the `picante` package. 
 A phylogenetic tree containing the species pool is required. 
@@ -204,7 +278,7 @@ S is the same as observed richness ($S_{obs}), which we covered in the $\alpha$ 
 pd <- pd(comm, phy, include.root = FALSE)
 ```
 
-Let's compare PD estimates with S of our samples.
+Let's compare PD estimates with S of from our 52 pond samples.
 We'll transform our data by taking the natural logarithm of S and PD so that the slope of the relationship gives us a power-law exponent, which describes how PD scales with S.
 
 ```{r}
@@ -216,6 +290,7 @@ plot(log(pd$S), log(pd$PD),
      xlab = "ln(S)", ylab = "ln(PD)", cex.main = 1,
      main="Phylodiversity (PD) vs. Taxonomic richness (S)")
 
+# Test of power-law relationship
 fit <- lm('log(pd$PD) ~ log(pd$S)')
 abline(fit, col = "red", lw = 2)
 exponent <- round(coefficients(fit)[2], 2)
@@ -225,7 +300,7 @@ legend("topleft", legend=paste("Scaling exponent = ", exponent, sep = ""),
 
 #### i.  Randomizations and Null Models
 
-Randomizations are a way of resampling data to assess whether or not observed patterns are different from a null expectation. 
+Randomization is powerful way to resample data to assess whether or not observed patterns are different from a null expectation. 
 A number of the functions in `picante` allow us to specify different null models as an argument. 
 These null models can control for features such as species richness, species occurrence frequencey, and the diversity of the regional species pool. 
 We will use some of these models for assesing the degree to which phylogenetic measures of $\alpha$ diversity deviate from null expecations. 
@@ -268,16 +343,17 @@ Given the size of both our site-by-species matrix and the phylogenetic tree, the
 Therfore, we are only going to run the `ses.pd` function for two ponds with a limited number of randomizations (i.e., "runs" argument).
 
 ```{r}
-# Estimate Standardized Effect Size of PD via Randomization {picante}
+# Estimate standardized effect size of PD via randomization (`picante`)
 ses.pd <- ses.pd(comm[1:2,], phy, null.model = "richness", runs = 25, 
                  include.root = FALSE)
 ```
 
 ### B.  Phylogenetic Dispersion Within a Sample
 
-Earlier, we noted that species that co-occur together may 
-Another way to assess phylogenetic $\alpha$-diversity is to look at dispersion within a sample. 
-In the following section we will introduce two commonly used metrics --- the Net Relatedness Index (NRI) and the Nearest Taxon Index --- to quantify the degree to which closely related taxa co-occur.
+Earlier, we described how the relatedness of species in a sample can deviate from a random distribution.
+Clustered communities contain species that are more closely related than would be expected by chance. 
+Overdispersed communities contain species tha re more distantly related than would be expected by chance. 
+In this section, we introduce two ways of quantifying $\alpha$ phylodiversity based on the **dispersion** of species in a sample: the Net Relatedness Index (NRI) and the Nearest Taxon Index.
 We will use randomization procedures to test whether species are phylogenetically clustered or overdispersed. 
 
 #### i. Phylogenetic Resemblance Matrix 
@@ -287,27 +363,26 @@ This type of matrix is nearly identical to the resemblance matrix introduced in 
 The only difference is that the phylogenetic resemblance matrix contains distances between taxa in a tree, whereas the community resemblance matrix contains distances among sites. 
 The elements in phylogenetic resemblance matrix are calculated as the pairwise branch-length distances between tips (i.e., taxa) on a phylogenetic tree. 
 The phylogenetic resemblance matrix is sometimes referred to as the phylogenetic variance-covariance matrix. 
-We will use the `cophenetic.phylo()` function in `picante` to calculate the phylogenetic resemblance matrix.
+We will use the `cophenetic.phylo()` function in the `picante` package to calculate the phylogenetic resemblance matrix.
 
 ```{r}
-# Create a Phylogenetic Distance Matrix {picante}
+# Create a Phylogenetic Distance Matrix (`picante`)
 phydist <- cophenetic.phylo(phy)
 ```
 
 #### ii.  Net Relatedness Index (NRI)
 
 One common way to test for phylogenetic clustering and overdispersion is to use the Net Relatedness Index (NRI).
-NRI is based on the mean phylogenetic distance (MPD).
-MPD is the mean phylogenetic distance from pairwise branch lengths in a sample.
-With this information in hand, NRI is expressed as: - (`mpd.obs` - `mpd.rand.mean`) / `mpd.rand.sd` where `mpd.obs` is the observed MPD, `mpd.rand.mean` is the mean of the MPD values generated via randomization under a null model, and `mpd.rand.sd` is the standard deviation of the MPD values generated via randomization under a null model. 
+NRI is based on the mean phylogenetic distance (MPD), which is calculated based on the pairwise branch lengths in a sample that is contained in your phylogenetic resemblance matrix. 
+With this information in hand, NRI is expressed as: - (`mpd.obs` - `mpd.rand.mean`) / `mpd.rand.sd` where `mpd.obs` is the observed MPD, essentially, the avarage value of the resemblance matrix for a given sample; `mpd.rand.mean` is the mean of the MPD values generated via randomization under a null model, and `mpd.rand.sd` is the standard deviation of the MPD values generated via randomization under a null model. 
 
 Negative NRI values indicate that a sample is phylogenetically overdispersed; that is, taxa are less related to one another than expected under the null model.
 Positive NRI values indicate that a sample is phylogentically underdispersed, or clustered, such that taxa are more closely related to one another than expected under the null model. 
 
-As with Faith's PD, the radomization procedures are computationally intensive, so we are only going to peform a relatively small number of "runs".
+As with Faith's PD, the randomization procedures are computationally intensive, so we are only going to peform a relatively small number of "runs".
 
 ```{r}
-# Estimate Standardized Effect Size of NRI via Randomization {picante} 
+# Estimate standardized effect size of NRI via randomization (`picante`) 
 ses.mpd <- ses.mpd(comm, phydist, null.model = "taxa.labels", 
                    abundance.weighted = FALSE, runs = 25) 
 
@@ -322,6 +397,7 @@ colnames(NRI) <- "NRI"
 Another way to test for phylogenetic clustering and oversdispersion in a sample is to use the Nearest Taxon Index (NTI).
 This index is mathemically similar to NRI, but uses the mean nearest phylogenetic neighbor distance (MNND) instead of MPD. 
 MNND is the mean phylogenetic distance between all taxa in a sample and their phylogenetically closest neighbor.
+Effectively, this is the sum of the minimum values for each colum (i.e. taxon) of the phylogenetic resemblance matrix.
 As a result, NTI tends to emphasize terminal clustering, independent of deep level clustering (Webb et al. 2002; http://goo.gl/WikgWE).
 Just like NRI, we peform randomizations and use this information to estimate the standardized effect size. 
 Negative NTI values indicate phylogenetic overdispersion and positive NTI values indicate phylogenetic clustering. 
