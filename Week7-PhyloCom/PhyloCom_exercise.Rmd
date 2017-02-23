@@ -10,7 +10,7 @@ geometry: margin=2.54cm
 Taxonomic measures of $\alpha$- and $\beta$-diversity do not integrate evolutionary information. 
 However, evolutionary information is important for a broad range of biodiversity issues including conservation, biogeography, and community assembly. 
 In this handout, we introduce some commonly used methods in phylogenetic community ecology.
-These methods will allow us to account for phylogenetic diversity and provide insight into the mechansisms that give rise to the over- and under-dispersion (i.e., clustering) of biological communities. 
+These methods will allow us to account for phylogenetic diversity and provide insight into the mechanisms that give rise to the over- and under-dispersion (i.e., clustering) of biological communities. 
 
 After completing this exercise you will know how to:
 
@@ -39,7 +39,7 @@ This includes things such as setting the working directory and loading any packa
 In the R code chunk below, provide the code to:  
 1. clear your R environment,  
 2. print your current working directory,  
-3. set your working directory to your "*/PhyloCom*" folder,  
+3. set your working directory to your `/Week7-PhyloCom` folder,  
 4. load all of the required R packages (be sure to install if needed), and  
 5. load the required R source file.
 
@@ -58,10 +58,10 @@ In the R code chunk below, provide the code to:
 
 ## 2) DESCRIPTION OF DATA
 We will revisit the data that was used in the Geographical Ecology module. 
-As a reminder, in 2013 we sampled ~ 50 forested ponds located in Brown County State Park, Yellowood State Park, and Hoosier National Forest in southern Indiana. 
+As a reminder, in 2013 we sampled ~ 50 forested ponds located in Brown County State Park, Yellowwood State Park, and Hoosier National Forest in southern Indiana. 
 In addition to measuring a suite of geographic and environmental variables, we characterized the diversity of bacteria in the ponds using molecular-based approaches.
 Specifically, we amplified the 16S rRNA gene (i.e., "DNA") and 16S rRNA transcripts (i.e., "RNA") of bacteria using barcoded primers on the Illumina MiSeq platform.
-We then used a `mothur` pipeline to quality-trim our data set and assign sequences to operational taxonomic units (OTU).
+We then used a `mothur` (https://www.mothur.org/) pipeline to quality-trim our data set and assign sequences to operational taxonomic units (OTU).
 In this exercise, we will use the DNA sequence data for making community phylogenetic inference.  
 
 ## 3) LOADING OF DATA
@@ -85,7 +85,7 @@ In the R code chunk below, do the following:
 
 Next, in the R code chunk below, do the following:  
 1. load the FASTA alignment for the OTUs,  
-2. rename the OTUs be removing everything before the tab (\\t) and after the bar (|),  
+2. rename the OTUs by removing everything before the tab (\\t) and after the bar (|),  
 3. import the *Methanosarcina* outgroup FASTA file,  
 4. convert both FASTA files into the DNAbin format and combine using `rbind()`,  
 5. visualize the sequence alignment,  
@@ -155,7 +155,7 @@ In the R code chunk below, do the following:
 Run `ses.pd()` with these null models and answer the following questions:
 
 a.  What hypotheses are being tested with the p-values associated with `ses.pd`?
-b.  What features might affect the intepretation of the `ses.pd` output?
+b.  What features might affect the interpretation of the `ses.pd` output?
 
 > ***Answer 2a***:  
 > ***Answer 2b***:  
@@ -198,16 +198,24 @@ In the R code chunk below, do the following:
 
 ```
 
-***Question 3***: In the NRI and NTI examples above, the arguments "abundance.weighted = FALSE" means that the indices were calculated using presence-absence data.
-Modify and rerun the code so that NRI and NTI are caculated using abundance data. 
+***Question 3***: 
+
+a. In your own words describe what you are doing when you calculate the NRI. 
+b. In your own words describe what you are doing when you calculate the NTI. 
+c. What do the NRI and NTI values suggest
+d. In the NRI and NTI examples above, the arguments "abundance.weighted = FALSE" means that the indices were calculated using presence-absence data.
+Modify and rerun the code so that NRI and NTI are calculated using abundance data. 
 How does this affect the interpretation of NRI and NTI?
 
-> ***Answer 3***:  
+> ***Answer 3a***:  
+> ***Answer 3b***:  
+> ***Answer 3c***:  
+> ***Answer 3d***:  
 
 ### C. Mini-Exercise On Phylogenetic Alpha-Diversity
 Conduct an exploratory analysis of the phylogenetic $\alpha$-diversity for the Indiana ponds.
-Using techniques from the *Week1_Handout.Rmd* and any other statistical methods at your disposal, identify enviornmental variables that may influence the taxonomic richness (SR), phylodiveristy (PD), and dispersion (NRI and NTI) of the bacterial communities in the sampled ponds. 
-Generate some hypotheses as to what ecological and/or evolutionary processes are giving rise to these patterns of phylogenetic $\alpha$-diversity.  
+Using techniques from the *Week1_Handout.Rmd* and any other statistical methods at your disposal, identify environmental variables that may influence the taxonomic richness (SR), phylodiveristy (PD), and dispersion (NRI and NTI) of the bacterial communities in the sampled ponds. 
+Generate some hypotheses as to what ecological and/or evolutionary processes are giving rise to these patterns of phylogenetic $\alpha$-diversity. Briefly describe what you did, what methods you used, and your results.
 
 ```{r}
 
@@ -243,15 +251,19 @@ In the R code chunk below, do the following:
 
 ```
 
-***Question 4***: Using the plot above, describe the relationship between Mean Pair Distance and UniFrac distance. 
-Note: we are calcuating unweighted phylogenetic distances (similar to incidence based measures).
+***Question 4***: 
+
+a. In your own words describe Mean Pair Distance, UniFrac distance, and the difference between them.
+b. Using the plot above, describe the relationship between Mean Pair Distance and UniFrac distance. 
+Note: we are calculating unweighted phylogenetic distances (similar to incidence based measures).
 That means that we are not taking into account the abundance of each taxa in each site.
 
-> ***Answer 4***: 
+> ***Answer 4a***: 
+> ***Answer 4b***: 
 
 
 ### B. Visualizing Phylogenetic Beta-Diversity
-Now that we have our phylogenetically based community resemblance matrix, we can visualize phyogenetic diversity among samples using the same techniques that we used in the $\beta$-diversity module.
+Now that we have our phylogenetically based community resemblance matrix, we can visualize phylogenetic diversity among samples using the same techniques that we used in the $\beta$-diversity module.
 
 In the R code chunk below, do the following:  
 1. perform a PCoA based on the UniFrac distances, and  
@@ -312,7 +324,7 @@ In the R code chunk below, do the following:
 
 In the R code chunk below, do the following:
 1. from the environmental data matrix, subset the variables related to physical and chemical properties of the ponds, and  
-2. calcuate the euclidean distance between ponds based on these variables (transform and center), this is your environmental gradient.
+2. calculate the Euclidean distance between ponds based on these variables (transform and center), this is your environmental gradient.
 
 ```{r}
 
@@ -322,7 +334,7 @@ In the R code chunk below, do the following:
 ```
 
 In the R code chunk below, do the following:  
-1. conduct a Mantel's test to evaluate whether or not UniFrac distance is correlated with environmental varaition.
+1. conduct a Mantel's test to evaluate whether or not UniFrac distance is correlated with environmental variation.
 
 ```{r}
 
@@ -333,7 +345,7 @@ Last, let's conduct a Canonical Correspondence Analysis (CCA).
 You will recall that this constrained ordination technique allows one to test for the effects of an explanatory matrix (e.g., environmental data) on a response matrix (e.g., phylogenetic distance matrix). 
 
 In the R code chunk below, do the following:  
-1. conduct a CCA to test the hypothesis that environmental variation effects the phylogenetic diversity of bacteiral communities,  
+1. conduct a CCA to test the hypothesis that environmental variation effects the phylogenetic diversity of bacterial communities,  
 2. use a permutation test to determine significance,  
 3. plot the CCA results, and  
 4. customize the CCA plot. 
@@ -351,14 +363,14 @@ In the R code chunk below, do the following:
 
 ```
 
-***Question 6***: Based on the multivariate procedures conducted above, describe some of the phylogenetic patterns of $\beta$-diversity for bacterial communities in the Indiana ponds.   
+***Question 6***: Based on the multivariate procedures conducted above, describe the phylogenetic patterns of $\beta$-diversity for bacterial communities in the Indiana ponds.   
 
 > ***Answer 6***: 
 
 ### D. Mini-Exercise On Phylogenetic Beta-Diversity
 Generate and test hypotheses about the phylogenetic $\beta$-diversity of the Indiana ponds.
 Using the environmental variables identified in the $\alpha$-diversity mini-exercise, redo either the PERMANOVA or CCA above using just these variables. 
-Feel free to add any additional approaches we used in *Beta_Handout.Rmd*. 
+Feel free to add any additional approaches we used in *beta_handout.Rmd*. 
 Compare your results to the findings from above and discuss any differences. 
 
 ```{r}
@@ -372,18 +384,18 @@ Compare your results to the findings from above and discuss any differences.
 > ***Mini-Exercise Discussion***:
 
 
-## 6) GEOGRAPHICAL PHYLOGENETIC COMMUNITY ECOLOGY
+## 6) SPATIAL PHYLOGENETIC COMMUNITY ECOLOGY
 
 ### A. Phylogenetic Distance-Decay (PDD)
 You will recall from the Geographical Ecology module, that the distance decay (DD) relationship reflects the spatial autocorrelation of community similarity.
 That is, geographically near communities should be more similar than geographically distant communities.
 Here, we will test to what degree spatial autocorrelation can also affect phylogenetic DD.  
 
-First, we will calcualte distances for geographic data, taxonomic data, and phylogenetic data among all unique pair-wise combinations of ponds.
+First, we will calculate distances for geographic data, taxonomic data, and phylogenetic data among all unique pair-wise combinations of ponds.
 
 In the R code chunk below, do the following:  
 1. calculate the geographic distances among ponds,  
-2. calculate the taxanomic similarity amoung ponds,  
+2. calculate the taxonomic similarity among ponds,  
 3. calculate the phylogenetic similarity among ponds, and  
 4. create a dataframe that includes all of the above information. 
 
@@ -431,7 +443,7 @@ In the R code chunk below, do the following:
 > ***Answer 7***: 
 
 
-### B. Phlogenetic diversity-area relationship (PDAR)
+### B. Phylogenetic diversity-area relationship (PDAR)
 
 **i. Constructing the PDAR**
 
@@ -479,14 +491,3 @@ How might we explain the differences between the taxonomic (SAR) and phylogeneti
 
 > ***Answer 8***: 
 
-
-## 7) HOMEWORK 
-
-1.  In their study of phylogenetic diversity-area relationships (PDARs), Helmus and Ives (2012), increased area by aggregating plots in two ways.
-First, they aggregated plots with respect to whether the plots were adjacent; what they called 'spatial'.
-Second, they aggregated plots at random ('non-spatial').
-While both spatial and non-spatial sampling methods capture the effect of increasing area, sampling with respect to location (i.e., spatial) also captures the effect of increasing distance or spatial autocorrelation.
-Explain the general difference that Helmus and Ives (2012) observed between spatial and non-spatial PDARs, and why this difference should be expected in both the species-area relationship (SAR) and the phylogenetic diversity-area relationship.
-
-2.  Use Knitr to create a pdf of your completed PhyloTraits_handout.Rmd document, push it to GitHub, and create a pull request.
-The due date for this assignment is March 4, 2015 at 12:00 PM (noon).

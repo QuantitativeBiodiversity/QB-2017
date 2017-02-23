@@ -45,7 +45,9 @@ In the R code chunk below, provide the code to:
 4. load all of the required R packages (be sure to install if needed).  
 
 ```{r}
-
+rm(list = ls())
+getwd()
+setwd("~/GitHub/QB-2017/Week6-PhyloTraits")
 
 ```
 
@@ -70,7 +72,13 @@ In the R code chunk below, do the following:
 4. plot the alignment using a grid to visualize rows of sequences.
 
 ```{r}
-
+package.list <- c('ape', 'seqinr', 'phylobase', 'adephylo', 'geiger', 'picante', 'stats', 'RColorBrewer', 'caper', 'phylolm', 'pmc', 'ggplot2', 'tidyr', 'dplyr', 'phangorn', 'pander') 
+for (package in package.list) {
+  if (!require(package, character.only=TRUE, quietly=TRUE)) {
+    install.packages(package)
+    library(package, character.only=TRUE)
+  }
+}
 
 ```
 
@@ -347,8 +355,56 @@ lake <- ifelse(grepl("WG",row.names(p.growth)),'WG', 'LL') # make an empty vecto
 tradeoff <- data.frame(nb,umax,lake) # make new data frame
 
 D <- (lake == "LL") * 1
+p.growth.std <- p.growth / (apply(p.growth, 1, sum))
+
+levins <- function(p_xi = ""){
+  p = 0
+  for (i in p_xi){
+    p = p + i^2
+    }
+  nb = 1 / (length(p_xi) * p)
+  return(nb)
+  }
+
+nb <- as.matrix(levins(p.growth.std))
+
 fit<-lm(log10(umax) ~ nb + D + nb * D)
 
+LL.nb <- subset(nb,lake == "LL")		
+WG.nb <- subset(nb,lake == "WG")		
+  		  
+LL.umax <- subset(umax,lake == "LL")		
+WG.umax<-subset(umax,lake == "WG")		
+par(mar=c(4,4,0,1)+ 0.1)		
+plot(LL.nb, log10(LL.umax), axes = F, xlab = "Niche Breadth", ylab = "Maximum Growth Rate", 		
+ pch = 21, cex = 2.0, las = 1, col = "black", bg = "white",		
+ xlim=c(0,1), ylim = c(-2, 1))		
+points(WG.nb,log10(WG.umax),pch=21,cex=2,col="black", bg="black")		
+box()		
+ticks <- c(0.01, 0.1, 1, 10)		
+axis(side = 1, labels = T, cex.axis = 1)		
+axis(side = 2, las = 1, cex.axis = 1, labels = ticks,		
+  at = log10(ticks))		
+axis(3,labels = F)		
+axis(side = 4, at = log10(ticks), labels = F)		
+
+curve(fit$coefficients[1] + fit$coefficients[2] * x, from = min(WG.nb - 0.1), 		
+  to = max(WG.nb +0.1), add = TRUE, lty = 2)		
+Int <- fit$coefficients[1] + fit$coefficients[3]		
+Slp <- fit$coefficients[2] + fit$coefficients[4]		
+curve((Int) + (Slp) * x, from = min(LL.nb - 0.08), to =max(LL.nb + 0.1), add = TRUE, lty = 2)		
+    		    
+legend("topleft", legend = c("LL","WG"), pch = c(1,16), cex = 1, col = "black", bty = "n")
+summary(fit)		
+coefficients <- coefficients(fit) # model coefficients		
+confit <- confint(fit,level=0.95) # 95% CI for parameters		
+predicted <- fitted(fit) # predicted values		
+residuals <- residuals(fit) # residuals		
+anova <- anova(fit) # anova table		
+vcov <- vcov(fit) # covariance matrix for model parameters		
+influence <- influence(fit) # regression diagnostics		
+par(mfrow = c(2, 2), mar = c(5.1 ,4.1 ,4.1 ,2.1))		
+plot(fit)		
 
   
 
