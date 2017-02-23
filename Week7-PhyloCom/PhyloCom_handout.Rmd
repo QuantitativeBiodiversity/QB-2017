@@ -25,16 +25,16 @@ After completing this exercise you will know how to:
 
 Phylogenetic insight has played a key role in the historical development of community ecology.
 Darwin (1859) observed that closely related species (e.g., species in the same genus) are more ecologically similar than distantly related species.
-This observation led him to the identifcation of a paradox. 
+This observation led him to the identification of a paradox. 
 On the one hand, in order for a species to successfully invade a community it must be sufficiently *related* to resident taxa and thereby share ecologically relevant traits that allow it to contend with local conditions (e.g., pH). 
 On the other hand, the species must be sufficiently *unrelated* to resident taxa and thereby possess some unique traits so that it can exploit unoccupied niches (Diez et al. 2008).
 These concepts are reflected in the contemporary views of community ecology.
-Species in a community must be ecologically similar enough to one another to have positive fitness in the enviroment (i.e., equalizing forces), but also be different enough (i.e., stabilizing niche differences) that they can coexist (e.g., see Leibold and McPeek 2006, Adler et al. 2007, HilleRisLambers et al. 2012).
+Species in a community must be ecologically similar enough to one another to have positive fitness in the environment (i.e., equalizing forces), but also be different enough (i.e., stabilizing niche differences) that they can coexist (e.g., see Leibold and McPeek 2006, Adler et al. 2007, HilleRisLambers et al. 2012).
 In theory, ecological similarity can be determined by measuring the functional traits of all the individuals for all species in a community. 
-In practice, it is challenging to measure ecologically relelvant traits of individuals in complex communities.
+In practice, it is challenging to measure ecologically relevant traits of individuals in complex communities.
 Therefore, many scientists use phylogeny as a proxy for traits especially since phylogenetic information is becoming increasingly accessible. 
 Ecologists have attempted to use phylogenetic information to gain insight into community assembly processes.
-For example, if a community is dominated by closely related taxa (i.e. clustering), one might infer that enviromental filtering is acting on a set of shared functional traits.
+For example, if a community is dominated by closely related taxa (i.e. clustering), one might infer that environmental filtering is acting on a set of shared functional traits.
 In contrast, if a community is comprised of more distantly related taxa (i.e., overdispersion), one might infer that competitive exclusion is an important assembly process.
 It is critical to note, however, that other mechanisms can give rise to patterns of phylogenetic clustering and overdispersion (e.g., see Mayfield and Levine 2010 for discussion).
 
@@ -45,7 +45,7 @@ It is critical to note, however, that other mechanisms can give rise to patterns
 ```{r, results = 'hide'}
 rm(list = ls())
 getwd()
-setwd("~/GitHub/QuantitativeBiodiversity/QB-2017/Week7-PhyloCom/")
+setwd("~/GitHub/QB-2017/Week7-PhyloCom/")
 ```
 
 ### B. Load Packages 
@@ -54,7 +54,7 @@ Several R packages have been developed for conducting phylogenetic analyses (htt
 In particular, we will rely heavily on the R package `picante`.
 The `picante` package has many of the functions that are contained in the software Phylocom, which was developed for the analysis of phylogenetic community structure and character evolution (http://phylodiversity.net/phylocom/).
 We will describe `picante` and other packages in greater detail in the sections below.
-In th chunk of code below, the `require()` function in `R` returns `TRUE` if the package was successfully loaded or `FALSE` if the package failed to load. 
+In the chunk of code below, the `require()` function in `R` returns `TRUE` if the package was successfully loaded or `FALSE` if the package failed to load. 
 This `for` loop loads each package and installs the package when `require()` returns `FALSE`.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE} 
@@ -72,7 +72,7 @@ for (package in package.list) {
 In addition to relying on contributed packages, we will also be using a source code file.
 A source code file has user-defined functions that are required for certain analyses.
 The benefit of source files is that they contain "vetted" code that can be used across multiple projects. 
-Here, we will use a source code file that includes functions for reading in the output files that contain OTU and taxonomic information generated from `mothur` (http://www.mothur.org/), a popular software platform for analzying bacterial sequence data.
+Here, we will use a source code file that includes functions for reading in the output files that contain OTU and taxonomic information generated from `mothur` (http://www.mothur.org/), a popular software platform for analyzing bacterial sequence data.
 Take a moment to open the file and examine the source code. 
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
@@ -82,11 +82,11 @@ source("./bin/MothurTools.R")
 ## 2) DESCRIPTION OF DATA
 
 We will revisit the environmental and community data that we used in the Spatial Diversity module of Quantitative Biodiversity a few weeks ago. 
-As a reminder, in 2013 we sampled more than 50 forested ponds located in Brown County State Park, Yellowood State Park, and Hoosier National Forest in southern Indiana. 
+As a reminder, in 2013 we sampled more than 50 forested ponds located in Brown County State Park, Yellowwood State Park, and Hoosier National Forest in southern Indiana. 
 In addition to measuring a suite of geographic and environmental variables, we characterized the diversity of bacteria in the ponds using molecular-based approaches.
 Specifically, we amplified the 16S rRNA gene (i.e., the DNA sequence) and 16S rRNA transcripts (i.e., the RNA transcript of the gene) of bacteria using barcoded primers on the Illumina MiSeq platform.
 The recovery of a 16S rRNA gene tells us that a certain taxon was present in a pond, while the recovery of a 16S rRNA transcript provides information about the metabolic activity of that taxon.  
-We used a `mothur` pipeline to quality-trim our data set and assign sequences to operational taxonomic units (OTUs) which resulted in a site-by-OTU matrix.  
+We used a `mothur` pipeline to quality-trim our data set and assign sequences to operational taxonomic units (OTUs), which resulted in a site-by-OTU matrix.  
 In this module we will focus on taxa that were present (i.e., DNA), but there will be a few steps where we need to parse out the transcript (i.e., RNA) samples.
 
 ## 3) LOAD AND PROCESS DATA
@@ -94,7 +94,7 @@ In this module we will focus on taxa that were present (i.e., DNA), but there wi
 ### A. Environmental and Geographic Data
 
 First, let's load the environmental and geographic data. 
-There are a few ponds with missing enviromental data. 
+There are a few ponds with missing environmental data. 
 For simplicity, we are going to remove those ponds from our analyses. 
 
 ```{r}
@@ -106,7 +106,7 @@ Here is a description of the column headers in `env`:
 
   + Location = Brown County State Park (BCSP), Hoosier National Forest (HNF), Yellowwood State Forest (YSF)
 
-  + Sample_ID = unqiue pond identifier (e.g., "BC001" = pond 1 from BCSP)
+  + Sample_ID = unique pond identifier (e.g., "BC001" = pond 1 from BCSP)
   
   + lat = geographic coordinate, degrees latitude
   
@@ -122,7 +122,7 @@ Here is a description of the column headers in `env`:
   
   + ORP = oxidation reduction potential (mV)
   
-  + Temp = surface water tempeature (C &deg;)
+  + Temp = surface water temperature (C &deg;)
   
   + SpC = specific conductivity of water (µS/m)
   
@@ -136,7 +136,7 @@ Here is a description of the column headers in `env`:
   
   + Color = absorbance of light by water at 440 nm
   
-  + chla = chlorophylla *a* (µg/L)
+  + chla = chlorophyll *a* (µg/L)
   
   + DOC = dissolved organic carbon (mg/L)
   
@@ -170,7 +170,7 @@ rownames(comm) <- gsub("\\-DNA", "", rownames(comm))
 rownames(comm) <- gsub("\\_", "", rownames(comm))
 ```
 
-Before moving forward, we need to do some additonal clean-up of the `comm` dataframe. 
+Before moving forward, we need to do some additional clean-up of the `comm` dataframe. 
 First, we'll remove sites that are not contained in the `env` dataframe. 
 Second, because we removed the RNA samples, there are likely to be some OTUs that are not found in the DNA samples. 
 So, we'll remove any zero-abundance taxa (i.e., empty columns). 
@@ -264,7 +264,7 @@ In the following sections, we will introduce a few ways to calculate $\alpha$-ph
 
 In 1992, Daniel Faith developed a diversity metric called Faith's PD (http://goo.gl/wM08Oy).
 The metric sums the branch lengths for each species found in a sample from the root to the tip of the phylogenetic tree.
-It is important to note that PD, as implemented here, is based on the presence-absence of an OTU; that is, it does not weight the branches of common species more than the brances of rare species.
+It is important to note that PD, as implemented here, is based on the presence-absence of an OTU; that is, it does not weight the branches of common species more than the branches of rare species.
 Higher PD values indicate that an assemblage contains more evolutionarily divergent taxa, while lower PD values indicate that an assemblage contains taxa with a more restricted evolutionary history.
 
 Faith's PD can be implemented in R using the `pd()` function in the `picante` package. 
@@ -299,11 +299,11 @@ legend("topleft", legend=paste("Scaling exponent = ", exponent, sep = ""),
 
 #### i.  Randomizations and Null Models
 
-In order to draw strong conclusions about the phylogenetic diversity of a sample, it is usefuly to know something about how variable our metric is under null conditions. 
+In order to draw strong conclusions about the phylogenetic diversity of a sample, it is useful to know something about how variable our metric is under null conditions. 
 Randomization is powerful way to resample data to assess whether or not observed patterns are different from a null expectation. 
 A number of the functions in the `picante` package allow us to specify different null models as an argument. 
-These null models can control for features such as species richness, species occurrence frequencey, and the diversity of the regional species pool. 
-We will use some of these models for assesing the degree to which phylogenetic measures of $\alpha$ phylodiversity deviate from null expecations. 
+These null models can control for features such as species richness, species occurrence frequency, and the diversity of the regional species pool. 
+We will use some of these models for assessing the degree to which phylogenetic measures of $\alpha$ phylodiversity deviate from null expectations. 
 The following table describes some of the null models that are available to us when using `picante`:
 
 \begin{center}
@@ -319,7 +319,7 @@ The following table describes some of the null models that are available to us w
   Randomizes community data matrix abundances within samples (maintains sample species richness) \\
   \\ [-1.5ex]  
   \textbf{frequency} & 
-  Randomizes community data matrix abundances within species (maintains species occurence frequency) \\
+  Randomizes community data matrix abundances within species (maintains species occurrence frequency) \\
   \\ [-1.5ex]   
   \textbf{sample.pool} & 
   Randomizes community data matrix by drawing species from pool of species occurring in at least one community (sample pool) with equal probability \\
@@ -340,8 +340,8 @@ The following table describes some of the null models that are available to us w
 Now, we are going to use the `ses.pd()` function in `picante`.
 This function estimates the standardized effect size ("ses") using the following equation: `ses.pd` = (`pd.obs` - `pd.rand.mean`) / `pd.rand.sd`, where `pd.obs` is the observed PD, `pd.rand.mean` is the mean of the PD values generated via randomization under a null model, and `pd.rand.sd` is the standard deviation of the PD values generated via randomization under a null model (see table above). 
 When the observed value is greater than the null expectation (i.e., ses.pd > 0), our sample is more phylogenetically diverse than expected under the null distribution.
-Given the size of both our site-by-species matrix and the phylogenetic tree, the randomizaiton process is computationally intensive. 
-Therfore, we are only going to run the `ses.pd` function for two ponds with a limited number of randomizations (i.e., "runs" argument).
+Given the size of both our site-by-species matrix and the phylogenetic tree, the randomization process is computationally intensive. 
+Therefore, we are only going to run the `ses.pd` function for two ponds with a limited number of randomizations (i.e., "runs" argument).
 
 ```{r}
 # Estimate standardized effect size of PD via randomization (`picante`)
@@ -378,9 +378,9 @@ NRI is based on the mean phylogenetic distance (MPD), which is calculated as the
 After calculating MPD, the NRI is expressed as: - (`mpd.obs` - `mpd.rand.mean`) / `mpd.rand.sd`, where `mpd.obs` is the observed MPD of a sample, `mpd.rand.mean` is the mean of the MPD values generated via randomization under a null model, and `mpd.rand.sd` is the standard deviation of the MPD values generated via randomization under a null model. 
 
 Negative NRI values indicate that a sample is phylogenetically overdispersed; that is, taxa are less related to one another than expected under the null model.
-Positive NRI values indicate that a sample is phylogentically underdispersed, or clustered, such that taxa are more closely related to one another than expected under the null model. 
+Positive NRI values indicate that a sample is phylogenetically underdispersed, or clustered, such that taxa are more closely related to one another than expected under the null model. 
 
-As with Faith's PD, the randomization procedures are computationally intensive, so we are only going to peform a relatively small number of "runs".
+As with Faith's PD, the randomization procedures are computationally intensive, so we are only going to perform a relatively small number of "runs".
 
 ```{r}
 # Estimate standardized effect size of NRI via randomization (`picante`) 
@@ -400,7 +400,7 @@ This index is mathematically similar to NRI, but uses the mean nearest phylogene
 MNND is the mean phylogenetic distance between all taxa in a sample and their phylogenetically closest neighbor.
 Effectively, this is the sum of the minimum values for each row or column (i.e., taxon) of the square, non-triangular, phylogenetic resemblance matrix.
 Because only the most closely related taxa are considered, NTI tends to emphasize terminal clustering (i.e., near the tips), independent of deep level clustering (Webb et al. 2002; http://goo.gl/WikgWE).
-Just like NRI, we peform randomizations and use this information to estimate the standardized effect size. 
+Just like NRI, we perform randomizations and use this information to estimate the standardized effect size. 
 The NTI is then calculated as -(`mntd.obs` - `mntd.mean`)/`mntd.sd`. 
 Negative NTI values indicate phylogenetic overdispersion (because nearest taxa are more distantly related than expected) and positive NTI values indicate phylogenetic clustering (because nearest taxa are more closely related than expected). 
 
@@ -417,14 +417,14 @@ colnames(NTI) <- "NTI"
 
 ## 5) PHYLOGENETIC BETA DIVERSITY 
 
-In the $\beta$-diversity module earlier this semester, we learned about approaches to quantify how diversity changes among sites and how to link this to underlying enviromental gradients. 
-Here, we will expand upon the concepts of taxonomic $\beta$-diversity by incoroporating phylogenetic information. 
-By doing so, we can gain insight into landscape patterns of biodiveristy and the eco-evolutionary processes that may be shaping them. 
+In the $\beta$-diversity module earlier this semester, we learned about approaches to quantify how diversity changes among sites and how to link this to underlying environmental gradients. 
+Here, we will expand upon the concepts of taxonomic $\beta$-diversity by incorporating phylogenetic information. 
+By doing so, we can gain insight into landscape patterns of biodiversity and the eco-evolutionary processes that may be shaping them. 
 
 ### A. Phylogenetically Based Community Resemblance Matrix
 
 Recall that a resemblance matrix is needed to quantify $\beta$-diversity for more than two samples. 
-When quantifying taxonomic $\beta$-diversity, we calculated the pairwise **similarity** or **dissimiliarity** for all samples in a site-by-species matrix using metrics such as the Sørensen index or the Bray-Curtis index. 
+When quantifying taxonomic $\beta$-diversity, we calculated the pairwise **similarity** or **dissimilarity** for all samples in a site-by-species matrix using metrics such as the Sørensen index or the Bray-Curtis index. 
 We need a similar process for quantifying phylogenetic dissimilarity between sites.
 Instead of making the resemblance matrix based on incidence or abundance of taxa, we are going to incorporate information about the phylogenetic relationships among taxa. 
 Similar to other measures of $\beta$-diversity, there are numerous ways to calculate the phylogenetic distances in the community resemblance matrix.
@@ -536,10 +536,10 @@ adonis(
 #### ii. Continuous Designs  
 
 In the Spatial Diversity module of Quantitative Biodiversity, we demonstrated that there was substantial variation in environmental variables that are known to influence the structure and function of microbial communities.
-In the following section, we will revist two methods that are used to test for relationships among multivariate environmental and biological data. 
+In the following section, we will revisit two methods that are used to test for relationships among multivariate environmental and biological data. 
 
 Before we do so, we need to define the environmental variables from the pond dataset so that we can create an environmental distance matrix. 
-Some of the enviromental variables are almost perfectly correlated with one another since they are derived from the same information collected by a suite of field probes. 
+Some of the environmental variables are almost perfectly correlated with one another since they are derived from the same information collected by a suite of field probes. 
 We will remove some of these variables (TDS, Salinity, and Cal_Volume) so as not to overfit the model. 
 
 ```{r}
@@ -560,14 +560,14 @@ First, let's conduct a Mantel test to examine the potential correlation between 
 mantel(dist.uf, env.dist) 
 ```
 
-Second, let's conduct a distance-based Redundance Analysis (dbRDA). 
+Second, let's conduct a distance-based Redundancy Analysis (dbRDA). 
 You will recall that this constrained ordination technique allows one to test for the effects of an explanatory matrix (e.g., environmental data) on a response matrix (e.g., phylogenetic distance matrix). 
 
 ```{r, results = 'hide'}
 # Conduct dbRDA (`vegan`)
 ponds.dbrda <- vegan::dbrda(dist.uf ~ ., data = as.data.frame(scale(envs)))
 
-# Permutation tests: axes and enviromental variables
+# Permutation tests: axes and environmental variables
 anova(ponds.dbrda, by = "axis")
 ponds.fit <- envfit(ponds.dbrda, envs, perm = 999)
 ponds.fit
@@ -617,7 +617,7 @@ axis(side = 4, lwd.ticks = 2, cex.axis = 1.2, las = 1, col = "red", lwd = 2.2,
 
 In the Spatial Diversity module, you learned that taxonomic diversity can be affected by geography for different reasons (e.g., dispersal and environmental conditions). 
 For example, while population densities are often aggregated due to the spatial distribution of environmental variables, aggregated patterns of diversity can also arise from dispersal limitation and the stochastic distribution of individuals and species across space.
-You learned that factors such as these can lead to spatial autocorrelation in patterns of diversity, i.e., the tendency for near things to be more similar than distant things.
+You learned that factors such as these could lead to spatial autocorrelation in patterns of diversity, i.e., the tendency for near things to be more similar than distant things.
 Knowing whether your data is spatially autocorrelated is central to understanding the forces influencing diversity and to knowing the spatial scale at which comparisons should be made.
 You were also introduced to two primary spatial patterns of taxonomic diversity, i.e., the distance decay (DD) relationship and the species-area relationship (SAR).
 
@@ -692,7 +692,7 @@ mtext("Geographic Distance (km)", side = 1, adj = 0.55,
       line = 0.5, outer = TRUE)
 ```
 
-Finally, let's test whether the slopes for taxonomic and phylogenetic DD are significantly different from one another using the permuation-based `diffslope()` function in the `simba` package:
+Finally, let's test whether the slopes for taxonomic and phylogenetic DD are significantly different from one another using the permutation-based `diffslope()` function in the `simba` package:
 
 ```{r, results = 'hide'}
 diffslope(df$geo.dist, df$unifrac, df$geo.dist, df$bray.curtis)
@@ -860,7 +860,7 @@ plot(pdar[, 1], pdar[, 2], xlab = "Area", ylab = "PSV", ylim = c(0, 1),
      col = "red", pch = 16, las = 1)
 
 legend("topleft", legend= c(paste("Spearman Correlation = ", rho, "; p = ", rho.pval, sep = ""),
-                            paste("Pearson Correlation = ", P, "; p = ", P.val, sep = "")),
+                            paste("Pearson Correlation = ", P, "; p = ", P.pval, sep = "")),
                             bty = "n", col = "red") 
 ```
 
@@ -896,7 +896,7 @@ Lomolino, M. V., Riddle, B. R., and J. H. Brown. 2006. Biogeography. 3rd Edition
 
 Mayfield, M. M., and J. M. Levine. 2010. Opposing effects of competitive exclusion on the phylogenetic structure of communities. Ecology Letters 13:1085-1093.
 
-Miklós, I., and J. Podani. 2004. Randomization of presence-absence matrics: comments and new algorithms. Ecology 85:86-92.
+Miklós, I., and J. Podani. 2004. Randomization of presence-absence matrices: comments and new algorithms. Ecology 85:86-92.
 
 Morlon, H., D. W. Schwilk, J. A. Bryant, P. A. Marquet, A. G. Rebelo, C. Tauss, B. J. M. Bohannan et al. 2011. Spatial patterns of phylogenetic diversity. Ecology Letters 14:141-149.
 
