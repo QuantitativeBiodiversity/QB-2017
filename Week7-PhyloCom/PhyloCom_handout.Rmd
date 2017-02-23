@@ -25,7 +25,7 @@ After completing this exercise you will know how to:
 
 Phylogenetic insight has played a key role in the historical development of community ecology.
 Darwin (1859) observed that closely related species (e.g., species in the same genus) are more ecologically similar than distantly related species.
-This observation led him to the identification of a paradox. 
+This observation led to the identification of a paradox. 
 On the one hand, in order for a species to successfully invade a community it must be sufficiently *related* to resident taxa and thereby share ecologically relevant traits that allow it to contend with local conditions (e.g., pH). 
 On the other hand, the species must be sufficiently *unrelated* to resident taxa and thereby possess some unique traits so that it can exploit unoccupied niches (Diez et al. 2008).
 These concepts are reflected in the contemporary views of community ecology.
