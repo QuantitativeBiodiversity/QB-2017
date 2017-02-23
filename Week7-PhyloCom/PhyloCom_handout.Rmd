@@ -850,16 +850,44 @@ legend("topleft", legend= c(paste("Spearman Correlation = ", S, "; p = ", Sp, se
                             bty = "n", col = "red") 
 ```
 
-## 7) CONCLUSIONS
-
-**THE FOLLOWING IS A COMBINATION OF CAVEATS AND FURTHER INSTRUCTION. NOT REALLY CONCLUSION MATERIAL.**
-
-Phylogenetic relationships can be informative for understanding certain aspects of community ecology.
-However, interpretations of phylogenetic patterns, just like taxonomic patterns, are dependent on spatial and temporal scale (Emerson and Gillespie 2008).
-For example, at the local scale, species may show phylogenetic overdispersion (i.e., local communities are more phylogenetically different than expected by chance alone), but at the regional scale they may appear clumped (i.e., species are more similar than expected by chance alone). 
-Thus, there may be ecological selection for species differences acting at the local scale, but regional variability in phylogenetic relatedness when comparing local species composition to other sites. 
-Another important assumption that many of these analyses make is that species show niche conservatism, that is, species niches remain relatively fixed through time (Wiens and Graham 2005, Wiens et al. 2010). 
-The assumption of niche conservatism allows us to ...
-If niches are not conserved, ...
 
 ## 8) REFERENCES
+Adler, P. B., J. HilleRislambers, and J. M. Levine. 2007. A niche for neutrality. Ecology Letters 10:95-104.
+
+Cadotte, M. W., and T. J. Davies. 2016. Phylogenies in Ecology: A Guide to Concepts and Methods, Princeton University Press.
+
+Cavender-Bares, J., K. H. Kozak, P. V. A. Fine, and S. W. Kembel. 2009. The merging of community ecology and phylogenetic biology. Ecology Letters 12:693-715.
+
+Chao, A., C.-H. Chiu, and L. Jost. 2014. Unifying species diversity, phylogenetic diversity, functional diversity, and related similarity and differentiation measures through Hill numbers. Annual Review of Ecology, Evolution, and Systematics 45:297-324.
+
+Darwin, C. 1859, On the origin of species by means of natural selection. London, John Murray.
+
+Diez, J. M., J. J. Sullivan, P. E. Hulme, G. Edwards, and R. P. Duncan. 2008. Darwin’s naturalization conundrum: dissecting taxonomic patterns of species invasions. Ecology Letters 11:674-681.
+
+Faith, D. P. 1992. Conservation evaluation and phylogenetic diversity. Biological Conservation 61:1-10.
+
+Gotelli, N. J. 2000. Null model analysis of species co-occurrence patterns. Ecology 81:2606-2621.
+
+Graham, C. H., and P. V. A. Fine. 2008. Phylogenetic beta diversity: linking ecological and evolutionary processes across space in time. Ecology Letters 11:1265-1277.
+
+Helmus, M. R., and A. R. Ives. 2012. Phylogenetic diversity–area curves. Ecology 93:S31-S43.
+
+HilleRisLambers, J., P. B. Adler, W. S. Harpole, J. M. Levine, and M. M. Mayfield. 2012. Rethinking community assembly through the lens of coexistence theory. Annual Review of Ecology, Evolution, and Systematics 43:227-248.
+
+Ives, A. R., and M. R. Helmus. 2010. Phylogenetic metrics of community similarity. The American Naturalist 176:E128-E142.
+
+Leibold, M. A., and M. A. McPeek. 2006. Coexistence of the niche and neutral perspectives in community ecology. Ecology 87:1399-1410.
+
+Mayfield, M. M., and J. M. Levine. 2010. Opposing effects of competitive exclusion on the phylogenetic structure of communities. Ecology Letters 13:1085-1093.
+
+Miklós, I., and J. Podani. 2004. Randomization of presence-absence matrics: comments and new algorithms. Ecology 85:86-92.
+
+Morlon, H., D. W. Schwilk, J. A. Bryant, P. A. Marquet, A. G. Rebelo, C. Tauss, B. J. M. Bohannan et al. 2011. Spatial patterns of phylogenetic diversity. Ecology Letters 14:141-149.
+
+Mouquet, N., V. Devictor, C. N. Meynard, F. Munoz, L.-F. Bersier, J. Chave, P. Couteron et al. 2012. Ecophylogenetics: advances and perspectives. Biological Reviews 87:769-785.
+
+Pavoine, S. 2016. A guide through a family of phylogenetic dissimilarity measures among sites. Oikos 125:1719-1732.
+
+Swenson, N. G. 2014, Functional and Phylogenetic Ecology in R, Springer.
+
+Tucker, C. M., M. W. Cadotte, S. B. Carvalho, T. J. Davies, S. Ferrier, S. A. Fritz, R. Grenyer et al. 2016. A guide to phylogenetic metrics for conservation, community ecology and macroecology. Biological Reviews:n/a-n/a.
