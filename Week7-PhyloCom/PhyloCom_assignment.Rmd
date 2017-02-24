@@ -54,18 +54,20 @@ In the R code chunk below, provide the code to:
 ```
 
 ## 2) DESCRIPTION OF DATA
+
 We will revisit the data that was used in the Spatial Diversity module. 
 As a reminder, in 2013 we sampled ~ 50 forested ponds located in Brown County State Park, Yellowwood State Park, and Hoosier National Forest in southern Indiana. 
 See the handout for a further description of this week's dataset.
 
 ## 3) LOAD THE DATA
+
 In the R code chunk below, do the following:  
 1. load the environmental data for the Brown County ponds (*20130801_PondDataMod.csv*),  
 2. load the site-by-species matrix using the `read.otu()` function,  
 3. subset the data to include only DNA-based identifications of bacteria,  
 4. rename the sites by removing extra characters,  
 5. remove unnecessary OTUs in the site-by-species, and   
-6. load the taxonomic data using the `read.tax()` function.
+6. load the taxonomic data using the `read.tax()` function from the source-code file.
 
 ```{r}
 
@@ -78,12 +80,12 @@ In the R code chunk below, do the following:
 ```
 
 Next, in the R code chunk below, do the following:  
-1. load the FASTA alignment for the OTUs,  
+1. load the FASTA alignment for the bacterial operational taxonomic units (OTUs),  
 2. rename the OTUs by removing everything before the tab (\\t) and after the bar (|),  
 3. import the *Methanosarcina* outgroup FASTA file,  
 4. convert both FASTA files into the DNAbin format and combine using `rbind()`,  
 5. visualize the sequence alignment,  
-6. using the alignment (with outgroup), pick a DNA substitution model and create a distance matrix,  
+6. using the alignment (with outgroup), pick a DNA substitution model, and create a phylogenetic distance matrix,  
 7. using the distance matrix above, make a neighbor joining tree,  
 8. remove any tips (OTUs) that are not in the community data set,  
 9. plot the rooted tree.
@@ -125,13 +127,15 @@ In the R code chunk below, do the following:
 ```
 
 ***Question 1***: Answer the following questions about the PD-S pattern.    
-a.  Describe the relationship between taxonomic richness and phylodiversity?  
-b.  Based on what you know about how PD is calculated, why should they be correlated?  
-c.  When would you expect these two estimates of diversity to deviate from one another?  
+a.  Based on how PD is calculated, why should this metric be related to taxonmic richness? 
+b.  Describe the relationship between taxonomic richness and phylodiversity.
+c.  When would you expect these two estimates of diversity to deviate from one another? 
+d.  Interpret the significance of the scaling PD-S scaling exponent.
 
 > ***Answer 1a***:  
 > ***Answer 1b***:  
 > ***Answer 1c***:  
+> ***Answer 1d***: 
 
 **i. Randomizations and Null Models**  
 
@@ -148,7 +152,7 @@ In the R code chunk below, do the following:
 ***Question 2***: Using `help()` and the table above, run the `ses.pd()` function using two other null models and answer the following questions:
 
 a.  What are the null and alternative hypotheses you are testing via randomization when calculating `ses.pd`?
-b.  How did your choice of null model influence your observed ses.pd values? Briefly, explain why this happens. 
+b.  How did your choice of null model influence your observed ses.pd values?  Explain why this choice affected or did not affect the output. 
 
 > ***Answer 2a***:  
 > ***Answer 2b***:  
@@ -220,7 +224,7 @@ In the R code chunk below, do the following:
 ```
 
 In the R code chunk below, do the following:  
-1. plot mean pair distance versus UniFrac distance and compare.
+1. plot Mean Pair Distance versus UniFrac distance and compare.
 
 ```{r}
 
@@ -235,7 +239,7 @@ In the R code chunk below, do the following:
 a. In your own words describe Mean Pair Distance, UniFrac distance, and the difference between them.
 b. Using the plot above, describe the relationship between Mean Pair Distance and UniFrac distance. 
 Note: we are calculating unweighted phylogenetic distances (similar to incidence based measures).
-That means that we are not taking into account the abundance of each taxa in each site.
+That means that we are not taking into account the abundance of each taxon in each site.
 c. Why might MPD show less variation than UniFrac?
 
 > ***Answer 4a***: 
@@ -244,7 +248,7 @@ c. Why might MPD show less variation than UniFrac?
 
 
 ### B. Visualizing Phylogenetic Beta-Diversity
-Now that we have our phylogenetically based community resemblance matrix, we can visualize phylogenetic diversity among samples using the same techniques that we used in the $\beta$-diversity module.
+Now that we have our phylogenetically based community resemblance matrix, we can visualize phylogenetic diversity among samples using the same techniques that we used in the $\beta$-diversity module from earlier in the course.
 
 In the R code chunk below, do the following:  
 1. perform a PCoA based on the UniFrac distances, and  
@@ -262,7 +266,7 @@ In the R code chunk below, do the following:
 Now that we have calculated our PCoA, we can plot the results.
 
 In the R code chunk below, do the following:  
-1. plot the PCoA results,  
+1. plot the PCoA results using either the R base package or the `ggplot` package,  
 2. include the appropriate axes,   
 3. add and label the points, and    
 4. customize the plot. 
@@ -286,7 +290,7 @@ In the following R code chunk:
 1. perform another PCoA on taxonomic data using an appropriate measure of dissimilarity, and
 2. calculate the explained variation on the first three PCoA axes. 
 
-***Question 5***: Using a combination of visualization tools and percent variation explained, how does the phylogenetically based ordination compare or contrast with the taxonomic ordination? 
+***Question 5***: Using a combination of visualization tools and percent variation explained, how does the phylogenetically based ordination compare or contrast with the taxonomic ordination? What does this tell you about the importance of phylogenetic information in this system?
 
 > ***Answer 5***: 
 
@@ -326,7 +330,7 @@ In the R code chunk below, do the following:
 
 ```
 
-Last, let's conduct a distance-based Redundancy Analysis (dbRDA). 
+Last, conduct a distance-based Redundancy Analysis (dbRDA). 
 
 In the R code chunk below, do the following:  
 1. conduct a dbRDA to test the hypothesis that environmental variation effects the phylogenetic diversity of bacterial communities,  
@@ -354,7 +358,7 @@ In the R code chunk below, do the following:
 
 ### A. Phylogenetic Distance-Decay (PDD)
 
-First, we will calculate distances for geographic data, taxonomic data, and phylogenetic data among all unique pair-wise combinations of ponds.
+First, calculate distances for geographic data, taxonomic data, and phylogenetic data among all unique pair-wise combinations of ponds.
 
 In the R code chunk below, do the following:  
 1. calculate the geographic distances among ponds,  
@@ -392,8 +396,7 @@ In the R code chunk below, do the following:
 
 ```
 
-In the R code chunk below, do the following:  
-1. test if the trend lines in the above distance decay relationships are different from one another.
+In the R code chunk below, test if the trend lines in the above distance decay relationships are different from one another.
 
 ```{r}
 
@@ -410,8 +413,7 @@ In the R code chunk below, do the following:
 
 **i. Constructing the PDAR**
 
-In the R code chunk below, do the following:  
-1. write a function to generate the PDAR.
+In the R code chunk below, write a function to generate the PDAR.
 
 ```{r}
 
@@ -450,4 +452,5 @@ How might you explain the differences between the taxonomic (SAR) and phylogenet
 > ***Answer 8***: 
 
 ## SYNTHESIS
-Ignoring technical or methodological constraints, discuss how phylogenetic information could be useful in your own research. Specifically, what kinds of phylogenetic data would you need? How could you use it to answer important questions in your field. In your response, feel free to consider not only phylogenetic approaches related to phylogenetic community ecology, but also those we discussed last week, or any other concepts that we have not covered in this course.
+
+Ignoring technical or methodological constraints, discuss how phylogenetic information could be useful in your own research. Specifically, what kinds of phylogenetic data would you need? How could you use it to answer important questions in your field? In your response, feel free to consider not only phylogenetic approaches related to phylogenetic community ecology, but also those we discussed last week in the PhyloTraits module, or any other concepts that we have not covered in this course.
