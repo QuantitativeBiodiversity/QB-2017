@@ -1,0 +1,51 @@
+---
+title: "Add title of your project"
+author: "Add names of team members, Quantitative Biodiversity, Indiana University"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: pdf_document
+geometry: margin=2.54cm
+---
+
+## Directions:
+1. Change "Add title of your project" on line 2 (above) to the name of your project.
+2. Change "Add names of team members" on line 3 (above) to the names of team members in your project.
+3. Write a <250 word Abstract describing your team's research.
+4. Write a 1-2 paragraph Introduction providing some background and context for your project.
+5. Set up your working enviroment (set directory, load packages) using the `/Week8-Projects` folder. 
+6. Provide a brief (~1 paragraph) description of the dataset.
+7. Load the dataset and process in ways necessary for any initial analyses.
+8. Use well annotated R chunks to analyze data, make figures, and peform statistics needed to address your quesstions and hypotheses. 
+9. Write a Discussion and Conclusion section to address the questions and hypotheses that you outlined in you outlined in your Abstract and Introuction.
+10. Include citations in the Reference section.
+11. Delete the text in this Directions section.
+12. By Thursday March 9, 23:59, please submit the completed assignment by creating a **pull request** via GitHub. Your pull request should include this file *Project_assignment.Rmd* and the PDF output of `Knitr` (*Project_assignment.pdf*). 
+
+## ABSTRACT
+
+## 1) INTRODUCTION
+
+## 2) SETUP
+
+```{r}
+
+```
+
+## 3) DESCRIPTION OF DATA
+
+## 4) LOAD THE DATA
+
+```{r}
+
+
+```
+
+## 5) ANALYSIS: FIGURES AND STATISTICS
+
+```{r}
+
+
+```
+
+## 6) DISCUSSION AND CONCLUSION
+
+## 7) REFERENCES
